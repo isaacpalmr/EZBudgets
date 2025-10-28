@@ -109,70 +109,14 @@ if ($conn->connect_error) {
                         </tr>
                     </thead>
                     <tbody>
-    <tr>
-        <td class="type">PI</td>
-        <td><input class="staff-id" type="number"></td>
-        <td class="name">Billy Bob</td>
-        <td class="rate">$0</td>
-        <td><input class="hours" type="number" value="0" min="0"></td>
-    </tr>
-</tbody>
-
-<script>
-const piTableBody = document.querySelector('#pi_table tbody');
-const addRowButton = document.getElementById("addco-pi");
-
-// Function to attach Staff ID lookup listener to a row
-function attachStaffIdListener(row) {
-    const staffInput = row.querySelector(".staff-id");
-    staffInput.addEventListener("input", () => {
-        const staffId = staffInput.value;
-        if (staffId !== "") {
-            fetch(`get_employee.php?staff_id=${staffId}`)
-                .then(response => response.json())
-                .then(data => {
-                    row.querySelector(".name").textContent = data.name || "Unknown";
-                    row.querySelector(".rate").textContent = "$" + (data.hourly_rate || 0);
-                });
-        } else {
-            row.querySelector(".name").textContent = "Billy Bob";
-            row.querySelector(".rate").textContent = "$0";
-        }
-    });
-}
-
-// Attach listener to initial row
-attachStaffIdListener(piTableBody.querySelector("tr"));
-
-// Add co-PI row dynamically
-addRowButton.addEventListener("click", () => {
-    const newRow = document.createElement("tr");
-    newRow.innerHTML = `
-        <td class="type">co-PI</td>
-        <td><input class="staff-id" type="number"></td>
-        <td class="name">Billy Bob</td>
-        <td class="rate">$0</td>
-        <td><input class="hours" type="number" value="0" min="0"></td>
-        <td>
-            <button class="removeco-pi" style="background-color: rgb(255, 82, 82); border-width: 1px;">
-                <img src="Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png"
-                width="24" height="24">
-            </button>
-        </td>
-    `;
-    piTableBody.appendChild(newRow);
-    attachStaffIdListener(newRow);
-});
-
-// Remove co-PI row
-piTableBody.addEventListener("click", (event) => {
-    const button = event.target.closest(".removeco-pi");
-    if (button) {
-        const row = button.closest("tr");
-        if (row) row.remove();
-    }
-});
-</script>
+                        <tr>
+                            <td class="type">PI</td>
+                            <td><input class="staff-id" type="number"></td>
+                            <td class="name">Unknown</td>
+                            <td class="rate">$0</td>
+                            <td><input class="hours" type="number" value="0" min="0"></td>
+                        </tr>
+                    </tbody>
                 </table>
 
                 <button id="addco-pi" style="background-color: rgb(1, 255, 136); border-width: 1px; margin-top: 20px;">
@@ -221,8 +165,8 @@ piTableBody.addEventListener("click", (event) => {
             piTableBody.innerHTML += `
                 <tr>
                     <td class="type">co-PI</td>
-                    <td><input type="number"></td>
-                    <td class="name">Billy Bob</td>
+                    <td><input class="staff-id" type="number"></td>
+                    <td class="name">Unknown</td>
                     <td class="rate">$0</td>
                     <td><input class="hours" type="number" value="0" min="0"></td>
                     <td>
@@ -234,6 +178,26 @@ piTableBody.addEventListener("click", (event) => {
                 </tr>
             `
         })
+
+        // Auto update row information when Staff ID changes
+        document.addEventListener("input", (event) => {
+            const staffInput = event.target.closest(".staff-id"); 
+            const row = event.target.closest("tr")
+            if (!staffInput || !row) return;
+
+            const staffId = staffInput.value;
+            if (staffId !== "") {
+                fetch(`get_employee.php?staff_id=${staffId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        row.querySelector(".name").textContent = data.name || "Unknown";
+                        row.querySelector(".rate").textContent = "$" + (data.hourly_rate || 0);
+                    });
+            } else {
+                row.querySelector(".name").textContent = "Unknown";
+                row.querySelector(".rate").textContent = "$0";
+            }
+        });
 
         // Remove co-PI button
         document.addEventListener("click", (event) => {
