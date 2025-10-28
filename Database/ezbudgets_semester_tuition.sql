@@ -29,7 +29,7 @@ CREATE TABLE `semester_tuition` (
   `out_of_state_tuition` decimal(10,2) DEFAULT NULL,
   `fees` decimal(10,2) DEFAULT NULL,
   PRIMARY KEY (`semester_year`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --

@@ -30,7 +30,7 @@ CREATE TABLE `students` (
   `stipend_per_year` decimal(10,2) DEFAULT NULL,
   `residency` enum('In-State','Out-of-State') NOT NULL,
   PRIMARY KEY (`student_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --

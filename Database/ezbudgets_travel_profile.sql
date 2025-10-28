@@ -28,7 +28,7 @@ CREATE TABLE `travel_profile` (
   `max_lodging_days` int NOT NULL,
   `per_diem` decimal(10,2) NOT NULL,
   PRIMARY KEY (`travel_type`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
