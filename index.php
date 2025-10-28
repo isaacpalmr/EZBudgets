@@ -12,7 +12,8 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 ?>
-
+<!DOCTYPE html>
+<html>
 <head>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -281,3 +282,4 @@ if ($conn->connect_error) {
         })
     </script>
 </body>
+</html>
