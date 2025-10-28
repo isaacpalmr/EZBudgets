@@ -72,7 +72,7 @@
     </header>
 
     <main>
-        <div id="title">
+        <div id="budgettitle">
             <label>Budget Title:</label>
             <input type="text">
         </div>
@@ -94,11 +94,11 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td>PI</td>
+                            <td class="type">PI</td>
                             <td><input type="number"></td>
                             <td>Billy Bob</td>
-                            <td>0</td>
-                            <td><input type="number" value="0" min="0"></td>
+                            <td class="rate">$0</td>
+                            <td><input class="hours" type="number" value="0" min="0"></td>
                         </tr>
                     </tbody>
                 </table>
@@ -108,7 +108,7 @@
                     width="24" height="24">
                 </button>
             </div>
-            <div id="5yearcalculation">
+            <div id="fiveyearcalculation">
                 <table>
                     <caption>
                         5 year cost
@@ -124,11 +124,11 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td>1</td>
-                            <td>1</td>
-                            <td>1</td>
-                            <td>1</td>
-                            <td>1</td>
+                            <td>$0</td>
+                            <td>$0</td>
+                            <td>$0</td>
+                            <td>$0</td>
+                            <td>$0</td>
                         </tr>
                     </tbody>
                 </table>
@@ -140,18 +140,19 @@
         </div>
     </main>
 
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script>
         // Add co-PI button
-        const tableBody = document.querySelector('#pi_table tbody')
+        const piTableBody = document.querySelector('#pi_table tbody');
         const addRowButton = document.getElementById("addco-pi")
         addRowButton.addEventListener("click", () => {
-            tableBody.innerHTML += `
+            piTableBody.innerHTML += `
                 <tr>
-                    <td>co-PI</td>
+                    <td class="type">co-PI</td>
                     <td><input type="number"></td>
-                    <td>Billy Bob</td>
-                    <td>0</td>
-                    <td><input type="number" value="0" min="0"></td>
+                    <td class="name">Billy Bob</td>
+                    <td class="rate">$0</td>
+                    <td><input class="hours" type="number" value="0" min="0"></td>
                     <td>
                         <button class="removeco-pi" style="background-color: rgb(255, 82, 82); border-width: 1px;">
                             <img src="Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png"
@@ -172,9 +173,42 @@
         });
 
         // Download spreadsheet
-        const downloadButton = document.getElementById("downloadspreadsheet")
+        const yearCostsTableBody = document.querySelector("#fiveyearcalculation tbody");
+        const budgetTitle = document.querySelector("#budgettitle input")
+        const downloadButton = document.getElementById("downloadspreadsheet");
+
         downloadButton.addEventListener("click", () => {
+            const data = [
+                ["", "", "Hourly rate at start date", "Year 1",  "Year 2", "Year 3", "Year 4", "Year 5"], // Header row
+                ["Principle Investigators", "Year 1 hours"],
+            ];
+
+            // Add pi costs
+            piTableBody.querySelectorAll("tr").forEach(row => {
+                const type = row.querySelector(".type").textContent;
+                const hourlyRate = Number(row.querySelector(".rate").textContent.replace(/[$, ]+/g, ''));
+                const hoursWorked = Number(row.querySelector(".hours").value);
+                
+                const yearlyWages = '$' + hoursWorked*hourlyRate
+
+                data.push([type, hoursWorked, '$' + hourlyRate, yearlyWages, yearlyWages, yearlyWages, yearlyWages, yearlyWages]);
+            })
+
+            const worksheet = XLSX.utils.aoa_to_sheet(data);
             
+            // GENERATED //
+            // Auto-size columns based on text length (approximation)
+            const colWidths = data[0].map((_, colIdx) => {
+            const maxLen = Math.max(...data.map(row => String(row[colIdx] ?? "").length));
+            return { wch: maxLen + 2 }; // width in characters
+            });
+            worksheet["!cols"] = colWidths;
+            // GENERATED //
+
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Budget");
+
+            XLSX.writeFile(workbook, budgetTitle.value + (budgetTitle.value !== "" ? "_" : "")  + "EZBudgets.xlsx")
         })
     </script>
 </body>
