@@ -1,7 +1,23 @@
+<?php
+$servername = "localhost";
+$username = "root";   // default in XAMPP
+$password = "";       // default is empty
+$dbname = "ezbudgets";
+
+// Connect to database
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+?>
+
 <head>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+
 
     <title>
         EZBudgets
@@ -93,14 +109,70 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td class="type">PI</td>
-                            <td><input type="number"></td>
-                            <td>Billy Bob</td>
-                            <td class="rate">$0</td>
-                            <td><input class="hours" type="number" value="0" min="0"></td>
-                        </tr>
-                    </tbody>
+    <tr>
+        <td class="type">PI</td>
+        <td><input class="staff-id" type="number"></td>
+        <td class="name">Billy Bob</td>
+        <td class="rate">$0</td>
+        <td><input class="hours" type="number" value="0" min="0"></td>
+    </tr>
+</tbody>
+
+<script>
+const piTableBody = document.querySelector('#pi_table tbody');
+const addRowButton = document.getElementById("addco-pi");
+
+// Function to attach Staff ID lookup listener to a row
+function attachStaffIdListener(row) {
+    const staffInput = row.querySelector(".staff-id");
+    staffInput.addEventListener("input", () => {
+        const staffId = staffInput.value;
+        if (staffId !== "") {
+            fetch(`get_employee.php?staff_id=${staffId}`)
+                .then(response => response.json())
+                .then(data => {
+                    row.querySelector(".name").textContent = data.name || "Unknown";
+                    row.querySelector(".rate").textContent = "$" + (data.hourly_rate || 0);
+                });
+        } else {
+            row.querySelector(".name").textContent = "Billy Bob";
+            row.querySelector(".rate").textContent = "$0";
+        }
+    });
+}
+
+// Attach listener to initial row
+attachStaffIdListener(piTableBody.querySelector("tr"));
+
+// Add co-PI row dynamically
+addRowButton.addEventListener("click", () => {
+    const newRow = document.createElement("tr");
+    newRow.innerHTML = `
+        <td class="type">co-PI</td>
+        <td><input class="staff-id" type="number"></td>
+        <td class="name">Billy Bob</td>
+        <td class="rate">$0</td>
+        <td><input class="hours" type="number" value="0" min="0"></td>
+        <td>
+            <button class="removeco-pi" style="background-color: rgb(255, 82, 82); border-width: 1px;">
+                <img src="Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png"
+                width="24" height="24">
+            </button>
+        </td>
+    `;
+    piTableBody.appendChild(newRow);
+    attachStaffIdListener(newRow);
+});
+
+// Remove co-PI row
+piTableBody.addEventListener("click", (event) => {
+    const button = event.target.closest(".removeco-pi");
+    if (button) {
+        const row = button.closest("tr");
+        if (row) row.remove();
+    }
+});
+</script>
                 </table>
 
                 <button id="addco-pi" style="background-color: rgb(1, 255, 136); border-width: 1px; margin-top: 20px;">
