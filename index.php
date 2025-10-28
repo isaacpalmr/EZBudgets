@@ -181,7 +181,6 @@
             const data = [
                 ["", "", "Hourly rate at start date", "Year 1",  "Year 2", "Year 3", "Year 4", "Year 5"], // Header row
                 ["Principle Investigators", "Year 1 hours"],
-
             ];
 
             // Add pi costs
@@ -189,8 +188,10 @@
                 const type = row.querySelector(".type").textContent;
                 const hourlyRate = Number(row.querySelector(".rate").textContent.replace(/[$, ]+/g, ''));
                 const hoursWorked = Number(row.querySelector(".hours").value);
+                
+                const yearlyWages = '$' + hoursWorked*hourlyRate
 
-                data.push([type, hoursWorked, hourlyRate, '$' + hoursWorked*hourlyRate]);
+                data.push([type, hoursWorked, '$' + hourlyRate, yearlyWages, yearlyWages, yearlyWages, yearlyWages, yearlyWages]);
             })
 
             const worksheet = XLSX.utils.aoa_to_sheet(data);
