@@ -10,30 +10,33 @@
 
 
 <?php
-if (isset($_POST["register"])) {
-    $first = $_POST["first_name"];
-    $last = $_POST["last_name"];
-    $username = $_POST["username"];
-    $password = password_hash($_POST["password"], PASSWORD_DEFAULT);
+// if (isset($_POST["register"])) {
+//     $first = $_POST["first_name"];
+//     $last = $_POST["last_name"];
+//     $username = $_POST["username"];
+//     $password = password_hash($_POST["password"], PASSWORD_DEFAULT);
 
-    try {
-        $sql = "INSERT INTO users (first_name, last_name, username, password) 
-                VALUES ('$first', '$last', '$username', '$password')";
-        $conn->query($sql);
+//     try {
+//         $sql = "INSERT INTO users (first_name, last_name, username, password) 
+//                 VALUES ('$first', '$last', '$username', '$password')";
+//         $conn->query($sql);
 
-        echo "<p style='color:green;'>Registration successful. <a href='login.php'>Login now</a></p>";
+//         echo "<p style='color:green;'>Registration successful. <a href='login.php'>Login now</a></p>";
 
-    } catch (mysqli_sql_exception $e) {
+//     } catch (mysqli_sql_exception $e) {
 
 
-        if ($e->getCode() == 1062) {
-            echo "<p style='color:red;'>That username is already taken. Please choose another.</p>";
-        } else {
-            echo "<p style='color:red;'>Database error: " . $e->getMessage() . "</p>";
-        }
-    }
-}
+//         if ($e->getCode() == 1062) {
+//             echo "<p style='color:red;'>That username is already taken. Please choose another.</p>";
+//         } else {
+//             echo "<p style='color:red;'>Database error: " . $e->getMessage() . "</p>";
+//         }
+//     }
+// }
 ?>
 
+<script>
+window.location.href = "PI.php"
+</script>
 
 <p>Already a user? <a href="login.php">Login here</a>.</p>

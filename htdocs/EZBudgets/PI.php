@@ -19,6 +19,8 @@ if ($conn->connect_error) {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
 
+    <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
 
     <title>
         EZBudgets
@@ -67,6 +69,10 @@ if ($conn->connect_error) {
             margin: 50px 0px;
         }
 
+        #user_tables > * {
+            padding-bottom: 100px;
+        }
+
         main > * {
             margin: 20px 0px;
         }
@@ -95,36 +101,88 @@ if ($conn->connect_error) {
         </div>
         
         <div id="tables">
-            <div style="text-align: center;">
-                <table id="pi_table">
-                    <caption>
-                        Principle investigators
-                    </caption>
-                    <thead>
-                        <tr>
-                            <th>Type</th>
-                            <th>Staff ID</th>
-                            <th>Name</th>
-                            <th>Hourly rate at start date</th>
-                            <th>Year 1 hours</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td class="type">PI</td>
-                            <td><input class="staff-id" type="number"></td>
-                            <td class="name">Unknown</td>
-                            <td class="rate">$0</td>
-                            <td><input class="hours" type="number" value="0" min="0"></td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div id="user_tables" style="text-align: center;">
+                <div>
+                    <table id="pi_table">
+                        <caption>
+                            Principle investigators
+                        </caption>
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Name</th>
+                                <th>Title</th>
+                                <th>Hourly rate at start date</th>
+                                <th>Year 1 hours</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="type">PI</td>
+                                <td>
+                                    <select class="staff-picker" data-filter="pi">
+                                        <option value="">Select PI</option>
+                                    </select>
+                                </td>
+                                <td class="title">Unknown</td>
+                                <td class="rate">$0</td>
+                                <td><input class="hours" type="number" value="0" min="0"></td>
+                            </tr>
+                        </tbody>
+                    </table>
 
-                <button id="addco-pi" style="background-color: rgb(1, 255, 136); border-width: 1px; margin-top: 20px;">
-                    <img src="Images/add_circle_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png"
-                    width="24" height="24">
-                </button>
+                    <button class="add_row" style="background-color: rgb(1, 255, 136); border-width: 1px; margin-top: 20px;">
+                        <img src="Images/add_circle_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png"
+                        width="24" height="24">
+                    </button>
+                </div>
+                
+                <div>
+                    <table id="ui_professional_staff_table">
+                        <caption>
+                            UI professional staff
+                        </caption>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Title</th>
+                                <th>Hourly rate at start date</th>
+                                <th>Year 1 hours</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+
+                    <button class="add_row" style="background-color: rgb(1, 255, 136); border-width: 1px; margin-top: 20px;">
+                        <img src="Images/add_circle_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png"
+                        width="24" height="24">
+                    </button>
+                </div>
+
+                <div>
+                    <table id="post_docs_table">
+                        <caption>
+                            Post doctorates
+                        </caption>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Hourly rate at start date</th>
+                                <th>Year 1 hours</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+
+                    <button class="add_row" style="background-color: rgb(1, 255, 136); border-width: 1px; margin-top: 20px;">
+                        <img src="Images/add_circle_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png"
+                        width="24" height="24">
+                    </button>
+                </div>
             </div>
+
             <div id="fiveyearcost">
                 <table>
                     <caption>
@@ -159,40 +217,144 @@ if ($conn->connect_error) {
 
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script>
-        // Add co-PI button
-        const piTableBody = document.querySelector('#pi_table tbody');
-        const addRowButton = document.getElementById("addco-pi")
-        addRowButton.addEventListener("click", () => {
-            const newRow = document.createElement("tr");
-            newRow.innerHTML = `
-                <td class="type">co-PI</td>
-                <td><input class="staff-id" type="number"></td>
-                <td class="name">Unknown</td>
-                <td class="rate">$0</td>
-                <td><input class="hours" type="number" value="0" min="0"></td>
-                <td>
-                    <button class="removeco-pi" style="background-color: rgb(255, 82, 82); border-width: 1px;">
-                        <img src="Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
-                    </button>
-                </td>
-            `;
-
-            piTableBody.appendChild(newRow);
+        // Add row button
+        const templateRows = {
+            pi_table: `
+                <tr>
+                    <td class="type">PI</td>
+                    <td>
+                        <select class="staff-picker" data-filter="pi">
+                            <option value="">Select PI</option>
+                        </select>
+                    </td>
+                    <td class="title">Unknown</td>
+                    <td class="rate">$0</td>
+                    <td><input class="hours" type="number" value="0" min="0"></td>
+                    <td>
+                        <button class="rem_row" style="background-color: rgb(255, 82, 82); border-width: 1px;">
+                            <img src="Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
+                        </button>
+                    </td>
+                </tr>
+            `,
+            ui_professional_staff_table: `
+                <tr>
+                    <td>
+                        <select class="staff-picker" data-filter="prostaff">
+                            <option value="">Select Pro Staff</option>
+                        </select>
+                    </td>
+                    <td class="title">Unknown</td>
+                    <td class="rate">$0</td>
+                    <td><input class="hours" type="number" value="0" min="0"></td>
+                    <td>
+                        <button class="rem_row" style="background-color: rgb(255, 82, 82); border-width: 1px;">
+                            <img src="Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
+                        </button>
+                    </td>
+                </tr>
+            `,
+            post_docs_table: `
+                <tr>
+                    <td>
+                        <select class="staff-picker" data-filter="postdoc">
+                            <option value="">Select Post Doc</option>
+                        </select>
+                    </td>
+                    <td class="rate">$0</td>
+                    <td><input class="hours" type="number" value="0" min="0"></td>
+                    <td>
+                        <button class="rem_row" style="background-color: rgb(255, 82, 82); border-width: 1px;">
+                            <img src="Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
+                        </button>
+                    </td>
+                </tr>
+            `
+        }
+        document.querySelectorAll(".add_row").forEach(button => {
+            const table = button.previousElementSibling;
+            const tbody = table.querySelector("tbody")
+            
+            button.addEventListener("click", () => {
+                tbody.insertAdjacentHTML("beforeend", templateRows[table.id]);
+                const select = tbody.lastElementChild.querySelector(".staff-picker");
+                initializeStaffPicker(select);
+            })
         })
+
+        // Remove row button
+        document.addEventListener("click", (event) => {
+            const button = event.target.closest("button")
+            if (button) {
+                const row = button.closest("tr");
+                if (row) row.remove();
+            }
+        });
+
+        // Staff picker dropdown logic
+        function initializeStaffPicker(select) {
+            const table = select.closest("table");
+            const row = select.closest("tr");
+            const filter = select.dataset.filter;
+
+            row.dataset.originalHTML = row.innerHTML;
+            
+            fetch(`get_staff_list.php?filter=${filter}`)
+                .then(res => res.json())
+                .then(rows => {
+                    rows.forEach(r => {
+                        const opt = document.createElement("option");
+                        opt.value = r.staff_id;
+                        opt.textContent = r.name;
+                        select.appendChild(opt);
+                    });
+
+                    const ts = new TomSelect(select, {
+                        maxItems: 1,
+                        create: false
+                    });
+
+                    ts.on("change", value => {
+                        if (!value) {
+                            row.innerHTML = row.dataset.originalHTML; // Reset the row's values
+                            return;
+                        }
+
+                        fetch(`get_employee.php?staff_id=${value}`)
+                            .then(r => r.json())
+                            .then(data => {
+                                row.querySelector(".rate").textContent = "$" + (data.hourly_rate ?? 0);
+
+                                const title = row.querySelector(".title");
+                                if (title) {
+                                    title.textContent = data.staff_title ?? "Unknown";
+                                }
+
+                                update5YearCost();
+                            });
+                    })
+                });
+        }
+        document.querySelectorAll(".staff-picker").forEach(initializeStaffPicker);
 
         const fiveYearCostTableBody = document.querySelector("#fiveyearcost tbody")
         function update5YearCost() {
             let yearlyTotal = 0;
 
-            piTableBody.querySelectorAll("tr").forEach(row => {
-                const type = row.querySelector(".type").textContent;
+            // Add hourly rate costs
+            const hourlyRates = document.querySelectorAll(".rate");
+            hourlyRates.forEach(td => {
+                const row = td.closest("tr");
                 const hourlyRate = Number(row.querySelector(".rate").textContent.replace(/[$, ]+/g, ''));
                 const hoursWorked = Number(row.querySelector(".hours").value);
                 
-                const yearlyWages = Math.round(hoursWorked * hourlyRate * 100) / 100;
+                const yearlyWages = hoursWorked*hourlyRate;
+                if (yearlyWages <= 0) return;
 
                 yearlyTotal += yearlyWages;
             })
+
+            yearlyTotal = Math.round(yearlyTotal * 100) / 100;
 
             fiveYearCostTableBody.innerHTML = `
                 <tr>
@@ -205,39 +367,12 @@ if ($conn->connect_error) {
             `
         }
 
-        // Auto update row information when Staff ID or hours worked changes
-        document.addEventListener("input", (event) => {
-            const target = event.target;
-            if (target.classList.contains("staff-id")) {
-                const row = target.closest("tr");
-                if (!row) return;
+        document.addEventListener("input", event => {
+            const hours = event.target.closest(".hours");
+            if (!hours) return;
 
-                const staffId = target.value;
-                if (staffId !== "") {
-                    fetch(`get_employee.php?staff_id=${staffId}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            row.querySelector(".name").textContent = data.name || "Unknown";
-                            row.querySelector(".rate").textContent = "$" + (data.hourly_rate || 0);
-                        });
-                } else {
-                    row.querySelector(".name").textContent = "Unknown";
-                    row.querySelector(".rate").textContent = "$0";
-                }
-                update5YearCost();
-            } else if (target.classList.contains("hours")) {
-                update5YearCost();
-            }
-        });
-
-        // Remove co-PI button
-        document.addEventListener("click", (event) => {
-            const button = event.target.closest(".removeco-pi")
-            if (button) {
-                const row = button.closest("tr");
-                if (row) row.remove();
-            }
-        });
+            update5YearCost();
+        })
 
         // Download spreadsheet
         const yearCostsTableBody = document.querySelector("#fiveyearcost tbody");
@@ -245,31 +380,47 @@ if ($conn->connect_error) {
         const downloadButton = document.getElementById("downloadspreadsheet");
 
         downloadButton.addEventListener("click", () => {
-            const data = [
+            const spreadsheetData = [
                 ["", "", "Hourly rate at start date", "Year 1",  "Year 2", "Year 3", "Year 4", "Year 5"], // Header row
-                ["Principle investigators", "Year 1 hours"],
             ];
 
-            // Add pi costs
-            piTableBody.querySelectorAll("tr").forEach(row => {
-                const type = row.querySelector(".type").textContent;
-                const hourlyRate = Number(row.querySelector(".rate").textContent.replace(/[$, ]+/g, ''));
-                const hoursWorked = Number(row.querySelector(".hours").value);
-                
-                const yearlyWages = hoursWorked*hourlyRate;
-                if (yearlyWages <= 0) return;
+            // Loop through each table calculating costs
+            [
+                {title: "Principle investigators", aggregate: false}, 
+                {title: "UI professional staff", aggregate: true}, 
+                {title: "Post doctorates", aggregate: true}, 
+            ].forEach(tinfo => {
+                spreadsheetData.push([tinfo.title, "Year 1 hours"]);
 
-                const yearlyWagesStr = '$' + yearlyWages;
+                document.querySelectorAll("table caption").forEach(caption => {
+                    if (caption.textContent.trim() === tinfo.title) {
+                        const table = caption.closest("table");
+                        
+                        // Add hourly rate costs
+                        const hourlyRates = table.querySelectorAll(".rate");
+                        hourlyRates.forEach(td => {
+                            const row = td.closest("tr");
+                            const type = row.querySelector(".type").textContent;
+                            const hourlyRate = Number(row.querySelector(".rate").textContent.replace(/[$, ]+/g, ''));
+                            const hoursWorked = Number(row.querySelector(".hours").value);
+                            
+                            const yearlyWages = hoursWorked*hourlyRate;
+                            if (yearlyWages <= 0) return;
 
-                data.push([type, hoursWorked, '$' + hourlyRate, yearlyWagesStr, yearlyWagesStr, yearlyWagesStr, yearlyWagesStr, yearlyWagesStr]);
+                            const yearlyWagesStr = '$' + yearlyWages;
+
+                            spreadsheetData.push([type, hoursWorked, '$' + hourlyRate, yearlyWagesStr, yearlyWagesStr, yearlyWagesStr, yearlyWagesStr, yearlyWagesStr]);
+                        })
+                    }
+                });
             })
 
-            const worksheet = XLSX.utils.aoa_to_sheet(data);
+            const worksheet = XLSX.utils.aoa_to_sheet(spreadsheetData);
             
             // GENERATED //
             // Auto-size columns based on text length (approximation)
-            const colWidths = data[0].map((_, colIdx) => {
-            const maxLen = Math.max(...data.map(row => String(row[colIdx] ?? "").length));
+            const colWidths = spreadsheetData[0].map((_, colIdx) => {
+            const maxLen = Math.max(...spreadsheetData.map(row => String(row[colIdx] ?? "").length));
             return { wch: maxLen + 2 }; // width in characters
             });
             worksheet["!cols"] = colWidths;
