@@ -20,6 +20,8 @@ if (isset($_POST["login"])) {
             $_SESSION["username"] = $user["username"];
             $_SESSION["first_name"] = $user["first_name"];
             $_SESSION["last_name"] = $user["last_name"];
+            $_SESSION["user_id"] = $user["user_id"]; // use your primary key column for users
+
 
             header("Location: dashboard.php");
             exit;
