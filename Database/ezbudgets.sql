@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 28, 2025 at 07:12 AM
+-- Generation Time: Nov 18, 2025 at 08:29 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -59,9 +59,11 @@ CREATE TABLE `fringe_rate` (
 --
 
 INSERT INTO `fringe_rate` (`staff_title`, `fringe_rate`) VALUES
-('Assistant Professor', 0.20),
-('Professor', 0.25),
-('Research Scientist', 0.22);
+('Admin Staff', 25.75),
+('Faculty', 28.50),
+('Grad Student', 15.00),
+('Post Doc', 30.10),
+('Research Staff', 32.00);
 
 -- --------------------------------------------------------
 
@@ -127,17 +129,20 @@ CREATE TABLE `university_employee` (
   `name` varchar(100) NOT NULL,
   `hourly_rate` decimal(10,2) NOT NULL,
   `job` varchar(100) DEFAULT NULL,
-  `staff_title` varchar(50) DEFAULT NULL
+  `staff_title` varchar(50) DEFAULT NULL,
+  `is_pi_eligible` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `university_employee`
 --
 
-INSERT INTO `university_employee` (`staff_id`, `name`, `hourly_rate`, `job`, `staff_title`) VALUES
-(4, 'Billy Bob', 50.00, 'PI', 'Professor'),
-(5, 'Jane Doe', 45.00, 'co-PI', 'Assistant Professor'),
-(6, 'John Smith', 60.00, 'co-PI', 'Research Scientist');
+INSERT INTO `university_employee` (`staff_id`, `name`, `hourly_rate`, `job`, `staff_title`, `is_pi_eligible`) VALUES
+(1, 'Dr. Evelyn Reed', 120.50, 'Professor of Physics', 'Faculty', 1),
+(2, 'Dr. Aris Thorne', 45.20, 'Postdoctoral Researcher', 'Post Doc', 0),
+(3, 'Marcus Cole', 75.00, 'Lab Manager', 'Research Staff', 0),
+(4, 'Jenna Ortega', 28.75, 'Department Coordinator', 'Admin Staff', 0),
+(5, 'Samuel Chen', 52.00, 'Data Scientist', 'Research Staff', 0);
 
 --
 -- Indexes for dumped tables
@@ -208,7 +213,7 @@ ALTER TABLE `students`
 -- AUTO_INCREMENT for table `university_employee`
 --
 ALTER TABLE `university_employee`
-  MODIFY `staff_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `staff_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- Constraints for dumped tables
