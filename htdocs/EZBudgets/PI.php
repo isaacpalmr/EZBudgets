@@ -66,7 +66,7 @@ if ($conn->connect_error) {
             justify-content: center;
             align-items: center;
             width: 100%;
-            margin: 50px 0px;
+            margin: 20px 0px;
         }
 
         #user_tables > * {
@@ -79,6 +79,38 @@ if ($conn->connect_error) {
 
         button:hover {
             filter: brightness(85%)
+        }
+
+       .user_tables {
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        .table_block {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: max-content;
+        }
+
+        #budget-metadata {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #budget-metadata > * {
+            margin: 5px 0px;
+        }
+
+        #budget-dates {
+            display: flex;
+            flex-direction: row;
+            margin-top: 20px;
+        }
+
+        #budget-dates > * {
+            margin: 0px 10px;
         }
     </style>
 </head>
@@ -95,14 +127,50 @@ if ($conn->connect_error) {
     </header>
 
     <main>
-        <div id="budgettitle">
-            <label>Budget Title:</label>
-            <input type="text">
+        <div id="error-box"
+            style="
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                background: #ffdddd;
+                color: #900;
+                padding: 10px;
+                font-weight: bold;
+                z-index: 9999;
+                display: none;
+            ">
+        </div>
+
+        <div id="budget-metadata">
+            <div id="budget-title">
+                <label>Title:</label>
+                <input type="text">
+            </div>
+            <div id="budget-funding-source">
+                <label>Funding Source:</label>
+                <select>
+                    <option value="">--Select funding source--</option>
+                    <option value="National Science Foundation">National Science Foundation</option>
+                    <option value="National Institutes of Health">National Institutes of Health</option>
+                </select>
+            </div>
+
+            <div id="budget-dates">
+                <div id="budget-start-date">
+                    <label>Start Date:</label>
+                    <input type="date">
+                </div>
+                <div id="budget-end-date">
+                    <label>End Date:</label>
+                    <input type="date">
+                </div>
+            </div>
         </div>
         
         <div id="tables">
             <div id="user_tables" style="text-align: center;">
-                <div>
+                <div class="table_block">
                     <table id="pi_table">
                         <caption>
                             Principle investigators
@@ -112,22 +180,11 @@ if ($conn->connect_error) {
                                 <th>Type</th>
                                 <th>Name</th>
                                 <th>Title</th>
+                                <th>Percent effort (of 40 hr week)</th>
                                 <th>Hourly rate at start date</th>
-                                <th>Year 1 hours</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td class="type">PI</td>
-                                <td>
-                                    <select class="staff-picker" data-filter="pi">
-                                        <option value="">Select PI</option>
-                                    </select>
-                                </td>
-                                <td class="title">Unknown</td>
-                                <td class="rate">$0</td>
-                                <td><input class="hours" type="number" value="0" min="0"></td>
-                            </tr>
                         </tbody>
                     </table>
 
@@ -137,7 +194,7 @@ if ($conn->connect_error) {
                     </button>
                 </div>
                 
-                <div>
+                <div class="table_block">
                     <table id="ui_professional_staff_table">
                         <caption>
                             UI professional staff
@@ -146,8 +203,8 @@ if ($conn->connect_error) {
                             <tr>
                                 <th>Name</th>
                                 <th>Title</th>
+                                <th>Percent effort (of 40 hr week)</th>
                                 <th>Hourly rate at start date</th>
-                                <th>Year 1 hours</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -160,7 +217,7 @@ if ($conn->connect_error) {
                     </button>
                 </div>
 
-                <div>
+                <div class="table_block">
                     <table id="post_docs_table">
                         <caption>
                             Post doctorates
@@ -168,8 +225,8 @@ if ($conn->connect_error) {
                         <thead>
                             <tr>
                                 <th>Name</th>
+                                <th>Percent effort (of 40 hr week)</th>
                                 <th>Hourly rate at start date</th>
-                                <th>Year 1 hours</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -183,7 +240,7 @@ if ($conn->connect_error) {
                 </div>
             </div>
 
-            <div id="fiveyearcost">
+            <div id="yearly_costs">
                 <table>
                     <caption>
                         5 year cost
@@ -217,19 +274,18 @@ if ($conn->connect_error) {
 
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script>
-        // Add row button
         const templateRows = {
             pi_table: `
                 <tr>
-                    <td class="type">PI</td>
+                    <td class="type">Co-PI</td>
                     <td>
                         <select class="staff-picker" data-filter="pi">
-                            <option value="">Select PI</option>
+                            <option value="">Select Co-PI</option>
                         </select>
                     </td>
                     <td class="title">Unknown</td>
+                    <td><input class="percent-effort" type="number" value="0" min="0" max="100"></td>
                     <td class="rate">$0</td>
-                    <td><input class="hours" type="number" value="0" min="0"></td>
                     <td>
                         <button class="rem_row" style="background-color: rgb(255, 82, 82); border-width: 1px;">
                             <img src="Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
@@ -245,8 +301,8 @@ if ($conn->connect_error) {
                         </select>
                     </td>
                     <td class="title">Unknown</td>
+                    <td><input class="percent-effort" type="number" value="0" min="0" max="100"></td>
                     <td class="rate">$0</td>
-                    <td><input class="hours" type="number" value="0" min="0"></td>
                     <td>
                         <button class="rem_row" style="background-color: rgb(255, 82, 82); border-width: 1px;">
                             <img src="Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
@@ -261,8 +317,8 @@ if ($conn->connect_error) {
                             <option value="">Select Post Doc</option>
                         </select>
                     </td>
+                    <td><input class="percent-effort" type="number" value="0" min="0" max="100"></td>
                     <td class="rate">$0</td>
-                    <td><input class="hours" type="number" value="0" min="0"></td>
                     <td>
                         <button class="rem_row" style="background-color: rgb(255, 82, 82); border-width: 1px;">
                             <img src="Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
@@ -271,25 +327,16 @@ if ($conn->connect_error) {
                 </tr>
             `
         }
-        document.querySelectorAll(".add_row").forEach(button => {
-            const table = button.previousElementSibling;
-            const tbody = table.querySelector("tbody")
-            
-            button.addEventListener("click", () => {
-                tbody.insertAdjacentHTML("beforeend", templateRows[table.id]);
-                const select = tbody.lastElementChild.querySelector(".staff-picker");
-                initializeStaffPicker(select);
-            })
-        })
 
-        // Remove row button
-        document.addEventListener("click", (event) => {
-            const button = event.target.closest("button")
-            if (button) {
-                const row = button.closest("tr");
-                if (row) row.remove();
-            }
-        });
+        const yearlyCostsTableBodyRow = document.querySelector("#yearly_costs tbody tr");
+        const yearlyCostsTableCaption = document.querySelector("#yearly_costs caption");
+        const yearlyCostsTableHeaderRow = document.querySelector("#yearly_costs thead tr");
+        const budgetTitle = document.querySelector("#budget-title input");
+        const downloadButton = document.getElementById("downloadspreadsheet");
+        const budgetStartDate = document.getElementById("budget-start-date").querySelector("input");
+        const budgetEndDate = document.getElementById("budget-end-date").querySelector("input");
+        const budgetFundingSource = document.querySelector("#budget-funding-source select");
+        const piTableBody = document.querySelector("#pi_table tbody");
 
         // Staff picker dropdown logic
         function initializeStaffPicker(select) {
@@ -323,66 +370,220 @@ if ($conn->connect_error) {
                         fetch(`get_employee.php?staff_id=${value}`)
                             .then(r => r.json())
                             .then(data => {
-                                row.querySelector(".rate").textContent = "$" + (data.hourly_rate ?? 0);
+                                const hourlyRate = row.querySelector(".rate");
+                                hourlyRate.textContent = '$' + (data.hourly_rate ?? 0)
 
                                 const title = row.querySelector(".title");
                                 if (title) {
                                     title.textContent = data.staff_title ?? "Unknown";
                                 }
 
-                                update5YearCost();
+                                updateYearlyCosts();
                             });
                     })
                 });
         }
-        document.querySelectorAll(".staff-picker").forEach(initializeStaffPicker);
+        
+        function addRow(table) {
+            const tbody = table.querySelector("tbody")
+            tbody.insertAdjacentHTML("beforeend", templateRows[table.id]);
+            const select = tbody.lastElementChild.querySelector(".staff-picker");
+            initializeStaffPicker(select);
+            return tbody.lastElementChild;
+        }
 
-        const fiveYearCostTableBody = document.querySelector("#fiveyearcost tbody")
-        function update5YearCost() {
-            let yearlyTotal = 0;
+        function showError(msg) {
+            const error = document.getElementById("error-box");
+            error.textContent = "Error: " + msg;
+            error.style.display = "block";
+        }
 
+        function clearError() {
+            const error = document.getElementById("error-box");
+            error.textContent = "";
+            error.style.display = "none";
+        }
+
+        function onNumBudgetYearsChanged() {
+            const budgetNumYears = getNumBudgetYears();
+
+            // Set table caption
+            yearlyCostsTableCaption.textContent = budgetNumYears + " year cost"
+
+            // Set number of columns
+            yearlyCostsTableHeaderRow.innerHTML = ""
+            yearlyCostsTableBodyRow.innerHTML = ""
+            for (let i = 0; i < budgetNumYears; i++) {
+                const th = document.createElement("th");
+                th.textContent = "Year " + (i + 1);
+                yearlyCostsTableHeaderRow.appendChild(th);
+
+                const td = document.createElement("td");
+                td.textContent = "$0";
+                yearlyCostsTableBodyRow.appendChild(td);
+            }
+        }
+
+        function calculateYearlyWagesFromRow(row) {
+            const hourlyRate = Number(row.querySelector(".rate").textContent.replace(/[$, ]+/g, ''));
+            const weeklyHoursWorked = Number(row.querySelector(".percent-effort").value/100 * 40);
+            const yearlyHoursWorked = weeklyHoursWorked * 52.1429
+            
+            const yearlyWages = hourlyRate * yearlyHoursWorked;
+            
+            return yearlyWages;
+        }
+
+        function getTotalWagesForYear(yearNum) {
             // Add hourly rate costs
+            let totalWagesPerYear = 0;
             const hourlyRates = document.querySelectorAll(".rate");
             hourlyRates.forEach(td => {
                 const row = td.closest("tr");
-                const hourlyRate = Number(row.querySelector(".rate").textContent.replace(/[$, ]+/g, ''));
-                const hoursWorked = Number(row.querySelector(".hours").value);
-                
-                const yearlyWages = hoursWorked*hourlyRate;
+                const yearlyWages = calculateYearlyWagesFromRow(row);
                 if (yearlyWages <= 0) return;
 
-                yearlyTotal += yearlyWages;
-            })
+                totalWagesPerYear += yearlyWages;
+            });
 
-            yearlyTotal = Math.round(yearlyTotal * 100) / 100;
-
-            fiveYearCostTableBody.innerHTML = `
-                <tr>
-                    <td>$${yearlyTotal}</td>
-                    <td>$${yearlyTotal}</td>
-                    <td>$${yearlyTotal}</td>
-                    <td>$${yearlyTotal}</td>
-                    <td>$${yearlyTotal}</td>
-                </tr>
-            `
+            return totalWagesPerYear;
         }
 
-        document.addEventListener("input", event => {
-            const hours = event.target.closest(".hours");
-            if (!hours) return;
+        function updateYearlyCosts() {
+            let totalYearlyWages = getTotalWagesForYear();
+            totalYearlyWages = Math.round(totalYearlyWages * 100) / 100;
+            
+            for (const td of yearlyCostsTableBodyRow.children) {
+                td.textContent = "$" + totalYearlyWages;
+            }
+        }
 
-            update5YearCost();
+        // Calculates the number of budget years based off of start and end dates (default is 1)
+        function getNumBudgetYears() {
+            const start = new Date(budgetStartDate.value);
+            const end = new Date(budgetEndDate.value);
+            if (isNaN(start) || isNaN(end)) return 1;
+
+            // GENERATED //
+            // Calculate difference in years
+            let numYears = end.getFullYear() - start.getFullYear() + 1;
+
+            // Optional: adjust if the end month/day is before start month/day
+            const endMonthDay = end.getMonth() * 100 + end.getDate();
+            const startMonthDay = start.getMonth() * 100 + start.getDate();
+            if (endMonthDay < startMonthDay) {
+                numYears--; // end date hasn’t reached the anniversary in the final year
+            }
+
+            return numYears;
+            // GENERATED//
+        }
+
+        // Initialize current staff pickers
+        document.querySelectorAll(".staff-picker").forEach(initializeStaffPicker);
+
+        // Listen for budget dates changed
+        [budgetStartDate, budgetEndDate].forEach(date => {
+            let oldValue = date.value;
+            date.addEventListener("input", () => {
+                const start = new Date(budgetStartDate.value);
+                const end = new Date(budgetEndDate.value);
+                if (isNaN(start) || isNaN(end)) return;
+
+                if (end.getTime() < start.getTime()) {
+                    showError("Budget end date cannot precede start date.");
+                    date.value = oldValue;
+                    return;
+                }
+
+                clearError();
+
+                onNumBudgetYearsChanged()
+
+                oldValue = date.value;
+            });
+        });
+
+        // Remove row button
+        document.addEventListener("click", (event) => {
+            const button = event.target.closest("button")
+            if (button) {
+                const row = button.closest("tr");
+                if (row) row.remove();
+            }
+        });
+
+        // Add row button
+        document.querySelectorAll(".add_row").forEach(button => {
+            const table = button.previousElementSibling;
+            
+            button.addEventListener("click", () => {
+                addRow(table);
+            })
         })
 
-        // Download spreadsheet
-        const yearCostsTableBody = document.querySelector("#fiveyearcost tbody");
-        const budgetTitle = document.querySelector("#budgettitle input")
-        const downloadButton = document.getElementById("downloadspreadsheet");
+        // Adding first PI row
+        const piRow = addRow(document.querySelector("#pi_table"));
+        piRow.querySelector(".type").textContent = "PI";
+        piRow.querySelector("option").textContent = "Select PI";
+        piRow.lastElementChild.remove() // Remove the remove button
 
+        // User inputs percent effort, update yearly costs
+        document.addEventListener("input", event => {
+            const percentEffort = event.target.closest(".percent-effort");
+            if (!percentEffort) return;
+
+            updateYearlyCosts();
+        })
+
+        // User inputs number, clamp to min/max attributes of element
+        document.addEventListener("input", event => {
+            const input = event.target;
+            if (input.type !== "number") return;
+
+            const value = parseFloat(input.value);
+            if (isNaN(value)) return;
+
+            const min = parseFloat(input.min);
+            if (!isNaN(min) && value < min) 
+                input.value = min;
+
+            const max = parseFloat(input.max);
+            if (!isNaN(max) && value > max) 
+                input.value = max;
+            
+        });
+
+        // Download spreadsheet
         downloadButton.addEventListener("click", () => {
+            // Create spreadsheet data table
             const spreadsheetData = [
-                ["", "", "Hourly rate at start date", "Year 1",  "Year 2", "Year 3", "Year 4", "Year 5"], // Header row
+                ["Title: "],
+                ["Funding Source: "],
+                ["PI: ",                   "Co-PIs: "],
+                ["Project Start and End Dates: "],
+                ["",                       "Hourly rate at start date"],
+                ["Personnel Compensation", "Year 1 hours"],
+                ["Other Personnel"],
+                ["UI professional staff & Post Docs"],
+                ["GRAs/UGrads"],
+                ["Temp Help"],
             ];
+
+            const headerRow = spreadsheetData[4];
+            for (let i = 0; i < getNumBudgetYears(); i++) {
+                headerRow.push("Year " + i);
+            }
+            headerRow.push("Total");
+
+            // Apply meta data
+            spreadsheetData[0][0] += budgetTitle.value;
+            spreadsheetData[1][0] += budgetFundingSource.value;
+
+            const piSelector = piTableBody.firstElementChild.querySelector(".staff-picker");
+            spreadsheetData[2][0] += piSelector.options[piSelector.selectedIndex].text;
+
+            
 
             // Loop through each table calculating costs
             [
@@ -401,10 +602,7 @@ if ($conn->connect_error) {
                         hourlyRates.forEach(td => {
                             const row = td.closest("tr");
                             const type = row.querySelector(".type").textContent;
-                            const hourlyRate = Number(row.querySelector(".rate").textContent.replace(/[$, ]+/g, ''));
-                            const hoursWorked = Number(row.querySelector(".hours").value);
-                            
-                            const yearlyWages = hoursWorked*hourlyRate;
+                            const yearlyWages = calculateYearlyWagesFromRow(row);
                             if (yearlyWages <= 0) return;
 
                             const yearlyWagesStr = '$' + yearlyWages;
