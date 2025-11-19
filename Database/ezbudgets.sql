@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 18, 2025 at 09:22 PM
+-- Generation Time: Nov 19, 2025 at 01:13 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -20,6 +20,32 @@ SET time_zone = "+00:00";
 --
 -- Database: `ezbudgets`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `budgets`
+--
+
+CREATE TABLE `budgets` (
+  `budget_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `budget_name` varchar(150) NOT NULL,
+  `total_years` int(11) DEFAULT 5,
+  `default_fa_year` int(11) DEFAULT NULL,
+  `default_tuition_year` varchar(20) DEFAULT NULL,
+  `travel_is_international` tinyint(1) DEFAULT 0,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `budgets`
+--
+
+INSERT INTO `budgets` (`budget_id`, `user_id`, `budget_name`, `total_years`, `default_fa_year`, `default_tuition_year`, `travel_is_international`, `created_at`, `updated_at`) VALUES
+(1, 1, 'John', 5, NULL, NULL, 0, '2025-11-18 16:10:44', '2025-11-18 16:10:44'),
+(2, 1, 'Super COol Budget', 5, NULL, NULL, 0, '2025-11-18 16:11:42', '2025-11-18 16:11:42');
 
 -- --------------------------------------------------------
 
@@ -156,14 +182,29 @@ CREATE TABLE `users` (
   `first_name` varchar(50) NOT NULL,
   `last_name` varchar(50) NOT NULL,
   `email` varchar(100) NOT NULL,
-  `password_hash` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
   `created_at` datetime DEFAULT current_timestamp(),
   `last_login` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`user_id`, `username`, `first_name`, `last_name`, `email`, `password`, `created_at`, `last_login`) VALUES
+(1, 'super', 'super', 'super', '', '$2y$10$3zLLaD6hC8JJGcOBX2NCsOKwSRtRz831V6mdpkmOv9Vl.p9haPyOW', '2025-11-18 13:22:19', '2025-11-18 13:22:19'),
+(5, 'john', 'john', 'john', 'john', '$2y$10$W8OCFhxs7Ny1KneBs8afbeCslYQQJMFQyHuWtD3ujFG2A5UZDdA8a', '2025-11-18 13:29:20', '2025-11-18 13:29:20');
+
+--
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `budgets`
+--
+ALTER TABLE `budgets`
+  ADD PRIMARY KEY (`budget_id`),
+  ADD KEY `user_id` (`user_id`);
 
 --
 -- Indexes for table `employee_fringe_rates`
@@ -229,6 +270,12 @@ ALTER TABLE `users`
 --
 
 --
+-- AUTO_INCREMENT for table `budgets`
+--
+ALTER TABLE `budgets`
+  MODIFY `budget_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT for table `students`
 --
 ALTER TABLE `students`
@@ -244,11 +291,17 @@ ALTER TABLE `university_employee`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `budgets`
+--
+ALTER TABLE `budgets`
+  ADD CONSTRAINT `budgets_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
 
 --
 -- Constraints for table `employee_fringe_rates`
