@@ -460,18 +460,16 @@ if ($conn->connect_error) {
         }
 
         async function getTotalWagesForYearAsync(yearNum) {
-            // Add hourly rate costs
             let totalWagesPerYear = 0;
             const hourlyRates = document.querySelectorAll(".rate");
-            hourlyRates.forEach(td => {
-                const row = td.closest("tr");
-                calculateYearlyWagesWithFringeRateFromRowAsync(row)
-                    .then(yearlyWages => {
-                        if (yearlyWages <= 0 || isNaN(yearlyWages)) return;
 
-                        totalWagesPerYear += yearlyWages;
-                    });
-            });
+            for (const td of hourlyRates) {
+                const row = td.closest("tr");
+                const yearlyWages = await calculateYearlyWagesWithFringeRateFromRowAsync(row);
+                if (yearlyWages > 0 && !isNaN(yearlyWages)) {
+                    totalWagesPerYear += yearlyWages;
+                }
+            }
 
             return totalWagesPerYear;
         }
