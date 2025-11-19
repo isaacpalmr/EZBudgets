@@ -9,7 +9,12 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
 
 if (isset($_GET['staff_id'])) {
     $staff_id = intval($_GET['staff_id']); // sanitize input
-    $sql = "SELECT name, hourly_rate, staff_title, is_pi_eligible FROM university_employee WHERE staff_id = $staff_id";
+    $sql = 
+    "SELECT u.name, u.hourly_rate, u.staff_title, u.is_pi_eligible, f.fringe_rate
+    FROM university_employee u
+    LEFT JOIN fringe_rate f
+        ON u.staff_title = f.staff_title
+    WHERE staff_id = $staff_id";
     $result = $conn->query($sql);
 
     if ($result && $result->num_rows > 0) {

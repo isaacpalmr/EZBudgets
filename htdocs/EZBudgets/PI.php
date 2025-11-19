@@ -247,11 +247,6 @@ if ($conn->connect_error) {
                     </caption>
                     <thead>
                         <tr>
-                            <th>Year 1</th>
-                            <th>Year 2</th>
-                            <th>Year 3</th>
-                            <th>Year 4</th>
-                            <th>Year 5</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -424,38 +419,72 @@ if ($conn->connect_error) {
             }
         }
 
-        function calculateYearlyWagesFromRow(row) {
+        function getPersonnelIdFromRow(row) {
+            const tableTitle = row.closest("table").querySelector("caption").textContent.trim();
+
+            let personnelIdType;
+            switch (tableTitle) {
+                case "Principle investigators":
+                case "UI professional staff":
+                case "Post doctorates":
+                    personnelIdType = "staff";
+                    break;
+                default:
+                    personnelIdType = "student";
+            }
+
+            const personnelId = row.querySelector(".staff-picker").value;
+
+            return [personnelIdType, personnelId];
+        }
+
+        async function getFringeRateFromRowAsync(row) {
+            const [personnelIdType, personnelId] = getPersonnelIdFromRow(row);
+
+            if (personnelIdType == "staff") {
+                const response = await fetch(`get_employee.php?staff_id=${personnelId}`);
+                const data = await response.json();
+                return (data.fringe_rate ?? 0) / 100;
+            }
+        }
+
+        async function calculateYearlyWagesWithFringeRateFromRowAsync(row) {
             const hourlyRate = Number(row.querySelector(".rate").textContent.replace(/[$, ]+/g, ''));
             const weeklyHoursWorked = Number(row.querySelector(".percent-effort").value/100 * 40);
             const yearlyHoursWorked = weeklyHoursWorked * 52.1429
             
-            const yearlyWages = hourlyRate * yearlyHoursWorked;
-            
+            const fringeRate = await getFringeRateFromRowAsync(row);
+            const yearlyWages = (hourlyRate*yearlyHoursWorked) * (1+fringeRate);
+
             return yearlyWages;
         }
 
-        function getTotalWagesForYear(yearNum) {
+        async function getTotalWagesForYearAsync(yearNum) {
             // Add hourly rate costs
             let totalWagesPerYear = 0;
             const hourlyRates = document.querySelectorAll(".rate");
             hourlyRates.forEach(td => {
                 const row = td.closest("tr");
-                const yearlyWages = calculateYearlyWagesFromRow(row);
-                if (yearlyWages <= 0) return;
+                calculateYearlyWagesWithFringeRateFromRowAsync(row)
+                    .then(yearlyWages => {
+                        if (yearlyWages <= 0 || isNaN(yearlyWages)) return;
 
-                totalWagesPerYear += yearlyWages;
+                        totalWagesPerYear += yearlyWages;
+                    });
             });
 
             return totalWagesPerYear;
         }
 
         function updateYearlyCosts() {
-            let totalYearlyWages = getTotalWagesForYear();
-            totalYearlyWages = Math.round(totalYearlyWages * 100) / 100;
-            
-            for (const td of yearlyCostsTableBodyRow.children) {
-                td.textContent = "$" + totalYearlyWages;
-            }
+            getTotalWagesForYearAsync()
+            .then(totalYearlyWages => {
+                totalYearlyWages = Math.round(totalYearlyWages * 100) / 100;
+
+                for (const td of yearlyCostsTableBodyRow.children) {
+                    td.textContent = "$" + totalYearlyWages;
+                }
+            });
         }
 
         // Calculates the number of budget years based off of start and end dates (default is 1)
@@ -478,6 +507,9 @@ if ($conn->connect_error) {
             return numYears;
             // GENERATED//
         }
+
+        // Initialize yearly costs table
+        onNumBudgetYearsChanged();
 
         // Initialize current staff pickers
         document.querySelectorAll(".staff-picker").forEach(initializeStaffPicker);
@@ -562,12 +594,45 @@ if ($conn->connect_error) {
                 ["Funding Source: "],
                 ["PI: ",                   "Co-PIs: "],
                 ["Project Start and End Dates: "],
-                ["",                       "Hourly rate at start date"],
-                ["Personnel Compensation", "Year 1 hours"],
+                ["",                                    "Hourly rate at start date"],
+                ["Personnel Compensation",              "Year 1 hours"],
                 ["Other Personnel"],
                 ["UI professional staff & Post Docs"],
                 ["GRAs/UGrads"],
                 ["Temp Help"],
+                ["Fringe",                              "FY26 Fringe Rates"],
+                ["UI professional staff & Post Docs",   "36.7%"],
+                ["Faculty",                             "29.5%"],
+                ["Temp Help",                           "10.5%"],
+                ["GRAs/UGrads",                         "3.2%"],
+                ["Equipment > $5000.00"],
+                ["Travel"],
+                ["Domestic"],
+                ["International"],
+                ["Participant support costs (NSF only)"],
+                ["Other Direct Costs"],
+                ["Materials and supplies"],
+                ["<$5K small equipment"],
+                ["Publication costs"],
+                ["Computer services"],
+                ["Software"],
+                ["Facility useage fees"],
+                ["Conference registration"],
+                ["Other"],
+                ["Other"],
+                ["Grad Student Tuition & Health Insurance"],
+                ["Consortia/Subawards"],
+                ["Sub award 1"],
+                ["Sub award 2"],
+                ["Total Direct Cost"],
+                ["Back out GRA T&F"],
+                ["Back out capital EQ"],
+                ["Back out subawards totals"],
+                ["Sub award 1 1st $25k"],
+                ["Sub award 2 1st $25k"],
+                ["Modified Total Direct Costs"],
+                ["Indirect Costs",                      "50.0%"],
+                ["Total Project Cost"],
             ];
 
             const headerRow = spreadsheetData[4];
@@ -576,15 +641,26 @@ if ($conn->connect_error) {
             }
             headerRow.push("Total");
 
-            // Apply meta data
+            // Apply title + funding source
             spreadsheetData[0][0] += budgetTitle.value;
             spreadsheetData[1][0] += budgetFundingSource.value;
 
+            // Apply PI
             const piSelector = piTableBody.firstElementChild.querySelector(".staff-picker");
             spreadsheetData[2][0] += piSelector.options[piSelector.selectedIndex].text;
-
             
+            // Apply Co-PIs
+            const names = [];
+            for (let i = 1; i < piTableBody.children.length; i++) {
+                const selector = piTableBody.children[i].querySelector(".staff-picker");
+                names.push(selector.options[selector.selectedIndex].text);
+            }
+            spreadsheetData[2][1] += names.join(", ");
 
+            // Apply start + end dates
+            spreadsheetData[3][0] += budgetStartDate.value + " – " + budgetEndDate.value;
+
+/* 
             // Loop through each table calculating costs
             [
                 {title: "Principle investigators", aggregate: false}, 
@@ -602,7 +678,7 @@ if ($conn->connect_error) {
                         hourlyRates.forEach(td => {
                             const row = td.closest("tr");
                             const type = row.querySelector(".type").textContent;
-                            const yearlyWages = calculateYearlyWagesFromRow(row);
+                            const yearlyWages = calculateYearlyWagesWithFringeRateFromRowAsync(row);
                             if (yearlyWages <= 0) return;
 
                             const yearlyWagesStr = '$' + yearlyWages;
@@ -612,17 +688,8 @@ if ($conn->connect_error) {
                     }
                 });
             })
-
+ */
             const worksheet = XLSX.utils.aoa_to_sheet(spreadsheetData);
-            
-            // GENERATED //
-            // Auto-size columns based on text length (approximation)
-            const colWidths = spreadsheetData[0].map((_, colIdx) => {
-            const maxLen = Math.max(...spreadsheetData.map(row => String(row[colIdx] ?? "").length));
-            return { wch: maxLen + 2 }; // width in characters
-            });
-            worksheet["!cols"] = colWidths;
-            // GENERATED //
 
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, "Budget");
