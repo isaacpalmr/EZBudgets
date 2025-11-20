@@ -11,6 +11,7 @@ $conn = new mysqli($servername, $username, $password, $dbname);
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -383,6 +384,7 @@ if ($conn->connect_error) {
 
                 <div>
                     <input id="downloadspreadsheet" type="button" value="Download spreadsheet">
+                    <input id="saveBudget" type="button" value="Save budget" style="margin-left:10px;">
                 </div>
             </div>
         </div>
@@ -391,6 +393,147 @@ if ($conn->connect_error) {
     <!-- <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script> -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
     <script>
+
+        // At the very top of your existing <script> in PI.php
+        const currentBudgetId = <?php echo isset($_GET['budget_id']) ? intval($_GET['budget_id']) : 0; ?>;
+        window.currentBudgetId = currentBudgetId;
+
+        //BUDGET LOAD HANDLER
+        // --- loadBudget + on-ready hookup (replace the old version) ---
+        async function loadBudget(budgetId) {
+            if (!budgetId) return;
+
+            try {
+                const resp = await fetch(`get_budget.php?budget_id=${budgetId}`);
+                const data = await resp.json();
+                if (!data.success) throw new Error(data.error || "Budget not found");
+
+                    const budget = data.budget || {};
+                    const personnel = data.personnel || [];
+
+                    // Set global budget ID
+                    window.currentBudgetId = parseInt(budget.budget_id || budgetId || window.currentBudgetId || 0);
+
+                    // Populate top-level fields
+                    budgetTitle.value = budget.budget_name ?? "";
+                    budgetFundingSource.value = budget.funding_source ?? "";
+                    budgetStartDate.value = budget.start_date ?? "";
+                    budgetEndDate.value = budget.end_date ?? "";
+
+                    // Recompute number of years (will recreate yearly-costs columns)
+                    onNumBudgetYearsChanged();
+
+                    // Table mapping: personnel_type -> table id
+                    const tableMap = {
+                        "PI": "pi-table",
+                        "staff": "pro-staff",
+                        "postdoc": "post-docs",
+                        "grad_assistant": "gras",
+                        "undergrad_assistant": "ugrads",
+                    };
+
+                    // Clear all tables
+                    Object.values(tableMap).forEach(tid => {
+                        const t = document.getElementById(tid);
+                        if (t) t.querySelector("tbody").innerHTML = "";
+                    });
+
+                    // Helper functions to fire events
+                    const fireChange = el => el.dispatchEvent(new Event('change', { bubbles: true }));
+                    const fireInput = el => el.dispatchEvent(new Event('input', { bubbles: true }));
+
+                    // Populate personnel rows
+                    for (const p of personnel) {
+                        const tid = tableMap[p.personnel_type] || "pro-staff";
+                        const table = document.getElementById(tid);
+                        if (!table) continue;
+
+                        const row = addRow(table);
+                        const select = row.querySelector(".staff-picker");
+
+                        // Only for PI/pro-staff do we simulate selection with TomSelect
+                        if (select && select.tom && (p.personnel_type === "PI" || p.personnel_type === "staff")) {
+                            select.tom.addOption({ value: String(p.personnel_id), text: p.name });
+
+                            // Defer setValue to allow TomSelect to fully initialize
+                            setTimeout(() => {
+                                select.tom.setValue(String(p.personnel_id));
+                                select.dispatchEvent(new Event('change', { bubbles: true }));
+
+
+                                // Trigger events to simulate user selecting
+                                fireChange(select);
+                                fireInput(select);
+                            }, 0);
+                        } else if (select) {
+                            // Other tables: just set the raw value
+                            const opt = document.createElement("option");
+                            opt.value = p.personnel_id;
+                            opt.textContent = p.name;
+                            select.appendChild(opt);
+                            select.value = p.personnel_id;
+                            fireChange(select);
+                        }
+
+                        // Percent effort
+                        const percentEl = row.querySelector(".percent-effort");
+                        if (percentEl) {
+                            percentEl.disabled = false;
+                            percentEl.value = p.percent_effort ?? 0;
+                        }
+
+                        // Stipend checkbox
+                        const stipendCheckbox = row.querySelector(".request-stipend");
+                        if (stipendCheckbox) {
+                            stipendCheckbox.checked = !!Number(p.stipend_requested);
+                            fireInput(stipendCheckbox);
+                        }
+
+                        // Stipend amount cell
+                        const stipendAmountEl = row.querySelector(".stipend-amount");
+                        if (stipendAmountEl) {
+                            if ('value' in stipendAmountEl) stipendAmountEl.value = p.stipend_amount ?? 0;
+                            else stipendAmountEl.textContent = toDollar(p.stipend_amount ?? 0);
+                        }
+                    }
+
+                    // Recalculate totals
+                    updateYearlyCosts();
+
+            } catch (err) {
+                console.error("Error loading budget:", err);
+                showError("Failed to load budget: " + (err.message || err));
+            }
+        }
+
+
+
+
+        // Call loadBudget on DOM ready — prefer currentBudgetId or budget_id query param
+        document.addEventListener("DOMContentLoaded", () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const queryBudgetId = urlParams.get("budget_id");
+            const effectiveId = Number(window.currentBudgetId || queryBudgetId || 0);
+                if (effectiveId > 0) {
+                        loadBudget(effectiveId);
+                }
+        });
+
+
+        // On page load
+        document.addEventListener("DOMContentLoaded", () => {
+            if (window.currentBudgetId) {
+                loadBudget(window.currentBudgetId);
+            } else {
+                // Optionally, check query string
+                const urlParams = new URLSearchParams(window.location.search);
+                const bid = urlParams.get("budget_id");
+                if (bid) loadBudget(bid);
+            }
+        });
+
+
+
         const templateRows = {
             "pi-table": `
                 <tr>
@@ -595,15 +738,18 @@ if ($conn->connect_error) {
                     const ts = new TomSelect(select, {
                         maxItems: 1,
                         create: false,
-                        dropdownParent: 'body' // append dropdown to <body> so transforms don’t clip it
+                        dropdownParent: "body"
                     });
+
+                    select.tom = ts;
 
                     ts.on("change", () => {
                         onStaffPickerSelect(row);
                     })
                 });
+
         }
-        
+
         // Item type picker dropdown logic
         function initializeItemPicker(select) {
             const table = select.closest("table");
@@ -713,13 +859,62 @@ if ($conn->connect_error) {
         }
 
         function getPersonnelIdFromRow(row) {
+    if (!row) return [null, 0];
+
+    // Try to find the table containing the row; be defensive if closest() returns null
+    let table = row.closest("table");
+    if (!table && row.parentElement) {
+        // fallback: maybe the row was inserted in a fragment — try parentElement.closest
+        table = row.parentElement.closest ? row.parentElement.closest("table") : null;
+    }
+
+    // If still no table, return defaults to avoid crashes
+    if (!table) {
+        return [null, 0];
+    }
+
+    const personnelType = tableIdToPersonnelType[table.id] || "staff";
+    const picker = row.querySelector(".staff-picker");
+    const personnelId = picker ? picker.value : 0;
+
+    return [personnelType, personnelId];
+}
+
+function onStaffPickerSelect(row) {
             const table = row.closest("table");
+            const select = row.querySelector(".staff-picker");
+            if (!select) return;
+
+            const personnelId = select.value;
+            if (!personnelId) {
+                row.innerHTML = row.dataset.originalHTML; // Reset the row's values
+                return;
+            }
 
             const personnelType = tableIdToPersonnelType[table.id];
-            const personnelId = row.querySelector(".staff-picker").value;
 
-            return [personnelType, personnelId];
+            fetch(`get_single_personnel.php?personnelType=${personnelType}&personnelId=${personnelId}`)
+                .then(r => r.json())
+                .then(data => {
+                    const stipendAmount = row.querySelector(".stipend-amount");
+                    if (stipendAmount) {
+                        stipendAmount.textContent = toDollar(data.stipend_per_academic_year ?? 0);
+                    }
+
+                    const hourlyRate = row.querySelector(".rate");
+                    if (hourlyRate) {
+                        hourlyRate.textContent = toDollar(data.hourly_rate ?? 0)
+                    }
+
+                    const title = row.querySelector(".title");
+                    if (title) {
+                        title.textContent = data.staff_title ?? "—";
+                    }
+
+                    updateYearlyCosts();
+                });
         }
+
 
         function getPercentEffortFromRow(row) {
             return row.querySelector(".percent-effort").value/100;
@@ -1373,6 +1568,132 @@ if ($conn->connect_error) {
 
             XLSX.writeFile(workbook, budgetTitle.value + (budgetTitle.value !== "" ? "_" : "")  + "EZBudgets.xlsx")
         })
-    </script>
+
+        //BUDGET SAVE HANDLER
+        document.getElementById("saveBudget").addEventListener("click", collectAndSave);
+
+        async function collectAndSave() {
+            clearError();
+
+            // Validate dates
+            if (!budgetStartDate.value || !budgetEndDate.value) {
+                showError("Please enter budget start and end dates before saving.");
+                return;
+            }
+
+            // build payload
+            const payload = {
+                budget_id: window.currentBudgetId || 0, //get the actual budget ID
+                budget_name: budgetTitle.value || "",
+                funding_source: budgetFundingSource.value || "",
+                start_date: budgetStartDate.value,
+                end_date: budgetEndDate.value,
+                personnel: []
+            };
+
+
+            //GENERATEDv
+            // Helper to parse money string like "$12,345.00" -> number
+            function parseMoney(text) {
+                if (!text) return 0;
+                const s = ("" + text).replace(/[$,]/g, '').trim();
+                const n = parseFloat(s);
+                return isNaN(n) ? 0 : n;
+            }
+
+            // Collect rows from a table by id and map to DB personnel_type values
+            function collectTableRows(tableId) {
+                const rows = [];
+                const table = document.getElementById(tableId);
+                if (!table) return rows;
+                for (const r of table.querySelectorAll("tbody tr")) {
+                    // ignore rows with no selected person (no .staff-picker) when required
+                    const picker = r.querySelector(".staff-picker");
+                    const personnelId = picker ? parseInt(picker.value || 0) : 0;
+
+                    // Common fields
+                    const percentEl = r.querySelector(".percent-effort");
+                    const percentVal = percentEl ? parseInt(percentEl.value || 0) : 0;
+                    const stipendCheckbox = r.querySelector(".request-stipend");
+                    const stipendRequested = stipendCheckbox ? (stipendCheckbox.checked ? 1 : 0) : 0;
+                    const stipendAmountEl = r.querySelector(".stipend-amount");
+                    const stipendAmount = stipendAmountEl ? parseMoney(stipendAmountEl.textContent || stipendAmountEl.value) : 0;
+            //GENERATED^
+                // Determine personnel_type mapping by table
+                let ptype = "staff";
+                if (tableId === "pi-table") {
+                    // the .type cell contains "PI" or "Co-PI" etc. Map everything in this table to 'PI'
+                    ptype = "PI";
+                } else if (tableId === "pro-staff") {
+                    ptype = "staff";
+                } else if (tableId === "post-docs") {
+                    ptype = "postdoc";
+                } else if (tableId === "gras") {
+                    ptype = "grad_assistant";
+                } else if (tableId === "ugrads") {
+                    ptype = "undergrad_assistant";
+                } else {
+                    ptype = "staff";
+                }
+
+                // If no personnel selected and percent effort = 0 and no stipend -> skip empty rows
+                if (personnelId === 0 && percentVal === 0 && stipendRequested === 0 && stipendAmount === 0) continue;
+
+                rows.push({
+                    personnel_type: ptype,
+                    personnel_id: personnelId,
+                    percent_effort: percentVal,
+                    stipend_requested: stipendRequested,
+                    stipend_amount: stipendAmount
+                });
+            }
+            return rows;
+        }
+
+        // Gather from each user table
+        payload.personnel = payload.personnel.concat(
+            collectTableRows("pi-table"),
+            collectTableRows("pro-staff"),
+            collectTableRows("post-docs"),
+            collectTableRows("gras"),
+            collectTableRows("ugrads")
+        );
+
+        // disable button while saving
+        const saveBtn = document.getElementById("saveBudget");
+        saveBtn.disabled = true;
+        saveBtn.value = "Saving...";
+
+        try {
+            const resp = await fetch('save_budget.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const result = await resp.json();
+            if (!result.success) {
+                throw new Error(result.error || 'Unknown error from server');
+            }
+
+            // on success: show a small confirmation
+            saveBtn.value = "Saved ✓";
+            setTimeout(() => {
+                saveBtn.disabled = false;
+                saveBtn.value = "Save budget";
+            }, 1200);
+
+            // If server returned the new budget_id, store it so future saves update rather than create.
+            if (result.budget_id) {
+                payload.budget_id = result.budget_id;
+                // optionally persist it to a global var if you track it elsewhere
+                window.currentBudgetId = result.budget_id;
+            }
+        } catch (err) {
+            showError("Save failed: " + err.message);
+            saveBtn.disabled = false;
+            saveBtn.value = "Save budget";
+        }
+    }
+</script>
 </body>
 </html>
