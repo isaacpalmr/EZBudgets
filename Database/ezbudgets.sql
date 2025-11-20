@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 20, 2025 at 09:20 AM
+-- Generation Time: Nov 20, 2025 at 09:36 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -57,6 +57,21 @@ INSERT INTO `budgets` (`budget_id`, `user_id`, `budget_name`, `funding_source`, 
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `budget_items`
+--
+
+CREATE TABLE `budget_items` (
+  `id` int(11) NOT NULL,
+  `budget_id` int(11) NOT NULL,
+  `item_type` enum('Equipment','Materials & Supplies','Publication Costs','Computer Services','Software','Facility Useage Fees','Conference Registration','Other') NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `quantity` int(11) NOT NULL DEFAULT 1,
+  `unit_cost` decimal(10,2) NOT NULL DEFAULT 0.00
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `budget_personnel`
 --
 
@@ -97,6 +112,20 @@ INSERT INTO `budget_personnel` (`bp_id`, `budget_id`, `personnel_type`, `personn
 (75, 1, 'postdoc', 1, 0, 0, 55000.00),
 (76, 1, 'grad_assistant', 4, 50, 1, 31000.00),
 (77, 1, 'undergrad_assistant', 1, 0, 0, 5000.00);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `budget_travels`
+--
+
+CREATE TABLE `budget_travels` (
+  `travel_id` int(11) NOT NULL,
+  `budget_id` int(11) NOT NULL,
+  `travel_type` enum('Domestic','International') NOT NULL,
+  `num_nights` int(11) NOT NULL DEFAULT 0,
+  `num_travelers` int(11) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -236,15 +265,23 @@ CREATE TABLE `students` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `travel_profile`
+-- Table structure for table `travel_profiles`
 --
 
-CREATE TABLE `travel_profile` (
+CREATE TABLE `travel_profiles` (
   `travel_type` varchar(50) NOT NULL,
   `airfare` decimal(10,2) NOT NULL,
   `max_lodging_days` int(11) NOT NULL,
   `per_diem` decimal(10,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `travel_profiles`
+--
+
+INSERT INTO `travel_profiles` (`travel_type`, `airfare`, `max_lodging_days`, `per_diem`) VALUES
+('Domestic', 450.00, 7, 59.00),
+('International', 1500.00, 14, 85.00);
 
 -- --------------------------------------------------------
 
@@ -335,11 +372,25 @@ ALTER TABLE `budgets`
   ADD KEY `user_id` (`user_id`);
 
 --
+-- Indexes for table `budget_items`
+--
+ALTER TABLE `budget_items`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `budget_id` (`budget_id`);
+
+--
 -- Indexes for table `budget_personnel`
 --
 ALTER TABLE `budget_personnel`
   ADD PRIMARY KEY (`bp_id`),
   ADD KEY `budget_id` (`budget_id`);
+
+--
+-- Indexes for table `budget_travels`
+--
+ALTER TABLE `budget_travels`
+  ADD PRIMARY KEY (`travel_id`),
+  ADD KEY `fk_budget_travels_budget` (`budget_id`);
 
 --
 -- Indexes for table `employee_fringe_rates`
@@ -392,9 +443,9 @@ ALTER TABLE `students`
   ADD PRIMARY KEY (`student_id`);
 
 --
--- Indexes for table `travel_profile`
+-- Indexes for table `travel_profiles`
 --
-ALTER TABLE `travel_profile`
+ALTER TABLE `travel_profiles`
   ADD PRIMARY KEY (`travel_type`);
 
 --
@@ -429,10 +480,22 @@ ALTER TABLE `budgets`
   MODIFY `budget_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
+-- AUTO_INCREMENT for table `budget_items`
+--
+ALTER TABLE `budget_items`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `budget_personnel`
 --
 ALTER TABLE `budget_personnel`
   MODIFY `bp_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=78;
+
+--
+-- AUTO_INCREMENT for table `budget_travels`
+--
+ALTER TABLE `budget_travels`
+  MODIFY `travel_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `graduate_research_assistants`
@@ -465,40 +528,20 @@ ALTER TABLE `university_employee`
   MODIFY `staff_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
--- AUTO_INCREMENT for table `users`
---
-ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
-
---
 -- Constraints for dumped tables
 --
 
 --
--- Constraints for table `budget_personnel`
+-- Constraints for table `budget_items`
 --
-ALTER TABLE `budget_personnel`
-  ADD CONSTRAINT `budget_personnel_ibfk_1` FOREIGN KEY (`budget_id`) REFERENCES `budgets` (`budget_id`) ON DELETE CASCADE;
+ALTER TABLE `budget_items`
+  ADD CONSTRAINT `budget_items_ibfk_1` FOREIGN KEY (`budget_id`) REFERENCES `budgets` (`budget_id`) ON DELETE CASCADE;
 
 --
--- Constraints for table `employee_fringe_rates`
+-- Constraints for table `budget_travels`
 --
-ALTER TABLE `employee_fringe_rates`
-  ADD CONSTRAINT `employee_fringe_rates_ibfk_1` FOREIGN KEY (`staff_id`) REFERENCES `university_employee` (`staff_id`),
-  ADD CONSTRAINT `employee_fringe_rates_ibfk_2` FOREIGN KEY (`staff_title`) REFERENCES `fringe_rate` (`staff_title`);
-
---
--- Constraints for table `semesters_attended`
---
-ALTER TABLE `semesters_attended`
-  ADD CONSTRAINT `semesters_attended_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `students` (`student_id`),
-  ADD CONSTRAINT `semesters_attended_ibfk_2` FOREIGN KEY (`semester_year`) REFERENCES `semester_tuition` (`semester_year`);
-
---
--- Constraints for table `university_employee`
---
-ALTER TABLE `university_employee`
-  ADD CONSTRAINT `university_employee_ibfk_1` FOREIGN KEY (`staff_title`) REFERENCES `fringe_rate` (`staff_title`);
+ALTER TABLE `budget_travels`
+  ADD CONSTRAINT `fk_budget_travels_budget` FOREIGN KEY (`budget_id`) REFERENCES `budgets` (`budget_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
