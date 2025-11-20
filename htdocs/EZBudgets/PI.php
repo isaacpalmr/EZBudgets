@@ -1163,6 +1163,8 @@ function onStaffPickerSelect(row) {
                 const table = event.target.closest("table");
                 if (!table || table.id !== "travel") return;
                 
+                console.log("travel input");
+
                 const row = event.target.closest("tr");
                 const totalCost = row.querySelector(".total-cost");
 
@@ -1373,10 +1375,9 @@ function onStaffPickerSelect(row) {
                 const rowCost = calculateTotalItemCostFromRow(row);
 
                 if (itemType === "Equipment") {
-                    const unitCost = dollarToNumber(row.querySelector(".unit-cost").textContent.trim());
+                    const unitCost = Number(row.querySelector(".unit-cost").value);
                     if (unitCost >= 5000) {
-                        const name = row.querySelector(".name").textContent.trim();
-                        bigEquipmentRows.push([name]);
+                        bigEquipmentRows.push(row);
                     } else {
                         const label = "<$5K small equipment";
                         const old = rowLabelToAggregatedCost.get(label) ?? 0;
@@ -1388,12 +1389,16 @@ function onStaffPickerSelect(row) {
                     rowLabelToAggregatedCost.set(label, old + rowCost);
                 }
             }
-            
             for (const [k, v] of rowLabelToAggregatedCost) {
                 pushRepeatYearlyCost(getSpreadsheetRowIndexByLabel(k), 3, v);
             }
-            for (const row of bigEquipmentRows) {
-                
+
+            const equipmentLabelRowIndex = getSpreadsheetRowIndexByLabel("Equipment > $5000.00");
+            for (let i = 0; i < bigEquipmentRows.length; i++) {
+                const row = bigEquipmentRows[i];
+                const name = row.querySelector(".name").value;
+                const rowCost = calculateTotalItemCostFromRow(row);
+                spreadsheetData.splice(equipmentLabelRowIndex + i + 1, 0, [name, null, null, ...Array(numBudgetYears).fill(toDollar(rowCost)), toDollar(rowCost * numBudgetYears)])
             }
 
             const worksheet = XLSX.utils.aoa_to_sheet(spreadsheetData);
