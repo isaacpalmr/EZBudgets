@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 20, 2025 at 07:50 AM
+-- Generation Time: Nov 20, 2025 at 09:20 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -51,7 +51,8 @@ INSERT INTO `budgets` (`budget_id`, `user_id`, `budget_name`, `funding_source`, 
 (3, 5, 'Super cool', NULL, NULL, NULL, 0, '2025-11-19 12:33:30', '2025-11-19 12:33:30', NULL, NULL),
 (5, 5, 'Super neat Budget', 'National Science Foundation', NULL, NULL, 0, '2025-11-19 18:44:02', '2025-11-19 18:44:02', '2025-11-18', '2028-09-14'),
 (6, 5, 'Super neat Budget', 'National Science Foundation', NULL, NULL, 0, '2025-11-19 18:44:37', '2025-11-19 18:44:37', '2025-11-18', '2028-09-14'),
-(7, 1, '', 'National Science Foundation', NULL, NULL, 0, '2025-11-19 18:55:14', '2025-11-19 18:55:14', '2025-11-04', '2027-12-05');
+(7, 1, 'yupyupyup', 'National Science Foundation', NULL, NULL, 0, '2025-11-19 18:55:14', '2025-11-19 23:55:20', '2025-11-04', '2027-12-05'),
+(8, 1, 'Awesome', 'National Science Foundation', NULL, NULL, 0, '2025-11-19 23:34:34', '2025-11-19 23:40:34', '2025-11-12', '2027-11-17');
 
 -- --------------------------------------------------------
 
@@ -79,18 +80,23 @@ INSERT INTO `budget_personnel` (`bp_id`, `budget_id`, `personnel_type`, `personn
 (19, 6, 'postdoc', 2, 5, 1, 60000.00),
 (20, 6, 'grad_assistant', 1, 0, 0, 32000.00),
 (21, 6, 'undergrad_assistant', 3, 1, 1, 4800.00),
-(22, 7, 'PI', 3, 1, 0, 0.00),
-(23, 7, 'staff', 3, 1, 0, 0.00),
-(24, 7, 'postdoc', 1, 1, 1, 55000.00),
-(25, 7, 'grad_assistant', 5, 0, 0, 25000.00),
-(26, 7, 'undergrad_assistant', 5, 0, 1, 5100.00),
-(42, 1, 'PI', 1, 1, 0, 0.00),
-(43, 1, 'PI', 1, 5, 0, 0.00),
-(44, 1, 'PI', 3, 6, 0, 0.00),
-(45, 1, 'staff', 3, 1, 0, 0.00),
-(46, 1, 'postdoc', 1, 0, 0, 55000.00),
-(47, 1, 'grad_assistant', 4, 50, 1, 31000.00),
-(48, 1, 'undergrad_assistant', 1, 0, 0, 5000.00);
+(54, 8, 'PI', 1, 30, 0, 0.00),
+(55, 8, 'PI', 3, 2, 0, 0.00),
+(56, 8, 'PI', 5, 1, 0, 0.00),
+(57, 8, 'PI', 4, 8, 0, 0.00),
+(58, 8, 'staff', 3, 100, 0, 0.00),
+(59, 7, 'PI', 3, 1, 0, 0.00),
+(60, 7, 'staff', 3, 1, 0, 0.00),
+(61, 7, 'postdoc', 1, 1, 1, 55000.00),
+(62, 7, 'grad_assistant', 5, 0, 0, 25000.00),
+(63, 7, 'undergrad_assistant', 5, 0, 1, 5100.00),
+(71, 1, 'PI', 1, 1, 0, 0.00),
+(72, 1, 'PI', 4, 5, 0, 0.00),
+(73, 1, 'PI', 3, 6, 0, 0.00),
+(74, 1, 'staff', 3, 1, 0, 0.00),
+(75, 1, 'postdoc', 1, 0, 0, 55000.00),
+(76, 1, 'grad_assistant', 4, 50, 1, 31000.00),
+(77, 1, 'undergrad_assistant', 1, 0, 0, 5000.00);
 
 -- --------------------------------------------------------
 
@@ -314,7 +320,8 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`user_id`, `username`, `first_name`, `last_name`, `email`, `password`, `created_at`, `last_login`) VALUES
 (1, 'super', 'super', 'super', '', '$2y$10$3zLLaD6hC8JJGcOBX2NCsOKwSRtRz831V6mdpkmOv9Vl.p9haPyOW', '2025-11-18 13:22:19', '2025-11-18 13:22:19'),
-(5, 'john', 'john', 'john', 'john', '$2y$10$W8OCFhxs7Ny1KneBs8afbeCslYQQJMFQyHuWtD3ujFG2A5UZDdA8a', '2025-11-18 13:29:20', '2025-11-18 13:29:20');
+(5, 'john', 'john', 'john', 'john', '$2y$10$W8OCFhxs7Ny1KneBs8afbeCslYQQJMFQyHuWtD3ujFG2A5UZDdA8a', '2025-11-18 13:29:20', '2025-11-18 13:29:20'),
+(6, 'sdf', 'sdf', 'sdf', 'sdf', '$2y$10$Iz.IwKJuDiJ2JE3jFadKd.s.rtlV8L3dtylapimF5BMVl6/MwlzzC', '2025-11-19 23:28:38', '2025-11-19 23:28:38');
 
 --
 -- Indexes for dumped tables
@@ -419,13 +426,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `budgets`
 --
 ALTER TABLE `budgets`
-  MODIFY `budget_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `budget_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `budget_personnel`
 --
 ALTER TABLE `budget_personnel`
-  MODIFY `bp_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
+  MODIFY `bp_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=78;
 
 --
 -- AUTO_INCREMENT for table `graduate_research_assistants`
@@ -461,7 +468,7 @@ ALTER TABLE `university_employee`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- Constraints for dumped tables
