@@ -859,28 +859,28 @@ if ($conn->connect_error) {
         }
 
         function getPersonnelIdFromRow(row) {
-    if (!row) return [null, 0];
+            if (!row) return [null, 0];
 
-    // Try to find the table containing the row; be defensive if closest() returns null
-    let table = row.closest("table");
-    if (!table && row.parentElement) {
-        // fallback: maybe the row was inserted in a fragment — try parentElement.closest
-        table = row.parentElement.closest ? row.parentElement.closest("table") : null;
-    }
+            // Try to find the table containing the row; be defensive if closest() returns null
+            let table = row.closest("table");
+            if (!table && row.parentElement) {
+                // fallback: maybe the row was inserted in a fragment — try parentElement.closest
+                table = row.parentElement.closest ? row.parentElement.closest("table") : null;
+            }
 
-    // If still no table, return defaults to avoid crashes
-    if (!table) {
-        return [null, 0];
-    }
+            // If still no table, return defaults to avoid crashes
+            if (!table) {
+                return [null, 0];
+            }
 
-    const personnelType = tableIdToPersonnelType[table.id] || "staff";
-    const picker = row.querySelector(".staff-picker");
-    const personnelId = picker ? picker.value : 0;
+            const personnelType = tableIdToPersonnelType[table.id] || "staff";
+            const picker = row.querySelector(".staff-picker");
+            const personnelId = picker ? picker.value : 0;
 
-    return [personnelType, personnelId];
-}
+            return [personnelType, personnelId];
+        }
 
-function onStaffPickerSelect(row) {
+        function onStaffPickerSelect(row) {
             const table = row.closest("table");
             const select = row.querySelector(".staff-picker");
             if (!select) return;
@@ -914,7 +914,6 @@ function onStaffPickerSelect(row) {
                     updateYearlyCosts();
                 });
         }
-
 
         function getPercentEffortFromRow(row) {
             return row.querySelector(".percent-effort").value/100;
