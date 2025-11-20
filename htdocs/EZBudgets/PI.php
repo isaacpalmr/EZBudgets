@@ -91,6 +91,10 @@ if ($conn->connect_error) {
             filter: brightness(85%)
         }
 
+        .option {
+            z-index: 9999; 
+        }
+
         #right-side {
             display: flex;
             flex-direction: column;
@@ -308,9 +312,9 @@ if ($conn->connect_error) {
                 </div>
 
                 <div>
-                    <table id="equipment">
+                    <table id="travel">
                         <caption>
-                            Equipment > $5,000.00
+                            Travel
                             <button class="add_row" style="background-color: rgb(1, 255, 136); border-width: 1px; margin-top: 20px;">
                                 <img src="Images/add_circle_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png"
                                 width="24" height="24">
@@ -318,6 +322,31 @@ if ($conn->connect_error) {
                         </caption>
                         <thead>
                             <tr>
+                                <th>Travel Type</th>
+                                <th>Per Diem</th>
+                                <th>Airfare</th>
+                                <th>Number of Nights</th>
+                                <th>Number of Travelers</th>
+                                <th>Trip Total Cost</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div>
+                    <table id="itemized-costs">
+                        <caption>
+                            Itemized costs
+                            <button class="add_row" style="background-color: rgb(1, 255, 136); border-width: 1px; margin-top: 20px;">
+                                <img src="Images/add_circle_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png"
+                                width="24" height="24">
+                            </button>
+                        </caption>
+                        <thead>
+                            <tr>
+                                <th>Type</th>
                                 <th>Name</th>
                                 <th>Quantity</th>
                                 <th>Unit Cost</th>
@@ -328,28 +357,6 @@ if ($conn->connect_error) {
                         </tbody>
                     </table>
                 </div>
-
-                <!-- <div>
-                    <table id="post_docs_table">
-                        <caption>
-                            Post doctorates
-                        </caption>
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Percent effort (of 40 hr week)</th>
-                                <th>Hourly rate at start date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-
-                    <button class="add_row" style="background-color: rgb(1, 255, 136); border-width: 1px; margin-top: 20px;">
-                        <img src="Images/add_circle_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png"
-                        width="24" height="24">
-                    </button>
-                </div> -->
             </div>
 
             <div id="right-side">
@@ -381,7 +388,8 @@ if ($conn->connect_error) {
         </div>
     </main>
 
-    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <!-- <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
     <script>
         const templateRows = {
             "pi-table": `
@@ -470,11 +478,19 @@ if ($conn->connect_error) {
                     </td>
                 </tr>
             `,
-            "equipment": `
+            "travel": `
                 <tr>
-                    <td><input class="name" type="text"></td>
-                    <td><input class="quantity" type="number" value="0" min="0"></td>
-                    <td><input class="unit-cost" type="number" value="5000" min="5000"></td>
+                    <td>
+                        <select class="type">
+                            <option value="">Select Travel Type</option>
+                            <option value="Domestic">Domestic</option>
+                            <option value="International">International</option>
+                        </select>
+                    </td>
+                    <td class="per-diem">$0.00</td>
+                    <td class="airfare">$0.00</td>
+                    <td><input class="num-nights" type="number" value="0" min="0" max="0"></td>
+                    <td><input class="num-travelers" type="number" value="0" min="0"></td>
                     <td class="total-cost">$0.00</td>
                     <td>
                         <button class="rem_row" style="background-color: rgb(255, 82, 82); border-width: 1px;">
@@ -483,22 +499,24 @@ if ($conn->connect_error) {
                     </td>
                 </tr>
             `,
-            // post_docs_table: `
-            //     <tr>
-            //         <td>
-            //             <select class="staff-picker" data-filter="postdoc">
-            //                 <option value="">Select Post Doc</option>
-            //             </select>
-            //         </td>
-            //         <td><input class="percent-effort" type="number" value="0" min="0" max="100"></td>
-            //         <td class="rate">$0</td>
-            //         <td>
-            //             <button class="rem_row" style="background-color: rgb(255, 82, 82); border-width: 1px;">
-            //                 <img src="Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
-            //             </button>
-            //         </td>
-            //     </tr>
-            // `
+            "itemized-costs": `
+                <tr>
+                    <td>
+                        <select class="item-picker">
+                            <option value="">Select Type</option>
+                        </select>
+                    </td>
+                    <td><input class="name" type="text"></td>
+                    <td><input class="quantity" type="number" value="0" min="0"></td>
+                    <td><input class="unit-cost" type="number" value="0" min="0"></td>
+                    <td class="total-cost">$0.00</td>
+                    <td>
+                        <button class="rem_row" style="background-color: rgb(255, 82, 82); border-width: 1px;">
+                            <img src="Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
+                        </button>
+                    </td>
+                </tr>
+            `,
         }
 
         const tableIdToPersonnelType = {
@@ -519,7 +537,44 @@ if ($conn->connect_error) {
         const budgetFundingSource = document.querySelector("#budget-funding-source select");
         const piTableBody = document.querySelector("#pi-table tbody");
 
+        let travelProfiles;
+
         // Staff picker dropdown logic
+        function onStaffPickerSelect(row) {
+            const table = row.closest("table");
+            const select = row.querySelector(".staff-picker");
+            if (!select) return;
+
+            const personnelId = select.value;
+            if (!personnelId) {
+                row.innerHTML = row.dataset.originalHTML; // Reset the row's values
+                return;
+            }
+
+            const personnelType = tableIdToPersonnelType[table.id];
+
+            fetch(`get_single_personnel.php?personnelType=${personnelType}&personnelId=${personnelId}`)
+                .then(r => r.json())
+                .then(data => {
+                    const stipendAmount = row.querySelector(".stipend-amount");
+                    if (stipendAmount) {
+                        stipendAmount.textContent = toDollar(data.stipend_per_academic_year ?? 0);
+                    }
+
+                    const hourlyRate = row.querySelector(".rate");
+                    if (hourlyRate) {
+                        hourlyRate.textContent = toDollar(data.hourly_rate ?? 0)
+                    }
+
+                    const title = row.querySelector(".title");
+                    if (title) {
+                        title.textContent = data.staff_title ?? "—";
+                    }
+
+                    updateYearlyCosts();
+                });
+        }
+
         function initializeStaffPicker(select) {
             const table = select.closest("table");
             const row = select.closest("tr");
@@ -539,50 +594,70 @@ if ($conn->connect_error) {
 
                     const ts = new TomSelect(select, {
                         maxItems: 1,
-                        create: false
+                        create: false,
+                        dropdownParent: 'body' // append dropdown to <body> so transforms don’t clip it
                     });
 
-                    ts.on("change", personnelId => {
-                        if (!personnelId) {
-                            row.innerHTML = row.dataset.originalHTML; // Reset the row's values
-                            return;
-                        }
-
-                        const personnelType = tableIdToPersonnelType[table.id];
-
-                        fetch(`get_single_personnel.php?personnelType=${personnelType}&personnelId=${personnelId}`)
-                            .then(r => r.json())
-                            .then(data => {
-                                const stipendAmount = row.querySelector(".stipend-amount");
-                                if (stipendAmount) {
-                                    stipendAmount.textContent = toDollar(data.stipend_per_academic_year ?? 0);
-                                }
-
-                                const hourlyRate = row.querySelector(".rate");
-                                if (hourlyRate) {
-                                    hourlyRate.textContent = toDollar(data.hourly_rate ?? 0)
-                                }
-
-                                const title = row.querySelector(".title");
-                                if (title) {
-                                    title.textContent = data.staff_title ?? "—";
-                                }
-
-                                updateYearlyCosts();
-                            });
+                    ts.on("change", () => {
+                        onStaffPickerSelect(row);
                     })
                 });
         }
         
+        // Item type picker dropdown logic
+        function initializeItemPicker(select) {
+            const table = select.closest("table");
+            const row = select.closest("tr");
+
+            row.dataset.originalHTML = row.innerHTML;
+
+            const itemTypes = [
+                "Equipment",
+                "Materials & Supplies",
+                "Publication Costs",
+                "Computer Services",
+                "Software",
+                "Facility Useage Fees",
+                "Conference Registration",
+                "Other"
+            ];
+
+            itemTypes.forEach(itemType => {
+                const opt = document.createElement("option");
+                opt.value = itemType;
+                opt.textContent = itemType;
+                select.appendChild(opt);
+            });
+
+            const ts = new TomSelect(select, {
+                maxItems: 1,
+                create: false,
+                dropdownParent: 'body'
+            });
+
+            // TODO: Add logic to this event
+            ts.on("change", itemType => {
+                if (!itemType) {
+                    row.innerHTML = row.dataset.originalHTML; // Reset the row's values
+                    return;
+                }
+            });
+        }
+
         function addRow(table) {
             const tbody = table.querySelector("tbody")
             tbody.insertAdjacentHTML("beforeend", templateRows[table.id]);
 
-            const select = tbody.lastElementChild.querySelector(".staff-picker");
-            if (select) {
-                initializeStaffPicker(select);
+            const staffPickerSelect = tbody.lastElementChild.querySelector(".staff-picker");
+            if (staffPickerSelect) {
+                initializeStaffPicker(staffPickerSelect);
             }
             
+            const itemTypeSelect = tbody.lastElementChild.querySelector(".item-picker");
+            if (itemTypeSelect) {
+                initializeItemPicker(itemTypeSelect);
+            } 
+
             return tbody.lastElementChild;
         }
 
@@ -633,6 +708,10 @@ if ($conn->connect_error) {
         }
         // GENERATED //
 
+        function dollarToNumber(v) {
+            return Number(v?.replace(/[$, ]+/g, ''));
+        }
+
         function getPersonnelIdFromRow(row) {
             const table = row.closest("table");
 
@@ -642,8 +721,12 @@ if ($conn->connect_error) {
             return [personnelType, personnelId];
         }
 
+        function getPercentEffortFromRow(row) {
+            return row.querySelector(".percent-effort").value/100;
+        }
+
         function calculateYearlyHoursWorkedFromRow(row) {
-            const weeklyHoursWorked = Number(row.querySelector(".percent-effort").value/100 * 40);
+            const weeklyHoursWorked = Number(getPercentEffortFromRow(row) * 40);
             const yearlyHoursWorked = weeklyHoursWorked * 52.1429;
             return yearlyHoursWorked;
         }
@@ -656,20 +739,32 @@ if ($conn->connect_error) {
         }
 
         async function calculateYearlyWagesWithFringeRateFromRowAsync(row) {
-            const hourlyRate = Number(row.querySelector(".rate").textContent.replace(/[$, ]+/g, ''));
-            const yearlyHoursWorked = calculateYearlyHoursWorkedFromRow(row);
-            
-            const fringeRate = await getFringeRateFromRowAsync(row);
-            const yearlyWages = (hourlyRate*yearlyHoursWorked) * (1+fringeRate);
+            const rate = row.querySelector(".rate");
+            const stipendAmount = row.querySelector(".stipend-amount");
+            if (rate) {
+                const hourlyRate = dollarToNumber(rate.textContent);
+                const yearlyHoursWorked = calculateYearlyHoursWorkedFromRow(row);
+                
+                const fringeRate = await getFringeRateFromRowAsync(row);
+                const yearlyWages = (hourlyRate*yearlyHoursWorked) * (1+fringeRate);
 
-            return yearlyWages;
+                return yearlyWages;
+            } else if (stipendAmount) {
+                const stipendAmountNum = dollarToNumber(stipendAmount.textContent);
+                const percentEffort = getPercentEffortFromRow(row);
+
+                const fringeRate = await getFringeRateFromRowAsync(row);
+                const yearlyWages = (percentEffort*stipendAmountNum) * (1+fringeRate);
+
+                return yearlyWages;
+            }
         }
 
         async function getTotalWagesForYearWithFringeRateAsync(yearNum) {
             let totalWagesPerYear = 0;
-            const hourlyRates = document.querySelectorAll(".rate");
 
-            for (const td of hourlyRates) {
+            const payFields = [...document.querySelectorAll(".rate"), ...document.querySelectorAll(".stipend-amount")];
+            for (const td of payFields) {
                 const row = td.closest("tr");
                 const yearlyWages = await calculateYearlyWagesWithFringeRateFromRowAsync(row);
                 if (yearlyWages > 0 && !isNaN(yearlyWages)) {
@@ -680,13 +775,71 @@ if ($conn->connect_error) {
             return totalWagesPerYear;
         }
 
+        function calculateTotalItemCostFromRow(row) {
+            const quantity = row.querySelector(".quantity");
+            const unitCost = row.querySelector(".unit-cost");
+
+            return quantity.value * unitCost.value;
+        }
+
+        function calculateTotalTravelCostFromRow(row) {
+            const travelType = row.querySelector(".type");
+            const numNights = row.querySelector(".num-nights");
+            const numTravelers = row.querySelector(".num-travelers");
+            const perDiem = row.querySelector(".per-diem");
+            const airfare = row.querySelector(".airfare");
+
+            const travelProfile = travelProfiles?.[travelType.value];
+            if (!travelProfile) return 0;
+
+            numNights.max = travelProfile.max_lodging_days;
+            if (Number(numNights.value) > numNights.max) {
+                numNights.value = numNights.max;
+            }
+
+            airfare.textContent = toDollar(travelProfile.airfare)
+            perDiem.textContent = toDollar(travelProfile.per_diem);
+
+            const totalLodging = (numNights.value*numTravelers.value) * travelProfile.per_diem;;
+            const totalAirfare = travelProfile.airfare * numTravelers.value;
+
+            return totalLodging + totalAirfare;
+        }
+
+        function getTotalItemizedCosts() {
+            const tbody = document.querySelector("#itemized-costs tbody");
+            const rows = tbody.children;
+
+            let totalItemizedCosts = 0;
+
+            for (row of rows) {
+                totalItemizedCosts += calculateTotalItemCostFromRow(row);
+            }
+
+            return totalItemizedCosts;
+        }
+        
+        function getTotalTravelCosts() {
+            const tbody = document.querySelector("#travel tbody");
+            const rows = tbody.children;
+
+            let totalTravelCosts = 0;
+
+            for (row of rows) {
+                totalTravelCosts += calculateTotalTravelCostFromRow(row);
+            }
+
+            return totalTravelCosts;
+        }
+
         function updateYearlyCosts() {
+            const totalItemizedCosts = getTotalItemizedCosts();
+            const totalTravelCosts = getTotalTravelCosts();
+
             getTotalWagesForYearWithFringeRateAsync()
             .then(totalYearlyWages => {
-                totalYearlyWages = Math.round(totalYearlyWages * 100) / 100;
-
                 for (const td of yearlyCostsTableBodyRow.children) {
-                    td.textContent = toDollar(totalYearlyWages);
+                    td.textContent = toDollar(totalYearlyWages + totalItemizedCosts + totalTravelCosts);
                 }
             });
         }
@@ -791,17 +944,37 @@ if ($conn->connect_error) {
             
         });
 
-        // Listen for equipment quantity/unit cost changed
+        // Listen for itemized costs changed
         document.addEventListener("input", event => {
             const table = event.target.closest("table");
-            if (!table || table.id !== "equipment") return;
+            if (!table || table.id !== "itemized-costs") return;
             
             const row = event.target.closest("tr");
-            const quantity = row.querySelector(".quantity");
-            const unitCost = row.querySelector(".unit-cost");
             const totalCost = row.querySelector(".total-cost");
 
-            totalCost.textContent = toDollar(quantity.value * unitCost.value);
+            totalCost.textContent = toDollar(calculateTotalItemCostFromRow(row));
+
+            updateYearlyCosts();
+        })
+
+        // Listen for travel input changes
+        fetch("get_travel_profiles.php")
+        .then(res => res.json())
+        .then(data => {
+            travelProfiles = data;
+            
+            // Listen for travel type/num days/num travelers changed
+            document.addEventListener("input", event => {
+                const table = event.target.closest("table");
+                if (!table || table.id !== "travel") return;
+                
+                const row = event.target.closest("tr");
+                const totalCost = row.querySelector(".total-cost");
+
+                totalCost.textContent = toDollar(calculateTotalTravelCostFromRow(row));
+
+                updateYearlyCosts();
+            })
         })
 
         // Listen for stipend request button clicked
@@ -818,6 +991,8 @@ if ($conn->connect_error) {
                 percentEffort.value = 0;
                 percentEffort.disabled = true;
             }
+
+            updateYearlyCosts();
         })
 
         // Download spreadsheet
@@ -859,19 +1034,14 @@ if ($conn->connect_error) {
                 ["Facility useage fees"],
                 ["Conference registration"],
                 ["Other"],
-                ["Other"],
                 ["Grad Student Tuition & Health Insurance"],
                 [],
                 ["Consortia/Subawards"],
-                ["Sub award 1"],
-                ["Sub award 2"],
                 [],
                 ["Total Direct Cost"],
                 ["Back out GRA T&F"],
                 ["Back out capital EQ"],
                 ["Back out subawards totals"],
-                ["Sub award 1 1st $25k"],
-                ["Sub award 2 1st $25k"],
                 ["Modified Total Direct Costs"],
                 ["Indirect Costs",                      "50.0%"],
                 ["Total Project Cost"],
@@ -879,6 +1049,23 @@ if ($conn->connect_error) {
 
             function getSpreadsheetRowIndexByLabel(label) {
                 return spreadsheetData.findIndex(row => row[0] === label);
+            }
+
+            function pushRepeatYearlyCost(rowIndex, insertColumnIndex, yearlyCost) {
+                if (yearlyCost === 0) return;
+
+                const spreadsheetRow = spreadsheetData[rowIndex];
+                
+                // Calculate how many empty cells are needed to reach the insert index
+                const gapSize = insertColumnIndex - spreadsheetRow.length;
+
+                // If there is a gap, fill it with empty strings in one go
+                if (gapSize > 0) {
+                    spreadsheetRow.push(...Array(gapSize).fill(""));
+                }
+
+                // Insert the yearly cost data
+                spreadsheetRow.splice(insertColumnIndex, 0, ...Array(numBudgetYears).fill(toDollar(yearlyCost)), toDollar(yearlyCost * numBudgetYears));
             }
 
             const numBudgetYears = getNumBudgetYears();
@@ -915,25 +1102,104 @@ if ($conn->connect_error) {
                 const piType = row.querySelector(".type").textContent.trim();
                 const hourlyRate = row.querySelector(".rate").textContent.trim();
                 const year1HoursWorked = calculateYearlyHoursWorkedFromRow(row);
+                if (year1HoursWorked == 0) continue;
                 const yearlyWages = await calculateYearlyWagesWithFringeRateFromRowAsync(row);
                 const totalWagesForBudgetDuration = yearlyWages*numBudgetYears;
                 spreadsheetData.splice(i+6, 0, [piType, year1HoursWorked, toDollar(hourlyRate), ...Array(numBudgetYears).fill(toDollar(yearlyWages)), toDollar(totalWagesForBudgetDuration)])
             }
 
-            // Apply UI professional staff & Post Docs
-            const uiStaffTBody = document.querySelector("#pro-staff-and-post-docs tbody")
-            const uiStaffRows = uiStaffTBody.children;
-            let aggregatedYear1HoursWorked = 0;
-            let aggregatedYearlyWages = 0;
-            for (const row of uiStaffRows) {
-                const year1HoursWorked = calculateYearlyHoursWorkedFromRow(row);
-                const yearlyWages = await calculateYearlyWagesWithFringeRateFromRowAsync(row);
-                aggregatedYear1HoursWorked += year1HoursWorked;
-                aggregatedYearlyWages += yearlyWages;
+            async function pushOtherPersonnelAggregationDataAsync(t1Id, t2Id, rowOffset) {
+                const t1Rows = document.querySelector(`#${t1Id} tbody`).children;
+                const t2Rows = document.querySelector(`#${t2Id} tbody`).children;
+
+                let aggregatedYear1HoursWorked = 0;
+                let aggregatedYearlyWages = 0;
+
+                for (const row of t1Rows) {
+                    const year1HoursWorked = calculateYearlyHoursWorkedFromRow(row);
+                    const yearlyWages = await calculateYearlyWagesWithFringeRateFromRowAsync(row);
+                    aggregatedYear1HoursWorked += year1HoursWorked;
+                    aggregatedYearlyWages += yearlyWages;
+                }
+                for (const row of t2Rows) {
+                    const year1HoursWorked = calculateYearlyHoursWorkedFromRow(row);
+                    const yearlyWages = await calculateYearlyWagesWithFringeRateFromRowAsync(row);
+                    aggregatedYear1HoursWorked += year1HoursWorked;
+                    aggregatedYearlyWages += yearlyWages;
+                }
+                
+                let totalWagesForBudgetDuration = aggregatedYearlyWages*numBudgetYears;
+                let spreadsheetRow = spreadsheetData[getSpreadsheetRowIndexByLabel("Other Personnel") + rowOffset];
+                if (aggregatedYear1HoursWorked > 0) {
+                    spreadsheetRow.push(aggregatedYear1HoursWorked, null, ...Array(numBudgetYears).fill(toDollar(aggregatedYearlyWages)), toDollar(totalWagesForBudgetDuration))
+                }
             }
-            const totalWagesForBudgetDuration = aggregatedYearlyWages*numBudgetYears;
-            const uiStaffSpreadsheetRow = spreadsheetData[getSpreadsheetRowIndexByLabel("Other Personnel") + 1];
-            uiStaffSpreadsheetRow.push(aggregatedYear1HoursWorked, null, ...Array(numBudgetYears).fill(toDollar(aggregatedYearlyWages)), toDollar(totalWagesForBudgetDuration))
+
+            // Apply UI professional staff & Post Docs
+            await pushOtherPersonnelAggregationDataAsync("pro-staff", "post-docs", 1);
+            
+            // Apply GRAs/UGrads
+            await pushOtherPersonnelAggregationDataAsync("gras", "ugrads", 2);
+            
+            // Apply domestic & international travel costs
+            const travelSpreadsheetRowIndex = getSpreadsheetRowIndexByLabel("Travel");
+            const travelRows = document.querySelector("#travel tbody").children;
+            let aggregatedDomesticCost = 0;
+            let aggregatedInternationalCost = 0;
+            for (const row of travelRows) {
+                const select = row.querySelector("select");
+                if (select.value === "International") {
+                    aggregatedInternationalCost += calculateTotalTravelCostFromRow(row);
+                } else if (select.value === "Domestic") {
+                    aggregatedDomesticCost += calculateTotalTravelCostFromRow(row);
+                }
+            }
+            pushRepeatYearlyCost(travelSpreadsheetRowIndex + 1, 3, aggregatedDomesticCost);
+            pushRepeatYearlyCost(travelSpreadsheetRowIndex + 2, 3, aggregatedInternationalCost);
+
+            // Apply itemized costs
+            const itemizedRows = document.querySelector("#itemized-costs tbody").children;
+            const itemTypeToRowLabel = {
+                "Materials & Supplies": "Materials and supplies",
+                "Publication Costs": "Publication costs",
+                "Computer Services": "Computer services",
+                "Software": "Software",
+                "Facility Useage Fees": "Facility useage fees",
+                "Conference Registration": "Conference registration",
+                "Other": "Other"
+            }
+            const rowLabelToAggregatedCost = new Map();
+            const bigEquipmentRows = [];
+            for (const row of itemizedRows) {
+                const select = row.querySelector("select");
+                const itemType = select.value;
+                if (itemType === "") continue;
+
+                const rowCost = calculateTotalItemCostFromRow(row);
+
+                if (itemType === "Equipment") {
+                    const unitCost = dollarToNumber(row.querySelector(".unit-cost").textContent.trim());
+                    if (unitCost >= 5000) {
+                        const name = row.querySelector(".name").textContent.trim();
+                        bigEquipmentRows.push([name]);
+                    } else {
+                        const label = "<$5K small equipment";
+                        const old = rowLabelToAggregatedCost.get(label) ?? 0;
+                        rowLabelToAggregatedCost.set(label, old + rowCost);
+                    }
+                } else {
+                    const label = itemTypeToRowLabel[itemType];
+                    const old = rowLabelToAggregatedCost.get(label) ?? 0;
+                    rowLabelToAggregatedCost.set(label, old + rowCost);
+                }
+            }
+            
+            for (const [k, v] of rowLabelToAggregatedCost) {
+                pushRepeatYearlyCost(getSpreadsheetRowIndexByLabel(k), 3, v);
+            }
+            for (const row of bigEquipmentRows) {
+                
+            }
 
             const worksheet = XLSX.utils.aoa_to_sheet(spreadsheetData);
 
@@ -941,17 +1207,163 @@ if ($conn->connect_error) {
             XLSX.utils.book_append_sheet(workbook, worksheet, "Budget");
 
             // GENERATED //
-            // Adjust column widths
+            // ---------------------------------------------------------
+            // 1. ADJUST COLUMN WIDTHS
+            // ---------------------------------------------------------
             const colWidths = [];
+            
             for (let r = 0; r < spreadsheetData.length; r++) {
                 const row = spreadsheetData[r];
-                row.forEach((cell, c) => {
-                    const cellStr = cell ? cell.toString() : '';
-                    const len = cellStr.length;
+                for (let c = 0; c < row.length; c++) {
+                    const cell = row[c];
+                    if (cell === null || cell === undefined) continue; 
+                    const len = cell.toString().length + 3; 
                     colWidths[c] = Math.max(colWidths[c] || 10, len);
-                });
+                }
             }
             worksheet['!cols'] = colWidths.map(w => ({ wch: w }));
+
+            // ---------------------------------------------------------
+            // 2. DEFINE STYLE LISTS
+            // ---------------------------------------------------------
+            
+            // A. DARK GRAY Row Background (D9D9D9)
+            const grayRowTriggers = [
+                "Personnel Compensation",
+                "Other Personnel",
+                "Fringe",
+                "Equipment > $5000.00",
+                "Travel",
+                "Participant support costs (NSF only)",
+                "Other Direct Costs",
+                "Consortia/Subawards",
+                "Total Project Cost"
+            ];
+
+            // B. LIGHT GRAY Row Background (F2F2F2)
+            const lightGrayRowTriggers = [
+                "Back out subawards totals",
+            ];
+
+            // C. ENTIRE ROW UNDERLINE (Bottom Border)
+            const rowUnderlineTriggers = [
+                "Indirect Costs"
+            ];
+
+            // D. TEXT: BOLD + UNDERLINE (Specific cells)
+            const boldUnderlineLabels = [
+                "Personnel Compensation",
+                "Other Personnel",
+                "Fringe",
+                "Equipment > $5000.00",
+                "Travel",
+                "Participant support costs (NSF only)",
+                "Other Direct Costs",
+                "Consortia/Subawards",
+                "Year 1 hours",
+                "FY26 Fringe Rates",
+            ];
+
+            // E. TEXT: BOLD ONLY (Specific cells)
+            const boldOnlyLabels = [
+                "Total Project Cost",
+                "Hourly rate at start date",
+                "Modified Total Direct Costs",
+                "Indirect Costs",
+                "Total",
+                "Year 1", "Year 2", "Year 3", "Year 4", "Year 5"
+            ];
+
+            // ---------------------------------------------------------
+            // 3. MAIN LOOP
+            // ---------------------------------------------------------
+            const range = XLSX.utils.decode_range(worksheet['!ref']);
+
+            for (let R = range.s.r; R <= range.e.r; ++R) {
+                
+                // --- CHECK ROW-LEVEL TRIGGERS (Based on Column A value) ---
+                let isGrayRow = false;
+                let isLightGrayRow = false;
+                let isRowUnderline = false;
+
+                const firstColRef = XLSX.utils.encode_cell({c: 0, r: R});
+                
+                if (worksheet[firstColRef]) {
+                    const label = worksheet[firstColRef].v;
+                    if (grayRowTriggers.includes(label)) isGrayRow = true;
+                    else if (lightGrayRowTriggers.includes(label)) isLightGrayRow = true; // Else-if prevents double coloring
+                    
+                    if (rowUnderlineTriggers.includes(label)) isRowUnderline = true;
+                }
+
+                // --- ITERATE COLUMNS ---
+                for (let C = range.s.c; C <= range.e.c; ++C) {
+                    const cell_ref = XLSX.utils.encode_cell({c: C, r: R});
+                    
+                    // Create stub cell if needed for background/borders to span whole row
+                    if (!worksheet[cell_ref]) {
+                        if (isGrayRow || isLightGrayRow || isRowUnderline) {
+                            worksheet[cell_ref] = { t: 's', v: '' };
+                        } else {
+                            continue;
+                        }
+                    }
+                    
+                    const cell = worksheet[cell_ref];
+                    const val = cell.v ? cell.v.toString().trim() : "";
+
+                    if (!cell.s) cell.s = {};
+
+                    // 1. Apply Background Color
+                    if (isGrayRow) {
+                        cell.s.fill = { fgColor: { rgb: "D9D9D9" } }; 
+                    } else if (isLightGrayRow) {
+                        cell.s.fill = { fgColor: { rgb: "F2F2F2" } }; 
+                    }
+
+                    // 2. Apply Row Bottom Border
+                    if (isRowUnderline) {
+                        if (!cell.s.border) cell.s.border = {};
+                        cell.s.border.bottom = { style: "thin", color: { rgb: "000000" } };
+                    }
+
+                    // 3. Apply Text Styling
+                    if (boldUnderlineLabels.includes(val)) {
+                        if (!cell.s.font) cell.s.font = {};
+                        cell.s.font.bold = true;
+                        cell.s.font.underline = true;
+                    } 
+                    else if (boldOnlyLabels.includes(val)) {
+                        if (!cell.s.font) cell.s.font = {};
+                        cell.s.font.bold = true;
+                    }
+
+                    // 4. Apply Number Formatting
+                    if (cell.t === 'n') {
+                        cell.z = '0.00'; 
+                        cell.s.alignment = { horizontal: "center", vertical: "center" };
+                    }
+                    else if (val.startsWith('$')) {
+                        const rawNum = parseFloat(val.replace(/[$,]/g, ''));
+                        if (!isNaN(rawNum)) {
+                            cell.v = rawNum.toLocaleString("en-US", { 
+                                style: "currency", 
+                                currency: "USD", 
+                                minimumFractionDigits: 2, 
+                                maximumFractionDigits: 2 
+                            });
+                        }
+                        cell.s.alignment = { horizontal: "center", vertical: "center" };
+                    }
+                    else if (val.endsWith('%')) {
+                        const rawNum = parseFloat(val.replace(/[%]/g, ''));
+                        if (!isNaN(rawNum)) {
+                            cell.v = rawNum.toFixed(2) + "%";
+                        }
+                        cell.s.alignment = { horizontal: "center", vertical: "center" };
+                    }
+                }
+            }
             // GENERATED //
 
             XLSX.writeFile(workbook, budgetTitle.value + (budgetTitle.value !== "" ? "_" : "")  + "EZBudgets.xlsx")
