@@ -18,3 +18,7 @@
 [20-Nov-2025 19:15:28 Europe/Berlin] PHP Warning:  Undefined variable $itemResults in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php on line 147
 [20-Nov-2025 19:15:36 Europe/Berlin] PHP Warning:  Undefined variable $travelResults in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php on line 146
 [20-Nov-2025 19:15:36 Europe/Berlin] PHP Warning:  Undefined variable $itemResults in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php on line 147
+[20-Nov-2025 19:19:59 Europe/Berlin] PHP Warning:  Undefined variable $travelResults in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php on line 146
+[20-Nov-2025 19:19:59 Europe/Berlin] PHP Warning:  Undefined variable $itemResults in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php on line 147
+[20-Nov-2025 19:22:07 Europe/Berlin] PHP Warning:  Undefined variable $travelResults in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php on line 146
+[20-Nov-2025 19:22:07 Europe/Berlin] PHP Warning:  Undefined variable $itemResults in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php on line 147

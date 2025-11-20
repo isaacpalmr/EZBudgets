@@ -1802,6 +1802,8 @@ if ($conn->connect_error) {
                 saveBtn.disabled = false;
                 saveBtn.value = "Save budget";
             }
+
+            return true;
         }
 
         document.getElementById("saveBudget").addEventListener("click", () => {
@@ -1809,8 +1811,10 @@ if ($conn->connect_error) {
         });
         document.getElementById("save-and-close").addEventListener("click", () => {
             collectAndSaveAsync(document.querySelector("#save-and-close"))
-                .then(() => {
-                    location.href = "dashboard.php"
+                .then(success => {
+                    if (success) {
+                        location.href = "dashboard.php";
+                    }
                 });
         });
         
