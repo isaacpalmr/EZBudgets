@@ -458,12 +458,10 @@ if ($conn->connect_error) {
                             // Defer setValue to allow TomSelect to fully initialize
                             setTimeout(() => {
                                 select.tom.setValue(String(p.personnel_id));
-                                select.dispatchEvent(new Event('change', { bubbles: true }));
 
 
-                                // Trigger events to simulate user selecting
-                                fireChange(select);
-                                fireInput(select);
+                                
+                                onStaffPickerSelect(row);
                             }, 0);
                         } else if (select) {
                             // Other tables: just set the raw value
@@ -495,6 +493,7 @@ if ($conn->connect_error) {
                             if ('value' in stipendAmountEl) stipendAmountEl.value = p.stipend_amount ?? 0;
                             else stipendAmountEl.textContent = toDollar(p.stipend_amount ?? 0);
                         }
+                        onStaffPickerSelect(row);
                     }
 
                     // Recalculate totals
@@ -1680,20 +1679,20 @@ function onStaffPickerSelect(row) {
             setTimeout(() => {
                 saveBtn.disabled = false;
                 saveBtn.value = "Save budget";
-            }, 1200);
+                }, 1200);
 
-            // If server returned the new budget_id, store it so future saves update rather than create.
-            if (result.budget_id) {
-                payload.budget_id = result.budget_id;
-                // optionally persist it to a global var if you track it elsewhere
-                window.currentBudgetId = result.budget_id;
+                    // If server returned the new budget_id, store it so future saves update rather than create.
+                    if (result.budget_id) {
+                        payload.budget_id = result.budget_id;
+                        // optionally persist it to a global var if you track it elsewhere
+                        window.currentBudgetId = result.budget_id;
+                    }
+                }catch (err) {
+                showError("Save failed: " + err.message);
+                saveBtn.disabled = false;
+                saveBtn.value = "Save budget";
+                }
             }
-        } catch (err) {
-            showError("Save failed: " + err.message);
-            saveBtn.disabled = false;
-            saveBtn.value = "Save budget";
-        }
-    }
-</script>
-</body>
+        </script>
+        </body>
 </html>
