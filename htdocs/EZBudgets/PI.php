@@ -1301,7 +1301,7 @@ if ($conn->connect_error) {
                 if (year1HoursWorked == 0) continue;
                 const yearlyWages = await calculateYearlyWagesWithFringeRateFromRowAsync(row);
                 const totalWagesForBudgetDuration = yearlyWages*numBudgetYears;
-                spreadsheetData.splice(i+6, 0, [piType, year1HoursWorked, toDollar(hourlyRate), ...Array(numBudgetYears).fill(toDollar(yearlyWages)), toDollar(totalWagesForBudgetDuration)])
+                spreadsheetData.splice(i+6, 0, [piType, year1HoursWorked, hourlyRate, ...Array(numBudgetYears).fill(toDollar(yearlyWages)), toDollar(totalWagesForBudgetDuration)])
             }
 
             async function pushOtherPersonnelAggregationDataAsync(t1Id, t2Id, rowOffset) {
@@ -1395,7 +1395,11 @@ if ($conn->connect_error) {
             const equipmentLabelRowIndex = getSpreadsheetRowIndexByLabel("Equipment > $5000.00");
             for (let i = 0; i < bigEquipmentRows.length; i++) {
                 const row = bigEquipmentRows[i];
-                const name = row.querySelector(".name").value;
+                const qty = row.querySelector(".quantity")?.value;
+                let name = row.querySelector(".name").value;
+                if (qty && qty > 1) {
+                    name += " x" + qty;
+                }
                 const rowCost = calculateTotalItemCostFromRow(row);
                 spreadsheetData.splice(equipmentLabelRowIndex + i + 1, 0, [name, null, null, ...Array(numBudgetYears).fill(toDollar(rowCost)), toDollar(rowCost * numBudgetYears)])
             }
