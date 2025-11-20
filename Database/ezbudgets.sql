@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 20, 2025 at 09:36 AM
+-- Generation Time: Nov 20, 2025 at 12:43 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -69,6 +69,13 @@ CREATE TABLE `budget_items` (
   `unit_cost` decimal(10,2) NOT NULL DEFAULT 0.00
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `budget_items`
+--
+
+INSERT INTO `budget_items` (`id`, `budget_id`, `item_type`, `name`, `quantity`, `unit_cost`) VALUES
+(31, 1, 'Facility Useage Fees', 'dfsdfsdsdfd', 3, 4.00);
+
 -- --------------------------------------------------------
 
 --
@@ -105,13 +112,13 @@ INSERT INTO `budget_personnel` (`bp_id`, `budget_id`, `personnel_type`, `personn
 (61, 7, 'postdoc', 1, 1, 1, 55000.00),
 (62, 7, 'grad_assistant', 5, 0, 0, 25000.00),
 (63, 7, 'undergrad_assistant', 5, 0, 1, 5100.00),
-(71, 1, 'PI', 1, 1, 0, 0.00),
-(72, 1, 'PI', 4, 5, 0, 0.00),
-(73, 1, 'PI', 3, 6, 0, 0.00),
-(74, 1, 'staff', 3, 1, 0, 0.00),
-(75, 1, 'postdoc', 1, 0, 0, 55000.00),
-(76, 1, 'grad_assistant', 4, 50, 1, 31000.00),
-(77, 1, 'undergrad_assistant', 1, 0, 0, 5000.00);
+(396, 1, 'PI', 1, 2, 0, 0.00),
+(397, 1, 'PI', 3, 6, 0, 0.00),
+(398, 1, 'PI', 5, 1, 0, 0.00),
+(399, 1, 'staff', 3, 1, 0, 0.00),
+(400, 1, 'postdoc', 1, 0, 0, 55000.00),
+(401, 1, 'grad_assistant', 4, 50, 1, 31000.00),
+(402, 1, 'undergrad_assistant', 1, 0, 0, 5000.00);
 
 -- --------------------------------------------------------
 
@@ -126,6 +133,14 @@ CREATE TABLE `budget_travels` (
   `num_nights` int(11) NOT NULL DEFAULT 0,
   `num_travelers` int(11) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `budget_travels`
+--
+
+INSERT INTO `budget_travels` (`travel_id`, `budget_id`, `travel_type`, `num_nights`, `num_travelers`) VALUES
+(47, 1, 'Domestic', 1, 2),
+(48, 1, 'International', 1, 2);
 
 -- --------------------------------------------------------
 
@@ -483,19 +498,19 @@ ALTER TABLE `budgets`
 -- AUTO_INCREMENT for table `budget_items`
 --
 ALTER TABLE `budget_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
 
 --
 -- AUTO_INCREMENT for table `budget_personnel`
 --
 ALTER TABLE `budget_personnel`
-  MODIFY `bp_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=78;
+  MODIFY `bp_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=403;
 
 --
 -- AUTO_INCREMENT for table `budget_travels`
 --
 ALTER TABLE `budget_travels`
-  MODIFY `travel_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `travel_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
 
 --
 -- AUTO_INCREMENT for table `graduate_research_assistants`
