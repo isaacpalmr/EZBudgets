@@ -55,9 +55,23 @@ if ($conn->connect_error) {
         #tables {
             display: flex;
             flex-direction: row;
-            align-items: top;
+            align-items: flex-start;
             justify-content: space-evenly;
             width: 100%;
+        }
+
+        caption {
+            text-align: left;
+            margin-bottom: 10px;
+        }
+
+        #yearly-costs-caption {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .add_row {
+            margin-left: 10px;
         }
 
         main {
@@ -69,10 +83,6 @@ if ($conn->connect_error) {
             margin: 20px 0px;
         }
 
-        #user_tables > * {
-            padding-bottom: 100px;
-        }
-
         main > * {
             margin: 20px 0px;
         }
@@ -81,16 +91,32 @@ if ($conn->connect_error) {
             filter: brightness(85%)
         }
 
-       .user_tables {
+        #right-side {
             display: flex;
-            justify-content: flex-start;
+            flex-direction: column;
+            align-items: center;
+
+            position: sticky;
+            top: 50%;                /* middle of viewport */
+            transform: translateY(-50%);  /* shift it up by half its own height */
         }
 
-        .table_block {
+        #downloadspreadsheet {
+            margin-top: 50px;
+        }
+
+       #user_tables {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #user_tables > * {
             display: flex;
             flex-direction: column;
             align-items: center;
             width: max-content;
+            transform: translateX(-100px);
+            margin-bottom: 75px;
         }
 
         #budget-metadata {
@@ -170,10 +196,14 @@ if ($conn->connect_error) {
         
         <div id="tables">
             <div id="user_tables" style="text-align: center;">
-                <div class="table_block">
-                    <table id="pi_table">
+                <div>
+                    <table id="pi-table">
                         <caption>
                             Principle investigators
+                            <button class="add_row" style="background-color: rgb(1, 255, 136); border-width: 1px; margin-top: 20px;">
+                                <img src="Images/add_circle_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png"
+                                width="24" height="24">
+                            </button>
                         </caption>
                         <thead>
                             <tr>
@@ -187,17 +217,16 @@ if ($conn->connect_error) {
                         <tbody>
                         </tbody>
                     </table>
-
-                    <button class="add_row" style="background-color: rgb(1, 255, 136); border-width: 1px; margin-top: 20px;">
-                        <img src="Images/add_circle_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png"
-                        width="24" height="24">
-                    </button>
                 </div>
                 
-                <div class="table_block">
-                    <table id="ui_professional_staff_table">
+                <div>
+                    <table id="pro-staff">
                         <caption>
                             UI professional staff
+                            <button class="add_row" style="background-color: rgb(1, 255, 136); border-width: 1px; margin-top: 20px;">
+                                <img src="Images/add_circle_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png"
+                                width="24" height="24">
+                            </button>
                         </caption>
                         <thead>
                             <tr>
@@ -210,14 +239,97 @@ if ($conn->connect_error) {
                         <tbody>
                         </tbody>
                     </table>
-
-                    <button class="add_row" style="background-color: rgb(1, 255, 136); border-width: 1px; margin-top: 20px;">
-                        <img src="Images/add_circle_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png"
-                        width="24" height="24">
-                    </button>
+                </div>
+                
+                <div>
+                    <table id="post-docs">
+                        <caption>
+                            Post doctoral researchers
+                            <button class="add_row" style="background-color: rgb(1, 255, 136); border-width: 1px; margin-top: 20px;">
+                                <img src="Images/add_circle_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png"
+                                width="24" height="24">
+                            </button>
+                        </caption>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Request stipend?</th>
+                                <th>Percent effort (of 40 hr week)</th>
+                                <th>Stipend amount (per academic year)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div>
+                    <table id="gras">
+                        <caption>
+                            Graduate research assistants
+                            <button class="add_row" style="background-color: rgb(1, 255, 136); border-width: 1px; margin-top: 20px;">
+                                <img src="Images/add_circle_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png"
+                                width="24" height="24">
+                            </button>
+                        </caption>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Request stipend?</th>
+                                <th>Percent effort (of 40 hr week, 50% max)</th>
+                                <th>Stipend amount (per academic year)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div>
+                    <table id="ugrads">
+                        <caption>
+                            Undergraduate research assistants
+                            <button class="add_row" style="background-color: rgb(1, 255, 136); border-width: 1px; margin-top: 20px;">
+                                <img src="Images/add_circle_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png"
+                                width="24" height="24">
+                            </button>
+                        </caption>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Request stipend?</th>
+                                <th>Percent effort (of 40 hr week, 50% max)</th>
+                                <th>Stipend amount (per academic year)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
                 </div>
 
-                <div class="table_block">
+                <div>
+                    <table id="equipment">
+                        <caption>
+                            Equipment > $5,000.00
+                            <button class="add_row" style="background-color: rgb(1, 255, 136); border-width: 1px; margin-top: 20px;">
+                                <img src="Images/add_circle_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png"
+                                width="24" height="24">
+                            </button>
+                        </caption>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Quantity</th>
+                                <th>Unit Cost</th>
+                                <th>Total Cost</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- <div>
                     <table id="post_docs_table">
                         <caption>
                             Post doctorates
@@ -237,40 +349,42 @@ if ($conn->connect_error) {
                         <img src="Images/add_circle_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png"
                         width="24" height="24">
                     </button>
-                </div>
+                </div> -->
             </div>
 
-            <div id="yearly_costs">
-                <table>
-                    <caption>
-                        5 year cost
-                    </caption>
-                    <thead>
-                        <tr>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>$0</td>
-                            <td>$0</td>
-                            <td>$0</td>
-                            <td>$0</td>
-                            <td>$0</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div id="right-side">
+                <div id="yearly_costs">
+                    <table>
+                        <caption id="yearly-costs-caption">
+                            5 year cost
+                        </caption>
+                        <thead>
+                            <tr>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>$0</td>
+                                <td>$0</td>
+                                <td>$0</td>
+                                <td>$0</td>
+                                <td>$0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div>
+                    <input id="downloadspreadsheet" type="button" value="Download spreadsheet">
+                </div>
             </div>
-        </div>
-        
-        <div>
-            <input id="downloadspreadsheet" type="button" value="Download spreadsheet">
         </div>
     </main>
 
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script>
         const templateRows = {
-            pi_table: `
+            "pi-table": `
                 <tr>
                     <td class="type">Co-PI</td>
                     <td>
@@ -278,9 +392,9 @@ if ($conn->connect_error) {
                             <option value="">Select Co-PI</option>
                         </select>
                     </td>
-                    <td class="title">Unknown</td>
+                    <td class="title">—</td>
                     <td><input class="percent-effort" type="number" value="0" min="0" max="100"></td>
-                    <td class="rate">$0</td>
+                    <td class="rate">$0.00</td>
                     <td>
                         <button class="rem_row" style="background-color: rgb(255, 82, 82); border-width: 1px;">
                             <img src="Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
@@ -288,16 +402,16 @@ if ($conn->connect_error) {
                     </td>
                 </tr>
             `,
-            ui_professional_staff_table: `
+            "pro-staff": `
                 <tr>
                     <td>
-                        <select class="staff-picker" data-filter="prostaff">
+                        <select class="staff-picker" data-filter="pro-staff">
                             <option value="">Select Pro Staff</option>
                         </select>
                     </td>
-                    <td class="title">Unknown</td>
+                    <td class="title">—</td>
                     <td><input class="percent-effort" type="number" value="0" min="0" max="100"></td>
-                    <td class="rate">$0</td>
+                    <td class="rate">$0.00</td>
                     <td>
                         <button class="rem_row" style="background-color: rgb(255, 82, 82); border-width: 1px;">
                             <img src="Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
@@ -305,22 +419,94 @@ if ($conn->connect_error) {
                     </td>
                 </tr>
             `,
-            post_docs_table: `
+            "post-docs": `
                 <tr>
                     <td>
-                        <select class="staff-picker" data-filter="postdoc">
+                        <select class="staff-picker" data-filter="post-doc">
                             <option value="">Select Post Doc</option>
                         </select>
                     </td>
-                    <td><input class="percent-effort" type="number" value="0" min="0" max="100"></td>
-                    <td class="rate">$0</td>
+                    <td><input class="request-stipend" type="checkbox"></td>
+                    <td><input class="percent-effort" type="number" value="0" min="0" max="100" disabled></td>
+                    <td class="stipend-amount">$0.00</td>
                     <td>
                         <button class="rem_row" style="background-color: rgb(255, 82, 82); border-width: 1px;">
                             <img src="Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
                         </button>
                     </td>
                 </tr>
-            `
+            `,
+            "gras": `
+                <tr>
+                    <td>
+                        <select class="staff-picker" data-filter="gra">
+                            <option value="">Select GRA</option>
+                        </select>
+                    </td>
+                    <td><input class="request-stipend" type="checkbox"></td>
+                    <td><input class="percent-effort" type="number" value="0" min="0" max="50" disabled></td>
+                    <td class="stipend-amount">$0.00</td>
+                    <td>
+                        <button class="rem_row" style="background-color: rgb(255, 82, 82); border-width: 1px;">
+                            <img src="Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
+                        </button>
+                    </td>
+                </tr>
+            `,
+            "ugrads": `
+                <tr>
+                    <td>
+                        <select class="staff-picker" data-filter="ugrad">
+                            <option value="">Select UGrad</option>
+                        </select>
+                    </td>
+                    <td><input class="request-stipend" type="checkbox"></td>
+                    <td><input class="percent-effort" type="number" value="0" min="0" max="50" disabled></td>
+                    <td class="stipend-amount">$0.00</td>
+                    <td>
+                        <button class="rem_row" style="background-color: rgb(255, 82, 82); border-width: 1px;">
+                            <img src="Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
+                        </button>
+                    </td>
+                </tr>
+            `,
+            "equipment": `
+                <tr>
+                    <td><input class="name" type="text"></td>
+                    <td><input class="quantity" type="number" value="0" min="0"></td>
+                    <td><input class="unit-cost" type="number" value="5000" min="5000"></td>
+                    <td class="total-cost">$0.00</td>
+                    <td>
+                        <button class="rem_row" style="background-color: rgb(255, 82, 82); border-width: 1px;">
+                            <img src="Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
+                        </button>
+                    </td>
+                </tr>
+            `,
+            // post_docs_table: `
+            //     <tr>
+            //         <td>
+            //             <select class="staff-picker" data-filter="postdoc">
+            //                 <option value="">Select Post Doc</option>
+            //             </select>
+            //         </td>
+            //         <td><input class="percent-effort" type="number" value="0" min="0" max="100"></td>
+            //         <td class="rate">$0</td>
+            //         <td>
+            //             <button class="rem_row" style="background-color: rgb(255, 82, 82); border-width: 1px;">
+            //                 <img src="Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
+            //             </button>
+            //         </td>
+            //     </tr>
+            // `
+        }
+
+        const tableIdToPersonnelType = {
+            "pi-table": "staff",
+            "pro-staff": "staff",
+            "post-docs": "post-doc",
+            "gras": "gra",
+            "ugrads": "ugrad",
         }
 
         const yearlyCostsTableBodyRow = document.querySelector("#yearly_costs tbody tr");
@@ -331,7 +517,7 @@ if ($conn->connect_error) {
         const budgetStartDate = document.getElementById("budget-start-date").querySelector("input");
         const budgetEndDate = document.getElementById("budget-end-date").querySelector("input");
         const budgetFundingSource = document.querySelector("#budget-funding-source select");
-        const piTableBody = document.querySelector("#pi_table tbody");
+        const piTableBody = document.querySelector("#pi-table tbody");
 
         // Staff picker dropdown logic
         function initializeStaffPicker(select) {
@@ -341,12 +527,12 @@ if ($conn->connect_error) {
 
             row.dataset.originalHTML = row.innerHTML;
             
-            fetch(`get_staff_list.php?filter=${filter}`)
+            fetch(`get_personnel_list.php?filter=${filter}`)
                 .then(res => res.json())
                 .then(rows => {
                     rows.forEach(r => {
                         const opt = document.createElement("option");
-                        opt.value = r.staff_id;
+                        opt.value = r.id;
                         opt.textContent = r.name;
                         select.appendChild(opt);
                     });
@@ -356,21 +542,30 @@ if ($conn->connect_error) {
                         create: false
                     });
 
-                    ts.on("change", value => {
-                        if (!value) {
+                    ts.on("change", personnelId => {
+                        if (!personnelId) {
                             row.innerHTML = row.dataset.originalHTML; // Reset the row's values
                             return;
                         }
 
-                        fetch(`get_employee.php?staff_id=${value}`)
+                        const personnelType = tableIdToPersonnelType[table.id];
+
+                        fetch(`get_single_personnel.php?personnelType=${personnelType}&personnelId=${personnelId}`)
                             .then(r => r.json())
                             .then(data => {
+                                const stipendAmount = row.querySelector(".stipend-amount");
+                                if (stipendAmount) {
+                                    stipendAmount.textContent = toDollar(data.stipend_per_academic_year ?? 0);
+                                }
+
                                 const hourlyRate = row.querySelector(".rate");
-                                hourlyRate.textContent = '$' + (data.hourly_rate ?? 0)
+                                if (hourlyRate) {
+                                    hourlyRate.textContent = toDollar(data.hourly_rate ?? 0)
+                                }
 
                                 const title = row.querySelector(".title");
                                 if (title) {
-                                    title.textContent = data.staff_title ?? "Unknown";
+                                    title.textContent = data.staff_title ?? "—";
                                 }
 
                                 updateYearlyCosts();
@@ -382,8 +577,12 @@ if ($conn->connect_error) {
         function addRow(table) {
             const tbody = table.querySelector("tbody")
             tbody.insertAdjacentHTML("beforeend", templateRows[table.id]);
+
             const select = tbody.lastElementChild.querySelector(".staff-picker");
-            initializeStaffPicker(select);
+            if (select) {
+                initializeStaffPicker(select);
+            }
+            
             return tbody.lastElementChild;
         }
 
@@ -414,44 +613,51 @@ if ($conn->connect_error) {
                 yearlyCostsTableHeaderRow.appendChild(th);
 
                 const td = document.createElement("td");
-                td.textContent = "$0";
+                td.textContent = toDollar(0);
                 yearlyCostsTableBodyRow.appendChild(td);
             }
+
+            updateYearlyCosts();
         }
 
+        // GENERATED //
+        function toDollar(v) {
+            // Convert input to a number
+            const num = typeof v === "number" ? v : parseFloat(v);
+
+            // Handle invalid input
+            if (isNaN(num)) return "$0.00";
+
+            // Format as US dollars
+            return num.toLocaleString("en-US", { style: "currency", currency: "USD" });
+        }
+        // GENERATED //
+
         function getPersonnelIdFromRow(row) {
-            const tableTitle = row.closest("table").querySelector("caption").textContent.trim();
+            const table = row.closest("table");
 
-            let personnelIdType;
-            switch (tableTitle) {
-                case "Principle investigators":
-                case "UI professional staff":
-                case "Post doctorates":
-                    personnelIdType = "staff";
-                    break;
-                default:
-                    personnelIdType = "student";
-            }
-
+            const personnelType = tableIdToPersonnelType[table.id];
             const personnelId = row.querySelector(".staff-picker").value;
 
-            return [personnelIdType, personnelId];
+            return [personnelType, personnelId];
+        }
+
+        function calculateYearlyHoursWorkedFromRow(row) {
+            const weeklyHoursWorked = Number(row.querySelector(".percent-effort").value/100 * 40);
+            const yearlyHoursWorked = weeklyHoursWorked * 52.1429;
+            return yearlyHoursWorked;
         }
 
         async function getFringeRateFromRowAsync(row) {
-            const [personnelIdType, personnelId] = getPersonnelIdFromRow(row);
-
-            if (personnelIdType == "staff") {
-                const response = await fetch(`get_employee.php?staff_id=${personnelId}`);
-                const data = await response.json();
-                return (data.fringe_rate ?? 0) / 100;
-            }
+            const [personnelType, personnelId] = getPersonnelIdFromRow(row);
+            const response = await fetch(`get_single_personnel.php?personnelType=${personnelType}&personnelId=${personnelId}`);
+            const data = await response.json();
+            return (data.fringe_rate ?? 0) / 100;
         }
 
         async function calculateYearlyWagesWithFringeRateFromRowAsync(row) {
             const hourlyRate = Number(row.querySelector(".rate").textContent.replace(/[$, ]+/g, ''));
-            const weeklyHoursWorked = Number(row.querySelector(".percent-effort").value/100 * 40);
-            const yearlyHoursWorked = weeklyHoursWorked * 52.1429
+            const yearlyHoursWorked = calculateYearlyHoursWorkedFromRow(row);
             
             const fringeRate = await getFringeRateFromRowAsync(row);
             const yearlyWages = (hourlyRate*yearlyHoursWorked) * (1+fringeRate);
@@ -459,7 +665,7 @@ if ($conn->connect_error) {
             return yearlyWages;
         }
 
-        async function getTotalWagesForYearAsync(yearNum) {
+        async function getTotalWagesForYearWithFringeRateAsync(yearNum) {
             let totalWagesPerYear = 0;
             const hourlyRates = document.querySelectorAll(".rate");
 
@@ -475,12 +681,12 @@ if ($conn->connect_error) {
         }
 
         function updateYearlyCosts() {
-            getTotalWagesForYearAsync()
+            getTotalWagesForYearWithFringeRateAsync()
             .then(totalYearlyWages => {
                 totalYearlyWages = Math.round(totalYearlyWages * 100) / 100;
 
                 for (const td of yearlyCostsTableBodyRow.children) {
-                    td.textContent = "$" + totalYearlyWages;
+                    td.textContent = toDollar(totalYearlyWages);
                 }
             });
         }
@@ -540,12 +746,13 @@ if ($conn->connect_error) {
             if (button) {
                 const row = button.closest("tr");
                 if (row) row.remove();
+                updateYearlyCosts();
             }
         });
 
         // Add row button
         document.querySelectorAll(".add_row").forEach(button => {
-            const table = button.previousElementSibling;
+            const table = button.closest("table");
             
             button.addEventListener("click", () => {
                 addRow(table);
@@ -553,7 +760,7 @@ if ($conn->connect_error) {
         })
 
         // Adding first PI row
-        const piRow = addRow(document.querySelector("#pi_table"));
+        const piRow = addRow(document.querySelector("#pi-table"));
         piRow.querySelector(".type").textContent = "PI";
         piRow.querySelector("option").textContent = "Select PI";
         piRow.lastElementChild.remove() // Remove the remove button
@@ -584,30 +791,65 @@ if ($conn->connect_error) {
             
         });
 
+        // Listen for equipment quantity/unit cost changed
+        document.addEventListener("input", event => {
+            const table = event.target.closest("table");
+            if (!table || table.id !== "equipment") return;
+            
+            const row = event.target.closest("tr");
+            const quantity = row.querySelector(".quantity");
+            const unitCost = row.querySelector(".unit-cost");
+            const totalCost = row.querySelector(".total-cost");
+
+            totalCost.textContent = toDollar(quantity.value * unitCost.value);
+        })
+
+        // Listen for stipend request button clicked
+        document.addEventListener("input", event => {
+            const checkbox = event.target;
+            if (!checkbox.classList.contains("request-stipend")) return;
+
+            const row = checkbox.closest("tr");
+            const percentEffort = row.querySelector(".percent-effort");
+
+            if (checkbox.checked) {
+                percentEffort.disabled = false;
+            } else {
+                percentEffort.value = 0;
+                percentEffort.disabled = true;
+            }
+        })
+
         // Download spreadsheet
-        downloadButton.addEventListener("click", () => {
+        downloadButton.addEventListener("click", async () => {
             // Create spreadsheet data table
             const spreadsheetData = [
                 ["Title: "],
                 ["Funding Source: "],
                 ["PI: ",                   "Co-PIs: "],
                 ["Project Start and End Dates: "],
-                ["",                                    "Hourly rate at start date"],
+                ["",                                    "",                 "Hourly rate at start date"],
                 ["Personnel Compensation",              "Year 1 hours"],
+                [],
                 ["Other Personnel"],
                 ["UI professional staff & Post Docs"],
                 ["GRAs/UGrads"],
                 ["Temp Help"],
+                [],
                 ["Fringe",                              "FY26 Fringe Rates"],
                 ["UI professional staff & Post Docs",   "36.7%"],
                 ["Faculty",                             "29.5%"],
                 ["Temp Help",                           "10.5%"],
                 ["GRAs/UGrads",                         "3.2%"],
+                [],
                 ["Equipment > $5000.00"],
+                [],
                 ["Travel"],
                 ["Domestic"],
                 ["International"],
+                [],
                 ["Participant support costs (NSF only)"],
+                [],
                 ["Other Direct Costs"],
                 ["Materials and supplies"],
                 ["<$5K small equipment"],
@@ -619,9 +861,11 @@ if ($conn->connect_error) {
                 ["Other"],
                 ["Other"],
                 ["Grad Student Tuition & Health Insurance"],
+                [],
                 ["Consortia/Subawards"],
                 ["Sub award 1"],
                 ["Sub award 2"],
+                [],
                 ["Total Direct Cost"],
                 ["Back out GRA T&F"],
                 ["Back out capital EQ"],
@@ -633,9 +877,15 @@ if ($conn->connect_error) {
                 ["Total Project Cost"],
             ];
 
+            function getSpreadsheetRowIndexByLabel(label) {
+                return spreadsheetData.findIndex(row => row[0] === label);
+            }
+
+            const numBudgetYears = getNumBudgetYears();
+
             const headerRow = spreadsheetData[4];
-            for (let i = 0; i < getNumBudgetYears(); i++) {
-                headerRow.push("Year " + i);
+            for (let i = 0; i < numBudgetYears; i++) {
+                headerRow.push("Year " + (i+1));
             }
             headerRow.push("Total");
 
@@ -658,39 +908,51 @@ if ($conn->connect_error) {
             // Apply start + end dates
             spreadsheetData[3][0] += budgetStartDate.value + " – " + budgetEndDate.value;
 
-/* 
-            // Loop through each table calculating costs
-            [
-                {title: "Principle investigators", aggregate: false}, 
-                {title: "UI professional staff", aggregate: true}, 
-                {title: "Post doctorates", aggregate: true}, 
-            ].forEach(tinfo => {
-                spreadsheetData.push([tinfo.title, "Year 1 hours"]);
+            // Apply principle investigators
+            const piRows = piTableBody.children;
+            for (let i = 0; i < piRows.length; i++) {
+                const row = piRows[i];
+                const piType = row.querySelector(".type").textContent.trim();
+                const hourlyRate = row.querySelector(".rate").textContent.trim();
+                const year1HoursWorked = calculateYearlyHoursWorkedFromRow(row);
+                const yearlyWages = await calculateYearlyWagesWithFringeRateFromRowAsync(row);
+                const totalWagesForBudgetDuration = yearlyWages*numBudgetYears;
+                spreadsheetData.splice(i+6, 0, [piType, year1HoursWorked, toDollar(hourlyRate), ...Array(numBudgetYears).fill(toDollar(yearlyWages)), toDollar(totalWagesForBudgetDuration)])
+            }
 
-                document.querySelectorAll("table caption").forEach(caption => {
-                    if (caption.textContent.trim() === tinfo.title) {
-                        const table = caption.closest("table");
-                        
-                        // Add hourly rate costs
-                        const hourlyRates = table.querySelectorAll(".rate");
-                        hourlyRates.forEach(td => {
-                            const row = td.closest("tr");
-                            const type = row.querySelector(".type").textContent;
-                            const yearlyWages = calculateYearlyWagesWithFringeRateFromRowAsync(row);
-                            if (yearlyWages <= 0) return;
+            // Apply UI professional staff & Post Docs
+            const uiStaffTBody = document.querySelector("#pro-staff-and-post-docs tbody")
+            const uiStaffRows = uiStaffTBody.children;
+            let aggregatedYear1HoursWorked = 0;
+            let aggregatedYearlyWages = 0;
+            for (const row of uiStaffRows) {
+                const year1HoursWorked = calculateYearlyHoursWorkedFromRow(row);
+                const yearlyWages = await calculateYearlyWagesWithFringeRateFromRowAsync(row);
+                aggregatedYear1HoursWorked += year1HoursWorked;
+                aggregatedYearlyWages += yearlyWages;
+            }
+            const totalWagesForBudgetDuration = aggregatedYearlyWages*numBudgetYears;
+            const uiStaffSpreadsheetRow = spreadsheetData[getSpreadsheetRowIndexByLabel("Other Personnel") + 1];
+            uiStaffSpreadsheetRow.push(aggregatedYear1HoursWorked, null, ...Array(numBudgetYears).fill(toDollar(aggregatedYearlyWages)), toDollar(totalWagesForBudgetDuration))
 
-                            const yearlyWagesStr = '$' + yearlyWages;
-
-                            spreadsheetData.push([type, hoursWorked, '$' + hourlyRate, yearlyWagesStr, yearlyWagesStr, yearlyWagesStr, yearlyWagesStr, yearlyWagesStr]);
-                        })
-                    }
-                });
-            })
- */
             const worksheet = XLSX.utils.aoa_to_sheet(spreadsheetData);
 
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, "Budget");
+
+            // GENERATED //
+            // Adjust column widths
+            const colWidths = [];
+            for (let r = 0; r < spreadsheetData.length; r++) {
+                const row = spreadsheetData[r];
+                row.forEach((cell, c) => {
+                    const cellStr = cell ? cell.toString() : '';
+                    const len = cellStr.length;
+                    colWidths[c] = Math.max(colWidths[c] || 10, len);
+                });
+            }
+            worksheet['!cols'] = colWidths.map(w => ({ wch: w }));
+            // GENERATED //
 
             XLSX.writeFile(workbook, budgetTitle.value + (budgetTitle.value !== "" ? "_" : "")  + "EZBudgets.xlsx")
         })
