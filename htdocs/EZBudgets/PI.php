@@ -383,8 +383,9 @@ if ($conn->connect_error) {
                 </div>
 
                 <div>
-                    <input id="downloadspreadsheet" type="button" value="Download spreadsheet">
-                    <input id="saveBudget" type="button" value="Save budget" style="margin-left:10px;">
+                    <input id="downloadspreadsheet" type="button" value="Download Spreadsheet">
+                    <input id="saveBudget" type="button" value="Save" style="margin-left:10px;">
+                    <input id="save-and-close" type="button" value="Close and Save" style="margin-left:10px;">
                 </div>
             </div>
         </div>
@@ -393,7 +394,6 @@ if ($conn->connect_error) {
     <!-- <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script> -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
     <script>
-
         async function fetchJson(url, opts = {}) {
             const resp = await fetch(url, opts);
             const text = await resp.text();
@@ -406,7 +406,6 @@ if ($conn->connect_error) {
                 throw new Error('Invalid JSON from server (see console for server output)');
             }
         }
-
 
         // At the very top of your existing <script> in PI.php
         const currentBudgetId = <?php echo isset($_GET['budget_id']) ? intval($_GET['budget_id']) : 0; ?>;
@@ -452,7 +451,6 @@ if ($conn->connect_error) {
                     };
 
                     // Clear all tables
-                    
                     Object.values(personnelMap).forEach(tid => {
                         const t = document.getElementById(tid);
                         if (t) t.querySelector("tbody").innerHTML = "";
@@ -463,7 +461,6 @@ if ($conn->connect_error) {
                     const fireChange = el => el.dispatchEvent(new Event('change', { bubbles: true }));
                     const fireInput = el => el.dispatchEvent(new Event('input', { bubbles: true }));
                     
-
                     // Populate personnel rows
                     for (const p of personnel) {
                         const tid = personnelMap[p.personnel_type] || "pro-staff";
@@ -481,8 +478,6 @@ if ($conn->connect_error) {
                             setTimeout(() => {
                                 select.tom.setValue(String(p.personnel_id));
 
-
-                                
                                 onStaffPickerSelect(row);
                             }, 0);
                         } else if (select) {
@@ -523,6 +518,19 @@ if ($conn->connect_error) {
                         const t = document.getElementById(tid);
                         if (t) t.querySelector("tbody").innerHTML = "";
                     });
+
+                    // Updating/adding first PI row
+                    const piTable = document.querySelector("#pi-table");
+                    const piBody = piTable.querySelector("tbody");
+                    let piRow;
+                    if (piBody.children.length === 0) {
+                        piRow = addRow(piTable, 1);
+                    } else {
+                        piRow = piBody.firstElementChild;
+                    }
+                    piRow.querySelector(".type").textContent = "PI";
+                    piRow.querySelector("option").textContent = "Select PI";
+                    piRow.lastElementChild.remove() // Remove the remove button
 
                     const travelTableEl = document.getElementById("travel");
                     if (travelTableEl) {
@@ -577,16 +585,13 @@ if ($conn->connect_error) {
             }
         }
 
-
-
-
         // Call loadBudget on DOM ready — prefer currentBudgetId or budget_id query param
         document.addEventListener("DOMContentLoaded", () => {
             const urlParams = new URLSearchParams(window.location.search);
             const queryBudgetId = urlParams.get("budget_id");
             const effectiveId = Number(window.currentBudgetId || queryBudgetId || 0);
                 if (effectiveId > 0) {
-                        loadBudget(effectiveId);
+                    loadBudget(effectiveId);
                 }
         });
 
@@ -602,8 +607,6 @@ if ($conn->connect_error) {
                 if (bid) loadBudget(bid);
             }
         });
-
-
 
         const templateRows = {
             "pi-table": `
@@ -869,10 +872,16 @@ if ($conn->connect_error) {
             });
         }
 
-        function addRow(table) {
-            const tbody = table.querySelector("tbody")
-            tbody.insertAdjacentHTML("beforeend", templateRows[table.id]);
+        // Adds a row to the table, appending if 'pos' is null
+        function addRow(table, pos) {
+            const tbody = table.querySelector("tbody");
 
+            if (pos && tbody.children.length > 0) {
+                tbody.children[pos]?.insertAdjacentHTML("beforebegin", templateRows[table.id]);
+            } else {
+                tbody.insertAdjacentHTML("beforeend", templateRows[table.id]);
+            }
+            
             const staffPickerSelect = tbody.lastElementChild.querySelector(".staff-picker");
             if (staffPickerSelect) {
                 initializeStaffPicker(staffPickerSelect);
@@ -938,28 +947,28 @@ if ($conn->connect_error) {
         }
 
         function getPersonnelIdFromRow(row) {
-    if (!row) return [null, 0];
+            if (!row) return [null, 0];
 
-    // Try to find the table containing the row; be defensive if closest() returns null
-    let table = row.closest("table");
-    if (!table && row.parentElement) {
-        // fallback: maybe the row was inserted in a fragment — try parentElement.closest
-        table = row.parentElement.closest ? row.parentElement.closest("table") : null;
-    }
+            // Try to find the table containing the row; be defensive if closest() returns null
+            let table = row.closest("table");
+            if (!table && row.parentElement) {
+                // fallback: maybe the row was inserted in a fragment — try parentElement.closest
+                table = row.parentElement.closest ? row.parentElement.closest("table") : null;
+            }
 
-    // If still no table, return defaults to avoid crashes
-    if (!table) {
-        return [null, 0];
-    }
+            // If still no table, return defaults to avoid crashes
+            if (!table) {
+                return [null, 0];
+            }
 
-    const personnelType = tableIdToPersonnelType[table.id] || "staff";
-    const picker = row.querySelector(".staff-picker");
-    const personnelId = picker ? picker.value : 0;
+            const personnelType = tableIdToPersonnelType[table.id] || "staff";
+            const picker = row.querySelector(".staff-picker");
+            const personnelId = picker ? picker.value : 0;
 
-    return [personnelType, personnelId];
-}
+            return [personnelType, personnelId];
+        }
 
-function onStaffPickerSelect(row) {
+        function onStaffPickerSelect(row) {
             const table = row.closest("table");
             const select = row.querySelector(".staff-picker");
             if (!select) return;
@@ -993,7 +1002,6 @@ function onStaffPickerSelect(row) {
                     updateYearlyCosts();
                 });
         }
-
 
         function getPercentEffortFromRow(row) {
             return row.querySelector(".percent-effort").value/100;
@@ -1186,12 +1194,6 @@ function onStaffPickerSelect(row) {
             })
         })
 
-        // Adding first PI row
-        const piRow = addRow(document.querySelector("#pi-table"));
-        piRow.querySelector(".type").textContent = "PI";
-        piRow.querySelector("option").textContent = "Select PI";
-        piRow.lastElementChild.remove() // Remove the remove button
-
         // User inputs percent effort, update yearly costs
         document.addEventListener("input", event => {
             const percentEffort = event.target.closest(".percent-effort");
@@ -1381,7 +1383,7 @@ function onStaffPickerSelect(row) {
                 if (year1HoursWorked == 0) continue;
                 const yearlyWages = await calculateYearlyWagesWithFringeRateFromRowAsync(row);
                 const totalWagesForBudgetDuration = yearlyWages*numBudgetYears;
-                spreadsheetData.splice(i+6, 0, [piType, year1HoursWorked, toDollar(hourlyRate), ...Array(numBudgetYears).fill(toDollar(yearlyWages)), toDollar(totalWagesForBudgetDuration)])
+                spreadsheetData.splice(i+6, 0, [piType, year1HoursWorked, hourlyRate, ...Array(numBudgetYears).fill(toDollar(yearlyWages)), toDollar(totalWagesForBudgetDuration)])
             }
 
             async function pushOtherPersonnelAggregationDataAsync(t1Id, t2Id, rowOffset) {
@@ -1475,7 +1477,11 @@ function onStaffPickerSelect(row) {
             const equipmentLabelRowIndex = getSpreadsheetRowIndexByLabel("Equipment > $5000.00");
             for (let i = 0; i < bigEquipmentRows.length; i++) {
                 const row = bigEquipmentRows[i];
-                const name = row.querySelector(".name").value;
+                const qty = row.querySelector(".quantity")?.value;
+                let name = row.querySelector(".name").value;
+                if (qty && qty > 1) {
+                    name += " x" + qty;
+                }
                 const rowCost = calculateTotalItemCostFromRow(row);
                 spreadsheetData.splice(equipmentLabelRowIndex + i + 1, 0, [name, null, null, ...Array(numBudgetYears).fill(toDollar(rowCost)), toDollar(rowCost * numBudgetYears)])
             }
@@ -1648,159 +1654,166 @@ function onStaffPickerSelect(row) {
             XLSX.writeFile(workbook, budgetTitle.value + (budgetTitle.value !== "" ? "_" : "")  + "EZBudgets.xlsx")
         })
 
-        document.getElementById("saveBudget").addEventListener("click", collectAndSave);
+        async function collectAndSaveAsync(clickedButton) {
+            clearError();
 
-async function collectAndSave() {
-    clearError();
+            // Validate dates
+            if (!budgetStartDate.value || !budgetEndDate.value) {
+                showError("Please enter budget start and end dates before saving.");
+                return;
+            }
 
-    // Validate dates
-    if (!budgetStartDate.value || !budgetEndDate.value) {
-        showError("Please enter budget start and end dates before saving.");
-        return;
-    }
+            function parseMoney(text) {
+                if (!text) return 0;
+                const s = ("" + text).replace(/[$,]/g, '').trim();
+                const n = parseFloat(s);
+                return isNaN(n) ? 0 : n;
+            }
 
-    function parseMoney(text) {
-        if (!text) return 0;
-        const s = ("" + text).replace(/[$,]/g, '').trim();
-        const n = parseFloat(s);
-        return isNaN(n) ? 0 : n;
-    }
+            const payload = {
+                budget_id: window.currentBudgetId || 0,
+                budget_name: budgetTitle.value || "",
+                funding_source: budgetFundingSource.value || "",
+                start_date: budgetStartDate.value,
+                end_date: budgetEndDate.value,
+                personnel: [],
+                travels: [],
+                items: []
+            };
 
-    const payload = {
-        budget_id: window.currentBudgetId || 0,
-        budget_name: budgetTitle.value || "",
-        funding_source: budgetFundingSource.value || "",
-        start_date: budgetStartDate.value,
-        end_date: budgetEndDate.value,
-        personnel: [],
-        travels: [],
-        items: []
-    };
+            // Collect personnel rows (keep your existing code)
+            function collectTableRows(tableId) {
+                const rows = [];
+                const table = document.getElementById(tableId);
+                if (!table) return rows;
 
-    // Collect personnel rows (keep your existing code)
-    function collectTableRows(tableId) {
-        const rows = [];
-        const table = document.getElementById(tableId);
-        if (!table) return rows;
+                for (const r of table.querySelectorAll("tbody tr")) {
+                    const picker = r.querySelector(".staff-picker");
+                    const personnelId = picker ? parseInt(picker.value || 0) : 0;
 
-        for (const r of table.querySelectorAll("tbody tr")) {
-            const picker = r.querySelector(".staff-picker");
-            const personnelId = picker ? parseInt(picker.value || 0) : 0;
+                    const percentEl = r.querySelector(".percent-effort");
+                    const percentVal = percentEl ? parseInt(percentEl.value || 0) : 0;
+                    const stipendCheckbox = r.querySelector(".request-stipend");
+                    const stipendRequested = stipendCheckbox ? (stipendCheckbox.checked ? 1 : 0) : 0;
+                    const stipendAmountEl = r.querySelector(".stipend-amount");
+                    const stipendAmount = stipendAmountEl ? parseMoney(stipendAmountEl.textContent || stipendAmountEl.value) : 0;
 
-            const percentEl = r.querySelector(".percent-effort");
-            const percentVal = percentEl ? parseInt(percentEl.value || 0) : 0;
-            const stipendCheckbox = r.querySelector(".request-stipend");
-            const stipendRequested = stipendCheckbox ? (stipendCheckbox.checked ? 1 : 0) : 0;
-            const stipendAmountEl = r.querySelector(".stipend-amount");
-            const stipendAmount = stipendAmountEl ? parseMoney(stipendAmountEl.textContent || stipendAmountEl.value) : 0;
+                    let ptype = "staff";
+                    if (tableId === "pi-table") ptype = "PI";
+                    else if (tableId === "pro-staff") ptype = "staff";
+                    else if (tableId === "post-docs") ptype = "postdoc";
+                    else if (tableId === "gras") ptype = "grad_assistant";
+                    else if (tableId === "ugrads") ptype = "undergrad_assistant";
 
-            let ptype = "staff";
-            if (tableId === "pi-table") ptype = "PI";
-            else if (tableId === "pro-staff") ptype = "staff";
-            else if (tableId === "post-docs") ptype = "postdoc";
-            else if (tableId === "gras") ptype = "grad_assistant";
-            else if (tableId === "ugrads") ptype = "undergrad_assistant";
+                    if (personnelId === 0 && percentVal === 0 && stipendRequested === 0 && stipendAmount === 0) continue;
 
-            if (personnelId === 0 && percentVal === 0 && stipendRequested === 0 && stipendAmount === 0) continue;
+                    rows.push({
+                        personnel_type: ptype,
+                        personnel_id: personnelId,
+                        percent_effort: percentVal,
+                        stipend_requested: stipendRequested,
+                        stipend_amount: stipendAmount
+                    });
+                }
+                return rows;
+            }
 
-            rows.push({
-                personnel_type: ptype,
-                personnel_id: personnelId,
-                percent_effort: percentVal,
-                stipend_requested: stipendRequested,
-                stipend_amount: stipendAmount
-            });
+            payload.personnel = payload.personnel.concat(
+                collectTableRows("pi-table"),
+                collectTableRows("pro-staff"),
+                collectTableRows("post-docs"),
+                collectTableRows("gras"),
+                collectTableRows("ugrads")
+            );
+
+            // --- Travel ---
+            const travelTable = document.getElementById("travel");
+            if (travelTable) {
+                for (const r of travelTable.querySelectorAll("tbody tr")) {
+                    const type = r.querySelector(".type")?.value || "";
+                    const nights = parseInt(r.querySelector(".num-nights")?.value || 0);
+                    const travelers = parseInt(r.querySelector(".num-travelers")?.value || 0);
+                    const id = r.dataset.travelId ? parseInt(r.dataset.travelId) : 0;
+
+                    if (!type && nights === 0 && travelers === 0) continue;
+                    payload.travels.push({
+                        id,
+                        travel_type: type,
+                        num_nights: nights,
+                        num_travelers: travelers
+                    });
+                }
+            }
+
+            // --- Itemized Costs ---
+            const itemsTable = document.getElementById("itemized-costs");
+            if (itemsTable) {
+                for (const r of itemsTable.querySelectorAll("tbody tr")) {
+                    const type = r.querySelector(".type")?.value || "";
+                    const name = r.querySelector(".name")?.value || "";
+                    const qty = parseInt(r.querySelector(".quantity")?.value || 0);
+                    const unitCost = parseMoney(r.querySelector(".unit-cost")?.value || "0");
+                    const id = r.dataset.itemId ? parseInt(r.dataset.itemId) : 0;
+
+                    if (!type && !name && qty === 0 && unitCost === 0) continue;
+                    payload.items.push({
+                        id,
+                        item_type: type,
+                        name,
+                        quantity: qty,
+                        unit_cost: unitCost
+                    });
+                }
+            }
+
+            const saveBtn = document.getElementById("saveBudget");
+            if (clickedButton === saveBtn) {
+                saveBtn.disabled = true;
+                saveBtn.value = "Saving...";
+            }
+            
+            console.log("Saving budget payload:", payload);
+
+            try {
+                const resp = await fetch('save_budget.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await resp.json();
+                if (!result.success) throw new Error(result.error || 'Unknown server error');
+
+                if (clickedButton === saveBtn) {
+                    saveBtn.value = "Saved ✓";
+                    setTimeout(() => {
+                        saveBtn.disabled = false;
+                        saveBtn.value = "Save budget";
+                    }, 1200);
+                }
+
+                if (result.budget_id) {
+                    payload.budget_id = result.budget_id;
+                    window.currentBudgetId = result.budget_id;
+                }
+
+            } catch (err) {
+                showError("Save failed: " + err.message);
+                saveBtn.disabled = false;
+                saveBtn.value = "Save budget";
+            }
         }
-        return rows;
-    }
 
-    payload.personnel = payload.personnel.concat(
-        collectTableRows("pi-table"),
-        collectTableRows("pro-staff"),
-        collectTableRows("post-docs"),
-        collectTableRows("gras"),
-        collectTableRows("ugrads")
-    );
-
- // --- Travel ---
-const travelTable = document.getElementById("travel");
-if (travelTable) {
-    for (const r of travelTable.querySelectorAll("tbody tr")) {
-        const type = r.querySelector(".type")?.value || "";
-        const nights = parseInt(r.querySelector(".num-nights")?.value || 0);
-        const travelers = parseInt(r.querySelector(".num-travelers")?.value || 0);
-        const id = r.dataset.travelId ? parseInt(r.dataset.travelId) : 0;
-
-        if (!type && nights === 0 && travelers === 0) continue;
-        payload.travels.push({
-            id,
-            travel_type: type,
-            num_nights: nights,
-            num_travelers: travelers
+        document.getElementById("saveBudget").addEventListener("click", () => {
+            collectAndSaveAsync(document.querySelector("#saveBudget"));
         });
-    }
-}
-
-// --- Itemized Costs ---
-const itemsTable = document.getElementById("itemized-costs");
-if (itemsTable) {
-    for (const r of itemsTable.querySelectorAll("tbody tr")) {
-        const type = r.querySelector(".type")?.value || "";
-        const name = r.querySelector(".name")?.value || "";
-        const qty = parseInt(r.querySelector(".quantity")?.value || 0);
-        const unitCost = parseMoney(r.querySelector(".unit-cost")?.value || "0");
-        const id = r.dataset.itemId ? parseInt(r.dataset.itemId) : 0;
-
-        if (!type && !name && qty === 0 && unitCost === 0) continue;
-        payload.items.push({
-            id,
-            item_type: type,
-            name,
-            quantity: qty,
-            unit_cost: unitCost
+        document.getElementById("save-and-close").addEventListener("click", () => {
+            collectAndSaveAsync(document.querySelector("#save-and-close"))
+                .then(() => {
+                    location.href = "dashboard.php"
+                });
         });
-    }
-}
-
-
-
-    const saveBtn = document.getElementById("saveBudget");
-    saveBtn.disabled = true;
-    saveBtn.value = "Saving...";
-
-    console.log("Saving budget payload:", payload);
-
-
-    try {
-        const resp = await fetch('save_budget.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-
-        const result = await resp.json();
-        if (!result.success) throw new Error(result.error || 'Unknown server error');
-
-        saveBtn.value = "Saved ✓";
-        setTimeout(() => {
-            saveBtn.disabled = false;
-            saveBtn.value = "Save budget";
-        }, 1200);
-
-        if (result.budget_id) {
-            payload.budget_id = result.budget_id;
-            window.currentBudgetId = result.budget_id;
-        }
-
-    } catch (err) {
-        showError("Save failed: " + err.message);
-        saveBtn.disabled = false;
-        saveBtn.value = "Save budget";
-    }
-}
-
-
-
+        
         </script>
     </body>
 </html>
