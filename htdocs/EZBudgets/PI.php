@@ -1801,6 +1801,7 @@ if ($conn->connect_error) {
                 showError("Save failed: " + err.message);
                 saveBtn.disabled = false;
                 saveBtn.value = "Save budget";
+                return;
             }
 
             return true;
