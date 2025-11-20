@@ -683,35 +683,16 @@ document.addEventListener("DOMContentLoaded", () => {
         let travelProfiles;
 
         // Staff picker dropdown logic
-        function initializeStaffPicker(select) {
-            const table = select.closest("table");
-            const row = select.closest("tr");
-            const filter = select.dataset.filter;
+        function onStaffPickerSelect(row) {
+            const table = row.closest("table");
+            const select = row.querySelector(".staff-picker");
+            if (!select) return;
 
-            row.dataset.originalHTML = row.innerHTML;
-            
-            fetch(`get_personnel_list.php?filter=${filter}`)
-                .then(res => res.json())
-                .then(rows => {
-                    rows.forEach(r => {
-                        const opt = document.createElement("option");
-                        opt.value = r.id;
-                        opt.textContent = r.name;
-                        select.appendChild(opt);
-                    });
-
-                    const ts = new TomSelect(select, {
-                        maxItems: 1,
-                        create: false
-                    });
-
-                    select.tom = ts;
-
-                    ts.on("change", personnelId => {
-                        if (!personnelId) {
-                            row.innerHTML = row.dataset.originalHTML; // Reset the row's values
-                            return;
-                        }
+            const personnelId = select.value;
+            if (!personnelId) {
+                row.innerHTML = row.dataset.originalHTML; // Reset the row's values
+                return;
+            }
 
             const personnelType = tableIdToPersonnelType[table.id];
 
@@ -757,15 +738,18 @@ document.addEventListener("DOMContentLoaded", () => {
                     const ts = new TomSelect(select, {
                         maxItems: 1,
                         create: false,
-                        dropdownParent: 'body' // append dropdown to <body> so transforms don’t clip it
+                        dropdownParent: "body"
                     });
+
+                    select.tom = ts;
 
                     ts.on("change", () => {
                         onStaffPickerSelect(row);
                     })
                 });
+
         }
-        
+
         // Item type picker dropdown logic
         function initializeItemPicker(select) {
             const table = select.closest("table");
