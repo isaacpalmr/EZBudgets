@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 20, 2025 at 03:06 AM
+-- Generation Time: Nov 20, 2025 at 07:31 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -46,9 +46,12 @@ CREATE TABLE `budgets` (
 --
 
 INSERT INTO `budgets` (`budget_id`, `user_id`, `budget_name`, `funding_source`, `default_fa_year`, `default_tuition_year`, `travel_is_international`, `created_at`, `updated_at`, `start_date`, `end_date`) VALUES
-(1, 1, 'John', NULL, NULL, NULL, 0, '2025-11-18 16:10:44', '2025-11-19 14:12:31', '2025-11-19', '2030-01-12'),
+(1, 1, 'THIS IS A TEST BUDGET', 'National Science Foundation', NULL, NULL, 0, '2025-11-18 16:10:44', '2025-11-19 19:00:51', '2025-11-04', '2027-12-08'),
 (2, 1, 'Super COol Budget', NULL, NULL, NULL, 0, '2025-11-18 16:11:42', '2025-11-18 16:11:42', NULL, NULL),
-(3, 5, 'Super cool', NULL, NULL, NULL, 0, '2025-11-19 12:33:30', '2025-11-19 12:33:30', NULL, NULL);
+(3, 5, 'Super cool', NULL, NULL, NULL, 0, '2025-11-19 12:33:30', '2025-11-19 12:33:30', NULL, NULL),
+(5, 5, 'Super neat Budget', 'National Science Foundation', NULL, NULL, 0, '2025-11-19 18:44:02', '2025-11-19 18:44:02', '2025-11-18', '2028-09-14'),
+(6, 5, 'Super neat Budget', 'National Science Foundation', NULL, NULL, 0, '2025-11-19 18:44:37', '2025-11-19 18:44:37', '2025-11-18', '2028-09-14'),
+(7, 1, '', 'National Science Foundation', NULL, NULL, 0, '2025-11-19 18:55:14', '2025-11-19 18:55:14', '2025-11-04', '2027-12-05');
 
 -- --------------------------------------------------------
 
@@ -59,19 +62,35 @@ INSERT INTO `budgets` (`budget_id`, `user_id`, `budget_name`, `funding_source`, 
 CREATE TABLE `budget_personnel` (
   `bp_id` int(11) NOT NULL,
   `budget_id` int(11) NOT NULL,
-  `personnel_type` enum('PI','staff','postdoc','student') NOT NULL,
+  `personnel_type` enum('PI','staff','postdoc','student','grad_assistant','undergrad_assistant') DEFAULT NULL,
   `personnel_id` int(11) NOT NULL,
-  `percent_effort` int(11) DEFAULT NULL
+  `percent_effort` int(11) DEFAULT NULL,
+  `stipend_requested` tinyint(1) DEFAULT 0,
+  `stipend_amount` decimal(10,2) DEFAULT 0.00
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `budget_personnel`
 --
 
-INSERT INTO `budget_personnel` (`bp_id`, `budget_id`, `personnel_type`, `personnel_id`, `percent_effort`) VALUES
-(14, 1, 'staff', 1, 5),
-(15, 1, 'staff', 4, 3),
-(16, 1, 'staff', 2, 10);
+INSERT INTO `budget_personnel` (`bp_id`, `budget_id`, `personnel_type`, `personnel_id`, `percent_effort`, `stipend_requested`, `stipend_amount`) VALUES
+(17, 6, 'PI', 4, 4, 0, 0.00),
+(18, 6, 'staff', 3, 3, 0, 0.00),
+(19, 6, 'postdoc', 2, 5, 1, 60000.00),
+(20, 6, 'grad_assistant', 1, 0, 0, 32000.00),
+(21, 6, 'undergrad_assistant', 3, 1, 1, 4800.00),
+(22, 7, 'PI', 3, 1, 0, 0.00),
+(23, 7, 'staff', 3, 1, 0, 0.00),
+(24, 7, 'postdoc', 1, 1, 1, 55000.00),
+(25, 7, 'grad_assistant', 5, 0, 0, 25000.00),
+(26, 7, 'undergrad_assistant', 5, 0, 1, 5100.00),
+(42, 1, 'PI', 1, 1, 0, 0.00),
+(43, 1, 'PI', 1, 5, 0, 0.00),
+(44, 1, 'PI', 3, 6, 0, 0.00),
+(45, 1, 'staff', 3, 1, 0, 0.00),
+(46, 1, 'postdoc', 1, 0, 0, 55000.00),
+(47, 1, 'grad_assistant', 4, 50, 1, 31000.00),
+(48, 1, 'undergrad_assistant', 1, 0, 0, 5000.00);
 
 -- --------------------------------------------------------
 
@@ -400,13 +419,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `budgets`
 --
 ALTER TABLE `budgets`
-  MODIFY `budget_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `budget_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `budget_personnel`
 --
 ALTER TABLE `budget_personnel`
-  MODIFY `bp_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `bp_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
 
 --
 -- AUTO_INCREMENT for table `graduate_research_assistants`

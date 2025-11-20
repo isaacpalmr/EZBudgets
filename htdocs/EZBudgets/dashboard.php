@@ -48,16 +48,30 @@ $result = $conn->query($sql);
 
     <h2>Your Budgets</h2>
     <ul>
-        <?php
-        if ($result && $result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                echo "<li>" . htmlspecialchars($row['budget_name']) . " (Total years: " . $row['total_years'] . ")</li>";
-            }
-        } else {
-            echo "<li>No budgets yet.</li>";
-        }
-        ?>
-    </ul>
+<?php
+if ($result && $result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+
+        $budget_id = $row['budget_id'];
+        $budget_name = htmlspecialchars($row['budget_name']);
+        //$years = htmlspecialchars($row['total_years']);
+
+        echo "
+            <li>
+                $budget_name
+                <a href='PI.php?budget_id=$budget_id' 
+                   style='margin-left: 10px;'>
+                   <button>Edit</button>
+                </a>
+            </li>
+        ";
+    }
+} else {
+    echo "<li>No budgets yet.</li>";
+}
+?>
+</ul>
+
 
     <h3>Create New Budget</h3>
     <form method="POST">
