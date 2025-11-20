@@ -73,9 +73,7 @@ if ($result && $result->num_rows > 0) {
 </ul>
 
 
-    <h3>Create New Budget</h3>
     <form method="POST">
-        <input type="text" name="budget_name" placeholder="Budget Name" required>
         <button type="submit" name="create_budget">Create Budget</button>
     </form>
 </body>

@@ -400,137 +400,137 @@ if ($conn->connect_error) {
 
         //BUDGET LOAD HANDLER
         // --- loadBudget + on-ready hookup (replace the old version) ---
-async function loadBudget(budgetId) {
-    if (!budgetId) return;
+        async function loadBudget(budgetId) {
+            if (!budgetId) return;
 
-    try {
-        const resp = await fetch(`get_budget.php?budget_id=${budgetId}`);
-        const data = await resp.json();
-        if (!data.success) throw new Error(data.error || "Budget not found");
+            try {
+                const resp = await fetch(`get_budget.php?budget_id=${budgetId}`);
+                const data = await resp.json();
+                if (!data.success) throw new Error(data.error || "Budget not found");
 
-        const budget = data.budget || {};
-        const personnel = data.personnel || [];
+                    const budget = data.budget || {};
+                    const personnel = data.personnel || [];
 
-        // Set global budget ID
-        window.currentBudgetId = parseInt(budget.budget_id || budgetId || window.currentBudgetId || 0);
+                    // Set global budget ID
+                    window.currentBudgetId = parseInt(budget.budget_id || budgetId || window.currentBudgetId || 0);
 
-        // Populate top-level fields
-        budgetTitle.value = budget.budget_name ?? "";
-        budgetFundingSource.value = budget.funding_source ?? "";
-        budgetStartDate.value = budget.start_date ?? "";
-        budgetEndDate.value = budget.end_date ?? "";
+                    // Populate top-level fields
+                    budgetTitle.value = budget.budget_name ?? "";
+                    budgetFundingSource.value = budget.funding_source ?? "";
+                    budgetStartDate.value = budget.start_date ?? "";
+                    budgetEndDate.value = budget.end_date ?? "";
 
-        // Recompute number of years (will recreate yearly-costs columns)
-        onNumBudgetYearsChanged();
+                    // Recompute number of years (will recreate yearly-costs columns)
+                    onNumBudgetYearsChanged();
 
-        // Table mapping: personnel_type -> table id
-        const tableMap = {
-            "PI": "pi-table",
-            "staff": "pro-staff",
-            "postdoc": "post-docs",
-            "grad_assistant": "gras",
-            "undergrad_assistant": "ugrads",
-        };
+                    // Table mapping: personnel_type -> table id
+                    const tableMap = {
+                        "PI": "pi-table",
+                        "staff": "pro-staff",
+                        "postdoc": "post-docs",
+                        "grad_assistant": "gras",
+                        "undergrad_assistant": "ugrads",
+                    };
 
-        // Clear all tables
-        Object.values(tableMap).forEach(tid => {
-            const t = document.getElementById(tid);
-            if (t) t.querySelector("tbody").innerHTML = "";
-        });
+                    // Clear all tables
+                    Object.values(tableMap).forEach(tid => {
+                        const t = document.getElementById(tid);
+                        if (t) t.querySelector("tbody").innerHTML = "";
+                    });
 
-        // Helper functions to fire events
-        const fireChange = el => el.dispatchEvent(new Event('change', { bubbles: true }));
-        const fireInput = el => el.dispatchEvent(new Event('input', { bubbles: true }));
+                    // Helper functions to fire events
+                    const fireChange = el => el.dispatchEvent(new Event('change', { bubbles: true }));
+                    const fireInput = el => el.dispatchEvent(new Event('input', { bubbles: true }));
 
-        // Populate personnel rows
-        for (const p of personnel) {
-            const tid = tableMap[p.personnel_type] || "pro-staff";
-            const table = document.getElementById(tid);
-            if (!table) continue;
+                    // Populate personnel rows
+                    for (const p of personnel) {
+                        const tid = tableMap[p.personnel_type] || "pro-staff";
+                        const table = document.getElementById(tid);
+                        if (!table) continue;
 
-            const row = addRow(table);
-            const select = row.querySelector(".staff-picker");
+                        const row = addRow(table);
+                        const select = row.querySelector(".staff-picker");
 
-            // Only for PI/pro-staff do we simulate selection with TomSelect
-            if (select && select.tom && (p.personnel_type === "PI" || p.personnel_type === "staff")) {
-                select.tom.addOption({ value: String(p.personnel_id), text: p.name });
+                        // Only for PI/pro-staff do we simulate selection with TomSelect
+                        if (select && select.tom && (p.personnel_type === "PI" || p.personnel_type === "staff")) {
+                            select.tom.addOption({ value: String(p.personnel_id), text: p.name });
 
-                // Defer setValue to allow TomSelect to fully initialize
-                setTimeout(() => {
-                    select.tom.setValue(String(p.personnel_id));
-                    select.dispatchEvent(new Event('change', { bubbles: true }));
+                            // Defer setValue to allow TomSelect to fully initialize
+                            setTimeout(() => {
+                                select.tom.setValue(String(p.personnel_id));
+                                select.dispatchEvent(new Event('change', { bubbles: true }));
 
 
-                    // Trigger events to simulate user selecting
-                    fireChange(select);
-                    fireInput(select);
-                }, 0);
-            } else if (select) {
-                // Other tables: just set the raw value
-                const opt = document.createElement("option");
-                opt.value = p.personnel_id;
-                opt.textContent = p.name;
-                select.appendChild(opt);
-                select.value = p.personnel_id;
-                fireChange(select);
-            }
+                                // Trigger events to simulate user selecting
+                                fireChange(select);
+                                fireInput(select);
+                            }, 0);
+                        } else if (select) {
+                            // Other tables: just set the raw value
+                            const opt = document.createElement("option");
+                            opt.value = p.personnel_id;
+                            opt.textContent = p.name;
+                            select.appendChild(opt);
+                            select.value = p.personnel_id;
+                            fireChange(select);
+                        }
 
-            // Percent effort
-            const percentEl = row.querySelector(".percent-effort");
-            if (percentEl) {
-                percentEl.disabled = false;
-                percentEl.value = p.percent_effort ?? 0;
-            }
+                        // Percent effort
+                        const percentEl = row.querySelector(".percent-effort");
+                        if (percentEl) {
+                            percentEl.disabled = false;
+                            percentEl.value = p.percent_effort ?? 0;
+                        }
 
-            // Stipend checkbox
-            const stipendCheckbox = row.querySelector(".request-stipend");
-            if (stipendCheckbox) {
-                stipendCheckbox.checked = !!Number(p.stipend_requested);
-                fireInput(stipendCheckbox);
-            }
+                        // Stipend checkbox
+                        const stipendCheckbox = row.querySelector(".request-stipend");
+                        if (stipendCheckbox) {
+                            stipendCheckbox.checked = !!Number(p.stipend_requested);
+                            fireInput(stipendCheckbox);
+                        }
 
-            // Stipend amount cell
-            const stipendAmountEl = row.querySelector(".stipend-amount");
-            if (stipendAmountEl) {
-                if ('value' in stipendAmountEl) stipendAmountEl.value = p.stipend_amount ?? 0;
-                else stipendAmountEl.textContent = toDollar(p.stipend_amount ?? 0);
+                        // Stipend amount cell
+                        const stipendAmountEl = row.querySelector(".stipend-amount");
+                        if (stipendAmountEl) {
+                            if ('value' in stipendAmountEl) stipendAmountEl.value = p.stipend_amount ?? 0;
+                            else stipendAmountEl.textContent = toDollar(p.stipend_amount ?? 0);
+                        }
+                    }
+
+                    // Recalculate totals
+                    updateYearlyCosts();
+
+            } catch (err) {
+                console.error("Error loading budget:", err);
+                showError("Failed to load budget: " + (err.message || err));
             }
         }
 
-        // Recalculate totals
-        updateYearlyCosts();
-
-    } catch (err) {
-        console.error("Error loading budget:", err);
-        showError("Failed to load budget: " + (err.message || err));
-    }
-}
 
 
 
+        // Call loadBudget on DOM ready — prefer currentBudgetId or budget_id query param
+        document.addEventListener("DOMContentLoaded", () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const queryBudgetId = urlParams.get("budget_id");
+            const effectiveId = Number(window.currentBudgetId || queryBudgetId || 0);
+                if (effectiveId > 0) {
+                        loadBudget(effectiveId);
+                }
+        });
 
-// Call loadBudget on DOM ready — prefer currentBudgetId or budget_id query param
-document.addEventListener("DOMContentLoaded", () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const queryBudgetId = urlParams.get("budget_id");
-    const effectiveId = Number(window.currentBudgetId || queryBudgetId || 0);
-    if (effectiveId > 0) {
-        loadBudget(effectiveId);
-    }
-});
 
-
-// On page load
-document.addEventListener("DOMContentLoaded", () => {
-    if (window.currentBudgetId) {
-        loadBudget(window.currentBudgetId);
-    } else {
-        // Optionally, check query string
-        const urlParams = new URLSearchParams(window.location.search);
-        const bid = urlParams.get("budget_id");
-        if (bid) loadBudget(bid);
-    }
-});
+        // On page load
+        document.addEventListener("DOMContentLoaded", () => {
+            if (window.currentBudgetId) {
+                loadBudget(window.currentBudgetId);
+            } else {
+                // Optionally, check query string
+                const urlParams = new URLSearchParams(window.location.search);
+                const bid = urlParams.get("budget_id");
+                if (bid) loadBudget(bid);
+            }
+        });
 
 
 
