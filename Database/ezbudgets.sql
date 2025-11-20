@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 20, 2025 at 02:57 AM
+-- Generation Time: Nov 20, 2025 at 03:06 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -20,6 +20,58 @@ SET time_zone = "+00:00";
 --
 -- Database: `ezbudgets`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `budgets`
+--
+
+CREATE TABLE `budgets` (
+  `budget_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `budget_name` varchar(150) NOT NULL,
+  `funding_source` varchar(150) DEFAULT NULL,
+  `default_fa_year` int(11) DEFAULT NULL,
+  `default_tuition_year` varchar(20) DEFAULT NULL,
+  `travel_is_international` tinyint(1) DEFAULT 0,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `start_date` date DEFAULT NULL,
+  `end_date` date DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `budgets`
+--
+
+INSERT INTO `budgets` (`budget_id`, `user_id`, `budget_name`, `funding_source`, `default_fa_year`, `default_tuition_year`, `travel_is_international`, `created_at`, `updated_at`, `start_date`, `end_date`) VALUES
+(1, 1, 'John', NULL, NULL, NULL, 0, '2025-11-18 16:10:44', '2025-11-19 14:12:31', '2025-11-19', '2030-01-12'),
+(2, 1, 'Super COol Budget', NULL, NULL, NULL, 0, '2025-11-18 16:11:42', '2025-11-18 16:11:42', NULL, NULL),
+(3, 5, 'Super cool', NULL, NULL, NULL, 0, '2025-11-19 12:33:30', '2025-11-19 12:33:30', NULL, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `budget_personnel`
+--
+
+CREATE TABLE `budget_personnel` (
+  `bp_id` int(11) NOT NULL,
+  `budget_id` int(11) NOT NULL,
+  `personnel_type` enum('PI','staff','postdoc','student') NOT NULL,
+  `personnel_id` int(11) NOT NULL,
+  `percent_effort` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `budget_personnel`
+--
+
+INSERT INTO `budget_personnel` (`bp_id`, `budget_id`, `personnel_type`, `personnel_id`, `percent_effort`) VALUES
+(14, 1, 'staff', 1, 5),
+(15, 1, 'staff', 4, 3),
+(16, 1, 'staff', 2, 10);
 
 -- --------------------------------------------------------
 
@@ -220,9 +272,48 @@ INSERT INTO `university_employee` (`staff_id`, `name`, `hourly_rate`, `job`, `st
 (4, 'Jenna Ortega', 28.75, 'Department Coordinator', 'Admin Staff', 0),
 (5, 'Samuel Chen', 52.00, 'Data Scientist', 'Research Staff', 0);
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `users`
+--
+
+CREATE TABLE `users` (
+  `user_id` int(11) NOT NULL,
+  `username` varchar(50) NOT NULL,
+  `first_name` varchar(50) NOT NULL,
+  `last_name` varchar(50) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `last_login` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`user_id`, `username`, `first_name`, `last_name`, `email`, `password`, `created_at`, `last_login`) VALUES
+(1, 'super', 'super', 'super', '', '$2y$10$3zLLaD6hC8JJGcOBX2NCsOKwSRtRz831V6mdpkmOv9Vl.p9haPyOW', '2025-11-18 13:22:19', '2025-11-18 13:22:19'),
+(5, 'john', 'john', 'john', 'john', '$2y$10$W8OCFhxs7Ny1KneBs8afbeCslYQQJMFQyHuWtD3ujFG2A5UZDdA8a', '2025-11-18 13:29:20', '2025-11-18 13:29:20');
+
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `budgets`
+--
+ALTER TABLE `budgets`
+  ADD PRIMARY KEY (`budget_id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
+-- Indexes for table `budget_personnel`
+--
+ALTER TABLE `budget_personnel`
+  ADD PRIMARY KEY (`bp_id`),
+  ADD KEY `budget_id` (`budget_id`);
 
 --
 -- Indexes for table `employee_fringe_rates`
@@ -294,8 +385,28 @@ ALTER TABLE `university_employee`
   ADD KEY `staff_title` (`staff_title`);
 
 --
+-- Indexes for table `users`
+--
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`user_id`),
+  ADD UNIQUE KEY `username` (`username`),
+  ADD UNIQUE KEY `email` (`email`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
+
+--
+-- AUTO_INCREMENT for table `budgets`
+--
+ALTER TABLE `budgets`
+  MODIFY `budget_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `budget_personnel`
+--
+ALTER TABLE `budget_personnel`
+  MODIFY `bp_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `graduate_research_assistants`
@@ -328,8 +439,20 @@ ALTER TABLE `university_employee`
   MODIFY `staff_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
+-- AUTO_INCREMENT for table `users`
+--
+ALTER TABLE `users`
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `budget_personnel`
+--
+ALTER TABLE `budget_personnel`
+  ADD CONSTRAINT `budget_personnel_ibfk_1` FOREIGN KEY (`budget_id`) REFERENCES `budgets` (`budget_id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `employee_fringe_rates`
