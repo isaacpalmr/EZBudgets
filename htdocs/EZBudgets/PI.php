@@ -760,17 +760,28 @@ if ($conn->connect_error) {
         const budgetEndDate = document.getElementById("budget-end-date").querySelector("input");
         const budgetFundingSource = document.querySelector("#budget-funding-source select");
         const piTableBody = document.querySelector("#pi-table tbody");
-        const staffPickerSelected = []
+        const staffPickerSelected = new Map()
 
         let travelProfiles;
 
-        function unhideStaffPickerOpt(select, staffId, staffName) {
-            const hidden = select.hidden || []
-            const foundIdx = hidden.indexOf(staffId)
+        function findOptionByText(select, textToFind) {
+            const lowerText = textToFind.toLowerCase();
+
+            for (const option of Object.values(select.tom.options)) {
+                if (option.text && option.text.toLowerCase() === lowerText) {
+                    return option;
+                }
+            }
+            return null;
+        }
+
+        function unhideStaffPickerOpt(select, staffId, staffName, staffUniqueKey) {
+            const hidden = select.hiddenOptions || []
+            const foundIdx = hidden.indexOf(staffUniqueKey)
             if (foundIdx === -1) {
-                hidden.splice(foundIdx, 1)
-            } else {
                 return
+            } else {
+                hidden.splice(foundIdx, 1)
             }
 
             select.tom.addOption({
@@ -779,16 +790,16 @@ if ($conn->connect_error) {
             });
         }
 
-        function hideStaffPickerOpt(select, staffId) {
-            const hidden = select.hidden || []
-            if (!select.tom.options[staffId]) {
+        function hideStaffPickerOpt(select, staffId, staffName, staffUniqueKey) {
+            const hidden = select.hiddenOptions || []
+            if (!findOptionByText(select, staffName)) {
                 return;
             }
 
             select.tom.removeOption(staffId);
 
-            if (hidden.indexOf(staffId) === -1) {
-                hidden.push(staffId)
+            if (hidden.indexOf(staffUniqueKey) === -1) {
+                hidden.push(staffUniqueKey)
             }
         };
 
@@ -798,26 +809,25 @@ if ($conn->connect_error) {
             const select = row.querySelector(".staff-picker");
             if (!select) return;
             
+            const personnelType = tableIdToPersonnelType[table.id];
             const staffId = select.tom.getValue()
             const staffName = staffId && select.tom.getOption(staffId).textContent.trim()
+            const staffUniqueKey = staffId ? `${personnelType}-${staffId}` : null;
 
-            staffPickerSelected.push(staffId);
-
-            const [lastStaffId, lastStaffName] = select.currSelected
-            select.currSelected = [staffId, staffName]
+            const [lastStaffId, lastStaffName, lastStaffUniqueKey] = select.currSelected
+            select.currSelected = [staffId, staffName, staffUniqueKey]
 
             const otherStaffPickers = Array.from(document.querySelectorAll("select.staff-picker")).filter(other => other !== select)
 
-            if (lastStaffId && lastStaffId !== staffId) { // Add the previous selected id back to the other staff pickers
-                const foundIdx = staffPickerSelected.indexOf(lastStaffId)
-                if (foundIdx !== -1) {
-                    staffPickerSelected.splice(foundIdx, 1)
-                }
-                
-                otherStaffPickers.forEach(otherSelect => unhideStaffPickerOpt(otherSelect, lastStaffId, lastStaffName))
+            if (lastStaffUniqueKey && lastStaffUniqueKey !== staffUniqueKey) { // Add the previous selected id back to the other staff pickers
+                staffPickerSelected.delete(lastStaffUniqueKey)
+
+                otherStaffPickers.forEach(otherSelect => {
+                    console.log("unhide", lastStaffName)
+                    unhideStaffPickerOpt(otherSelect, lastStaffId, lastStaffName, lastStaffUniqueKey)})
             }
 
-            if (!staffId) {
+            if (!staffUniqueKey) {
                 const stipendAmount = row.querySelector(".stipend-amount");
                 if (stipendAmount) {
                     stipendAmount.textContent = toDollar(0);
@@ -835,9 +845,11 @@ if ($conn->connect_error) {
 
                 updateYearlyCosts();
             } else {
-                otherStaffPickers.forEach(otherSelect => hideStaffPickerOpt(otherSelect, staffId))
+                staffPickerSelected.set(staffUniqueKey, [staffId, staffName, staffUniqueKey])
 
-                const personnelType = tableIdToPersonnelType[table.id];
+                otherStaffPickers.forEach(otherSelect => {
+                    console.log("hide", staffName)
+                    hideStaffPickerOpt(otherSelect, staffId, staffName, staffUniqueKey)})
 
                 fetch(`get_single_personnel.php?personnelType=${personnelType}&personnelId=${staffId}`)
                     .then(r => r.json())
@@ -869,7 +881,7 @@ if ($conn->connect_error) {
                 dropdownParent: "body"
             });
             select.currSelected = []
-            select.hidden = []
+            select.hiddenOptions = []
             select.tom.on("change", () => onStaffPickerSelect(row))
             select.tom.input.addEventListener("input", () => {
                 if (!select.tom.getValue()) { // See if cleared using backspace/del
@@ -891,8 +903,9 @@ if ($conn->connect_error) {
                         })
                     });
 
-                    staffPickerSelected.forEach((staffId) => {
-                        hideStaffPickerOpt(select, staffId)
+                    Array.from(staffPickerSelected.values()).forEach(([staffId, staffName, staffUniqueKey]) => {
+                        console.log(staffId, staffName, staffUniqueKey)
+                        hideStaffPickerOpt(select, staffId, staffName, staffUniqueKey)
                     })
                 });
         }
