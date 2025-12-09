@@ -760,76 +760,141 @@ if ($conn->connect_error) {
         const budgetEndDate = document.getElementById("budget-end-date").querySelector("input");
         const budgetFundingSource = document.querySelector("#budget-funding-source select");
         const piTableBody = document.querySelector("#pi-table tbody");
-
+        const staffPickerSelected = []
 
         let travelProfiles;
 
-        // Staff picker dropdown logic
+        function unhideStaffPickerOpt(select, staffId, staffName) {
+            const hidden = select.hidden || []
+            const foundIdx = hidden.indexOf(staffId)
+            if (foundIdx === -1) {
+                hidden.splice(foundIdx, 1)
+            } else {
+                return
+            }
+
+            select.tom.addOption({
+                value: staffId,
+                text: staffName
+            });
+        }
+
+        function hideStaffPickerOpt(select, staffId) {
+            const hidden = select.hidden || []
+            if (!select.tom.options[staffId]) {
+                return;
+            }
+
+            select.tom.removeOption(staffId);
+
+            if (hidden.indexOf(staffId) === -1) {
+                hidden.push(staffId)
+            }
+        };
+
+        // Staff picker dropdown logic. Note: Staff means personnel here
         function onStaffPickerSelect(row) {
             const table = row.closest("table");
             const select = row.querySelector(".staff-picker");
             if (!select) return;
+            
+            const staffId = select.tom.getValue()
+            const staffName = staffId && select.tom.getOption(staffId).textContent.trim()
 
-            const personnelId = select.value;
-            if (!personnelId) {
-                row.innerHTML = row.dataset.originalHTML; // Reset the row's values
-                return;
+            staffPickerSelected.push(staffId);
+
+            const [lastStaffId, lastStaffName] = select.currSelected
+            select.currSelected = [staffId, staffName]
+
+            const otherStaffPickers = Array.from(document.querySelectorAll("select.staff-picker")).filter(other => other !== select)
+
+            if (lastStaffId && lastStaffId !== staffId) { // Add the previous selected id back to the other staff pickers
+                const foundIdx = staffPickerSelected.indexOf(lastStaffId)
+                if (foundIdx !== -1) {
+                    staffPickerSelected.splice(foundIdx, 1)
+                }
+                
+                otherStaffPickers.forEach(otherSelect => unhideStaffPickerOpt(otherSelect, lastStaffId, lastStaffName))
             }
 
-            const personnelType = tableIdToPersonnelType[table.id];
+            if (!staffId) {
+                const stipendAmount = row.querySelector(".stipend-amount");
+                if (stipendAmount) {
+                    stipendAmount.textContent = toDollar(0);
+                }
 
-            fetch(`get_single_personnel.php?personnelType=${personnelType}&personnelId=${personnelId}`)
-                .then(r => r.json())
-                .then(data => {
-                    const stipendAmount = row.querySelector(".stipend-amount");
-                    if (stipendAmount) {
-                        stipendAmount.textContent = toDollar(data.stipend_per_academic_year ?? 0);
-                    }
+                const hourlyRate = row.querySelector(".rate");
+                if (hourlyRate) {
+                    hourlyRate.textContent = toDollar(0)
+                }
 
-                    const hourlyRate = row.querySelector(".rate");
-                    if (hourlyRate) {
-                        hourlyRate.textContent = toDollar(data.hourly_rate ?? 0)
-                    }
+                const title = row.querySelector(".title");
+                if (title) {
+                    title.textContent = "—";
+                }
 
-                    const title = row.querySelector(".title");
-                    if (title) {
-                        title.textContent = data.staff_title ?? "—";
-                    }
+                updateYearlyCosts();
+            } else {
+                otherStaffPickers.forEach(otherSelect => hideStaffPickerOpt(otherSelect, staffId))
 
-                    updateYearlyCosts();
-                });
+                const personnelType = tableIdToPersonnelType[table.id];
+
+                fetch(`get_single_personnel.php?personnelType=${personnelType}&personnelId=${staffId}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        const stipendAmount = row.querySelector(".stipend-amount");
+                        if (stipendAmount) {
+                            stipendAmount.textContent = toDollar(data.stipend_per_academic_year ?? 0);
+                        }
+
+                        const hourlyRate = row.querySelector(".rate");
+                        if (hourlyRate) {
+                            hourlyRate.textContent = toDollar(data.hourly_rate ?? 0)
+                        }
+
+                        const title = row.querySelector(".title");
+                        if (title) {
+                            title.textContent = data.staff_title ?? "—";
+                        }
+
+                        updateYearlyCosts();
+                    });
+            }
         }
 
         function initializeStaffPicker(select) {
+            select.tom = new TomSelect(select, {
+                maxItems: 1,
+                create: false,
+                dropdownParent: "body"
+            });
+            select.currSelected = []
+            select.hidden = []
+            select.tom.on("change", () => onStaffPickerSelect(row))
+            select.tom.input.addEventListener("input", () => {
+                if (!select.tom.getValue()) { // See if cleared using backspace/del
+                    onStaffPickerSelect(row);
+                }
+            });
+
             const table = select.closest("table");
             const row = select.closest("tr");
             const filter = select.dataset.filter;
 
-            row.dataset.originalHTML = row.innerHTML;
-            
             fetch(`get_personnel_list.php?filter=${filter}`)
                 .then(res => res.json())
                 .then(rows => {
                     rows.forEach(r => {
-                        const opt = document.createElement("option");
-                        opt.value = r.id;
-                        opt.textContent = r.name;
-                        select.appendChild(opt);
+                        select.tom.addOption({
+                            value: r.id,
+                            text: r.name
+                        })
                     });
 
-                    const ts = new TomSelect(select, {
-                        maxItems: 1,
-                        create: false,
-                        dropdownParent: "body"
-                    });
-
-                    select.tom = ts;
-
-                    ts.on("change", () => {
-                        onStaffPickerSelect(row);
+                    staffPickerSelected.forEach((staffId) => {
+                        hideStaffPickerOpt(select, staffId)
                     })
                 });
-
         }
 
         // Item type picker dropdown logic
@@ -968,7 +1033,7 @@ if ($conn->connect_error) {
             return [personnelType, personnelId];
         }
 
-        function onStaffPickerSelect(row) {
+        /* function onStaffPickerSelect(row) {
             const table = row.closest("table");
             const select = row.querySelector(".staff-picker");
             if (!select) return;
@@ -1001,7 +1066,7 @@ if ($conn->connect_error) {
 
                     updateYearlyCosts();
                 });
-        }
+        } */
 
         function getPercentEffortFromRow(row) {
             return row.querySelector(".percent-effort").value/100;
@@ -1180,7 +1245,13 @@ if ($conn->connect_error) {
             const button = event.target.closest("button")
             if (button) {
                 const row = button.closest("tr");
-                if (row) row.remove();
+                if (row) {
+                    const select = row.querySelector("select.staff-picker")
+                    if (select && select.tom) {
+                        select.tom.clear() // Deselect in order to allow other staff pickers to use name
+                    }
+                    row.remove()
+                };
                 updateYearlyCosts();
             }
         });
