@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 20, 2025 at 12:43 PM
+-- Generation Time: Dec 10, 2025 at 04:11 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -52,7 +52,15 @@ INSERT INTO `budgets` (`budget_id`, `user_id`, `budget_name`, `funding_source`, 
 (5, 5, 'Super neat Budget', 'National Science Foundation', NULL, NULL, 0, '2025-11-19 18:44:02', '2025-11-19 18:44:02', '2025-11-18', '2028-09-14'),
 (6, 5, 'Super neat Budget', 'National Science Foundation', NULL, NULL, 0, '2025-11-19 18:44:37', '2025-11-19 18:44:37', '2025-11-18', '2028-09-14'),
 (7, 1, 'yupyupyup', 'National Science Foundation', NULL, NULL, 0, '2025-11-19 18:55:14', '2025-11-19 23:55:20', '2025-11-04', '2027-12-05'),
-(8, 1, 'Awesome', 'National Science Foundation', NULL, NULL, 0, '2025-11-19 23:34:34', '2025-11-19 23:40:34', '2025-11-12', '2027-11-17');
+(8, 1, 'Awesome', 'National Science Foundation', NULL, NULL, 0, '2025-11-19 23:34:34', '2025-11-19 23:40:34', '2025-11-12', '2027-11-17'),
+(10, 0, 'Test', 'National Science Foundation', NULL, NULL, 0, '2025-11-20 10:06:29', '2025-12-09 19:04:51', '2025-11-22', '2028-10-25'),
+(11, 0, '', NULL, NULL, NULL, 0, '2025-11-20 10:06:59', '2025-11-20 10:06:59', NULL, NULL),
+(12, 0, '', '', NULL, NULL, 0, '2025-11-20 10:20:00', '2025-11-20 10:22:07', '2025-11-20', '2025-11-20'),
+(13, 0, 'BILLY', '', NULL, NULL, 0, '2025-11-20 10:24:52', '2025-11-20 10:25:02', '2025-11-06', '2025-11-20'),
+(14, 0, '', '', NULL, NULL, 0, '2025-11-20 10:26:35', '2025-11-20 10:30:24', '2025-11-06', '2025-11-20'),
+(15, 0, '', NULL, NULL, NULL, 0, '2025-11-29 22:37:45', '2025-11-29 22:37:45', NULL, NULL),
+(16, 0, '', 'National Science Foundation', NULL, NULL, 0, '2025-12-09 12:49:48', '2025-12-09 15:11:40', '2025-12-11', '2028-12-02'),
+(17, 0, '', NULL, NULL, NULL, 0, '2025-12-09 18:50:24', '2025-12-09 18:50:24', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -74,7 +82,10 @@ CREATE TABLE `budget_items` (
 --
 
 INSERT INTO `budget_items` (`id`, `budget_id`, `item_type`, `name`, `quantity`, `unit_cost`) VALUES
-(31, 1, 'Facility Useage Fees', 'dfsdfsdsdfd', 3, 4.00);
+(31, 1, 'Facility Useage Fees', 'dfsdfsdsdfd', 3, 4.00),
+(227, 16, 'Materials & Supplies', '', 0, 0.00),
+(244, 10, 'Conference Registration', '', 0, 0.00),
+(245, 10, 'Publication Costs', '', 0, 0.00);
 
 -- --------------------------------------------------------
 
@@ -118,7 +129,37 @@ INSERT INTO `budget_personnel` (`bp_id`, `budget_id`, `personnel_type`, `personn
 (399, 1, 'staff', 3, 1, 0, 0.00),
 (400, 1, 'postdoc', 1, 0, 0, 55000.00),
 (401, 1, 'grad_assistant', 4, 50, 1, 31000.00),
-(402, 1, 'undergrad_assistant', 1, 0, 0, 5000.00);
+(402, 1, 'undergrad_assistant', 1, 0, 0, 5000.00),
+(514, 12, 'PI', 1, 0, 0, 0.00),
+(515, 14, 'PI', 4, 0, 0, 0.00),
+(568, 16, 'PI', 5, 34, 0, 0.00),
+(569, 16, 'PI', 1, 87, 0, 0.00),
+(570, 16, 'staff', 3, 0, 0, 0.00),
+(571, 16, 'staff', 4, 0, 0, 0.00),
+(572, 16, 'postdoc', 2, 0, 1, 60000.00),
+(573, 16, 'postdoc', 1, 0, 1, 55000.00),
+(574, 16, 'grad_assistant', 1, 0, 0, 32000.00),
+(575, 16, 'grad_assistant', 5, 0, 0, 25000.00),
+(576, 16, 'grad_assistant', 2, 0, 0, 28000.00),
+(577, 16, 'grad_assistant', 3, 0, 0, 34500.00),
+(578, 16, 'grad_assistant', 4, 0, 1, 31000.00),
+(579, 16, 'undergrad_assistant', 3, 0, 1, 4800.00),
+(580, 16, 'undergrad_assistant', 2, 0, 1, 5500.00),
+(581, 16, 'undergrad_assistant', 4, 0, 1, 5200.00),
+(582, 9, 'PI', 3, 2, 0, 0.00),
+(583, 9, 'PI', 1, 2, 0, 0.00),
+(584, 9, 'PI', 5, 0, 0, 0.00),
+(585, 9, 'staff', 4, 2, 0, 0.00),
+(586, 9, 'postdoc', 1, 1, 1, 0.00),
+(587, 9, 'postdoc', 3, 2, 1, 0.00),
+(588, 9, 'grad_assistant', 1, 1, 1, 0.00),
+(589, 9, 'grad_assistant', 5, 2, 1, 0.00),
+(590, 9, 'undergrad_assistant', 1, 1, 1, 0.00),
+(591, 9, 'undergrad_assistant', 3, 2, 1, 0.00),
+(592, 10, 'PI', 1, 0, 0, 0.00),
+(593, 10, 'PI', 4, 0, 0, 0.00),
+(594, 10, 'staff', 5, 65, 0, 0.00),
+(595, 10, 'staff', 3, 65, 0, 0.00);
 
 -- --------------------------------------------------------
 
@@ -140,7 +181,13 @@ CREATE TABLE `budget_travels` (
 
 INSERT INTO `budget_travels` (`travel_id`, `budget_id`, `travel_type`, `num_nights`, `num_travelers`) VALUES
 (47, 1, 'Domestic', 1, 2),
-(48, 1, 'International', 1, 2);
+(48, 1, 'International', 1, 2),
+(93, 14, 'International', 0, 0),
+(107, 16, 'International', 0, 0),
+(108, 16, 'International', 0, 0),
+(109, 16, 'Domestic', 0, 0),
+(114, 10, 'Domestic', 0, 0),
+(115, 10, 'International', 0, 0);
 
 -- --------------------------------------------------------
 
@@ -333,7 +380,7 @@ INSERT INTO `undergraduate_research_assistants` (`ugra_id`, `name`, `major`, `re
 CREATE TABLE `university_employee` (
   `staff_id` int(11) NOT NULL,
   `name` varchar(100) NOT NULL,
-  `hourly_rate` decimal(10,2) NOT NULL,
+  `salary` decimal(12,2) NOT NULL,
   `job` varchar(100) DEFAULT NULL,
   `staff_title` varchar(50) DEFAULT NULL,
   `is_pi_eligible` tinyint(1) NOT NULL DEFAULT 0
@@ -343,11 +390,11 @@ CREATE TABLE `university_employee` (
 -- Dumping data for table `university_employee`
 --
 
-INSERT INTO `university_employee` (`staff_id`, `name`, `hourly_rate`, `job`, `staff_title`, `is_pi_eligible`) VALUES
-(1, 'Dr. Evelyn Reed', 120.50, 'Professor of Physics', 'Faculty', 1),
-(3, 'Marcus Cole', 75.00, 'Lab Manager', 'Research Staff', 0),
-(4, 'Jenna Ortega', 28.75, 'Department Coordinator', 'Admin Staff', 0),
-(5, 'Samuel Chen', 52.00, 'Data Scientist', 'Research Staff', 0);
+INSERT INTO `university_employee` (`staff_id`, `name`, `salary`, `job`, `staff_title`, `is_pi_eligible`) VALUES
+(1, 'Dr. Evelyn Reed', 250640.00, 'Professor of Physics', 'Faculty', 1),
+(3, 'Marcus Cole', 156000.00, 'Lab Manager', 'Research Staff', 0),
+(4, 'Jenna Ortega', 59800.00, 'Department Coordinator', 'Admin Staff', 0),
+(5, 'Samuel Chen', 108160.00, 'Data Scientist', 'Research Staff', 0);
 
 -- --------------------------------------------------------
 
@@ -371,6 +418,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `username`, `first_name`, `last_name`, `email`, `password`, `created_at`, `last_login`) VALUES
+(0, 'username', 'Isaac', 'Palmer', 'test@gmail.com', '$2y$10$ZCz1.AER6CZfD8stwiG10uUKEbYMUuuY5Hv3QCVSozslSFmmx/vBy', '2025-11-20 09:24:54', '2025-11-20 09:24:54'),
 (1, 'super', 'super', 'super', '', '$2y$10$3zLLaD6hC8JJGcOBX2NCsOKwSRtRz831V6mdpkmOv9Vl.p9haPyOW', '2025-11-18 13:22:19', '2025-11-18 13:22:19'),
 (5, 'john', 'john', 'john', 'john', '$2y$10$W8OCFhxs7Ny1KneBs8afbeCslYQQJMFQyHuWtD3ujFG2A5UZDdA8a', '2025-11-18 13:29:20', '2025-11-18 13:29:20'),
 (6, 'sdf', 'sdf', 'sdf', 'sdf', '$2y$10$Iz.IwKJuDiJ2JE3jFadKd.s.rtlV8L3dtylapimF5BMVl6/MwlzzC', '2025-11-19 23:28:38', '2025-11-19 23:28:38');
@@ -492,25 +540,25 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `budgets`
 --
 ALTER TABLE `budgets`
-  MODIFY `budget_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `budget_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `budget_items`
 --
 ALTER TABLE `budget_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=246;
 
 --
 -- AUTO_INCREMENT for table `budget_personnel`
 --
 ALTER TABLE `budget_personnel`
-  MODIFY `bp_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=403;
+  MODIFY `bp_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=596;
 
 --
 -- AUTO_INCREMENT for table `budget_travels`
 --
 ALTER TABLE `budget_travels`
-  MODIFY `travel_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
+  MODIFY `travel_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=116;
 
 --
 -- AUTO_INCREMENT for table `graduate_research_assistants`
