@@ -647,8 +647,9 @@ if ($conn->connect_error) {
                         piRow = piBody.firstElementChild;
                     }
                     piRow.querySelector(".type").textContent = "PI";
-                    piRow.querySelector(".staff-picker").tom.setTextboxValue("Select PI")
-                    // piRow.querySelector("option").textContent = "Select PI";
+                    const tom = piRow.querySelector(".staff-picker").tom
+                    tom.settings.placeholder = "Select PI";
+                    tom.inputState();
                     piRow.lastElementChild.remove() // Remove the remove button
                 })
             }
