@@ -15,7 +15,7 @@ if (isset($_GET['personnelType'], $_GET['personnelId'])) {
     switch ($type) {
         case 'staff':
             $sql = "
-                SELECT u.name, u.hourly_rate, u.staff_title, u.is_pi_eligible, f.fringe_rate
+                SELECT u.name, u.salary, u.staff_title, u.is_pi_eligible, f.fringe_rate
                 FROM university_employee u
                 LEFT JOIN fringe_rate f ON u.staff_title = f.staff_title
                 WHERE u.staff_id = $id

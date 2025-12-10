@@ -216,7 +216,7 @@ if ($conn->connect_error) {
                                 <th>Name</th>
                                 <th>Title</th>
                                 <th>Percent effort (of 40 hr week)</th>
-                                <th>Hourly rate at start date</th>
+                                <th>Salary</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -238,7 +238,7 @@ if ($conn->connect_error) {
                                 <th>Name</th>
                                 <th>Title</th>
                                 <th>Percent effort (of 40 hr week)</th>
-                                <th>Hourly rate at start date</th>
+                                <th>Salary</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -619,7 +619,7 @@ if ($conn->connect_error) {
                     </td>
                     <td class="title">—</td>
                     <td><input class="percent-effort" type="number" value="0" min="0" max="100"></td>
-                    <td class="rate">$0.00</td>
+                    <td class="salary">$0.00</td>
                     <td>
                         <button class="rem_row" style="background-color: rgb(255, 82, 82); border-width: 1px;">
                             <img src="Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
@@ -636,7 +636,7 @@ if ($conn->connect_error) {
                     </td>
                     <td class="title">—</td>
                     <td><input class="percent-effort" type="number" value="0" min="0" max="100"></td>
-                    <td class="rate">$0.00</td>
+                    <td class="salary">$0.00</td>
                     <td>
                         <button class="rem_row" style="background-color: rgb(255, 82, 82); border-width: 1px;">
                             <img src="Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
@@ -751,6 +751,7 @@ if ($conn->connect_error) {
             "ugrads": "ugrad",
         }
 
+        const maxYearlyBillableHours = 2080
         const yearlyCostsTableBodyRow = document.querySelector("#yearly_costs tbody tr");
         const yearlyCostsTableCaption = document.querySelector("#yearly_costs caption");
         const yearlyCostsTableHeaderRow = document.querySelector("#yearly_costs thead tr");
@@ -833,9 +834,9 @@ if ($conn->connect_error) {
                     stipendAmount.textContent = toDollar(0);
                 }
 
-                const hourlyRate = row.querySelector(".rate");
-                if (hourlyRate) {
-                    hourlyRate.textContent = toDollar(0)
+                const salary = row.querySelector(".salary");
+                if (salary) {
+                    salary.textContent = toDollar(0)
                 }
 
                 const title = row.querySelector(".title");
@@ -859,9 +860,9 @@ if ($conn->connect_error) {
                             stipendAmount.textContent = toDollar(data.stipend_per_academic_year ?? 0);
                         }
 
-                        const hourlyRate = row.querySelector(".rate");
-                        if (hourlyRate) {
-                            hourlyRate.textContent = toDollar(data.hourly_rate ?? 0)
+                        const salary = row.querySelector(".salary");
+                        if (salary) {
+                            salary.textContent = toDollar(data.salary ?? 0)
                         }
 
                         const title = row.querySelector(".title");
@@ -1046,49 +1047,15 @@ if ($conn->connect_error) {
             return [personnelType, personnelId];
         }
 
-        /* function onStaffPickerSelect(row) {
-            const table = row.closest("table");
-            const select = row.querySelector(".staff-picker");
-            if (!select) return;
-
-            const personnelId = select.value;
-            if (!personnelId) {
-                row.innerHTML = row.dataset.originalHTML; // Reset the row's values
-                return;
-            }
-
-            const personnelType = tableIdToPersonnelType[table.id];
-
-            fetch(`get_single_personnel.php?personnelType=${personnelType}&personnelId=${personnelId}`)
-                .then(r => r.json())
-                .then(data => {
-                    const stipendAmount = row.querySelector(".stipend-amount");
-                    if (stipendAmount) {
-                        stipendAmount.textContent = toDollar(data.stipend_per_academic_year ?? 0);
-                    }
-
-                    const hourlyRate = row.querySelector(".rate");
-                    if (hourlyRate) {
-                        hourlyRate.textContent = toDollar(data.hourly_rate ?? 0)
-                    }
-
-                    const title = row.querySelector(".title");
-                    if (title) {
-                        title.textContent = data.staff_title ?? "—";
-                    }
-
-                    updateYearlyCosts();
-                });
-        } */
-
         function getPercentEffortFromRow(row) {
             return row.querySelector(".percent-effort").value/100;
         }
 
         function calculateYearlyHoursWorkedFromRow(row) {
-            const weeklyHoursWorked = Number(getPercentEffortFromRow(row) * 40);
-            const yearlyHoursWorked = weeklyHoursWorked * 52.1429;
-            return yearlyHoursWorked;
+            // const weeklyHoursWorked = Number(getPercentEffortFromRow(row) * 40);
+            // const yearlyHoursWorked = weeklyHoursWorked * 52.1429;
+            // return yearlyHoursWorked;
+            return getPercentEffortFromRow(row) * maxYearlyBillableHours;
         }
 
         async function getFringeRateFromRowAsync(row) {
@@ -1098,15 +1065,34 @@ if ($conn->connect_error) {
             return (data.fringe_rate ?? 0) / 100;
         }
 
-        async function calculateYearlyWagesWithFringeRateFromRowAsync(row) {
-            const rate = row.querySelector(".rate");
+        async function calculateHourlyRateWithFringeRateFromRowAsync(row) {
+            const salary = row.querySelector(".salary");
             const stipendAmount = row.querySelector(".stipend-amount");
-            if (rate) {
-                const hourlyRate = dollarToNumber(rate.textContent);
-                const yearlyHoursWorked = calculateYearlyHoursWorkedFromRow(row);
-                
+            if (salary) {
+                const salaryNum = dollarToNumber(salary.textContent.trim())
                 const fringeRate = await getFringeRateFromRowAsync(row);
-                const yearlyWages = (hourlyRate*yearlyHoursWorked) * (1+fringeRate);
+                const yearlyPay = salaryNum * (1+fringeRate);
+                const hourlyRate = yearlyPay / maxYearlyBillableHours;
+
+                return hourlyRate;
+            } else if (stipendAmount) {
+                const stipendAmountNum = dollarToNumber(stipendAmount.textContent);
+                const fringeRate = await getFringeRateFromRowAsync(row);
+                const yearlyPay = stipendAmountNum * (1+fringeRate);
+                const hourlyRate = yearlyPay / maxYearlyBillableHours;
+
+                return hourlyRate;
+            }
+        }
+
+        async function calculateYearlyWagesWithFringeRateFromRowAsync(row) {
+            const salary = row.querySelector(".salary");
+            const stipendAmount = row.querySelector(".stipend-amount");
+            if (salary) {
+                const salaryNum = dollarToNumber(salary.textContent.trim())
+                const percentEffort = getPercentEffortFromRow(row);
+                const fringeRate = await getFringeRateFromRowAsync(row);
+                const yearlyWages = (percentEffort*salaryNum) * (1+fringeRate);
 
                 return yearlyWages;
             } else if (stipendAmount) {
@@ -1123,7 +1109,7 @@ if ($conn->connect_error) {
         async function getTotalWagesForYearWithFringeRateAsync(yearNum) {
             let totalWagesPerYear = 0;
 
-            const payFields = [...document.querySelectorAll(".rate"), ...document.querySelectorAll(".stipend-amount")];
+            const payFields = [...document.querySelectorAll(".salary"), ...document.querySelectorAll(".stipend-amount")];
             for (const td of payFields) {
                 const row = td.closest("tr");
                 const yearlyWages = await calculateYearlyWagesWithFringeRateFromRowAsync(row);
@@ -1462,12 +1448,13 @@ if ($conn->connect_error) {
             for (let i = 0; i < piRows.length; i++) {
                 const row = piRows[i];
                 const piType = row.querySelector(".type").textContent.trim();
-                const hourlyRate = row.querySelector(".rate").textContent.trim();
+                const salary = row.querySelector(".salary").textContent.trim();
                 const year1HoursWorked = calculateYearlyHoursWorkedFromRow(row);
                 if (year1HoursWorked == 0) continue;
                 const yearlyWages = await calculateYearlyWagesWithFringeRateFromRowAsync(row);
+                const hourlyRate = await calculateHourlyRateWithFringeRateFromRowAsync(row);
                 const totalWagesForBudgetDuration = yearlyWages*numBudgetYears;
-                spreadsheetData.splice(i+6, 0, [piType, year1HoursWorked, hourlyRate, ...Array(numBudgetYears).fill(toDollar(yearlyWages)), toDollar(totalWagesForBudgetDuration)])
+                spreadsheetData.splice(i+6, 0, [piType, year1HoursWorked, toDollar(hourlyRate), ...Array(numBudgetYears).fill(toDollar(yearlyWages)), toDollar(totalWagesForBudgetDuration)])
             }
 
             async function pushOtherPersonnelAggregationDataAsync(t1Id, t2Id, rowOffset) {
