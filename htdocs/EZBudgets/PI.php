@@ -825,7 +825,7 @@ if ($conn->connect_error) {
             "ugrads": "ugrad",
         }
 
-
+        const maxYearlyBillableHours = 2080
         const yearlyCostsTableBodyRow = document.querySelector("#yearly_costs tbody tr");
         const yearlyCostsTableCaption = document.querySelector("#yearly_costs caption");
         const yearlyCostsTableHeaderRow = document.querySelector("#yearly_costs thead tr");
@@ -1136,7 +1136,12 @@ if ($conn->connect_error) {
             return row.querySelector(".percent-effort").value/100;
         }
 
-        
+        function calculateYearlyHoursWorkedFromRow(row) {
+            // const weeklyHoursWorked = Number(getPercentEffortFromRow(row) * 40);
+            // const yearlyHoursWorked = weeklyHoursWorked * 52.1429;
+            // return yearlyHoursWorked;
+            return getPercentEffortFromRow(row) * maxYearlyBillableHours;
+        }
 
         async function getFringeRateFromRowAsync(row) {
             const [personnelType, personnelId] = getPersonnelIdFromRow(row);
@@ -1145,7 +1150,25 @@ if ($conn->connect_error) {
             return (data.fringe_rate ?? 0) / 100;
         }
 
+        async function calculateHourlyRateWithFringeRateFromRowAsync(row) {
+            const salary = row.querySelector(".salary");
+            const stipendAmount = row.querySelector(".stipend-amount p");
+            if (salary) {
+                const salaryNum = dollarToNumber(salary.textContent.trim())
+                const fringeRate = await getFringeRateFromRowAsync(row);
+                const yearlyPay = salaryNum * (1+fringeRate);
+                const hourlyRate = yearlyPay / maxYearlyBillableHours;
 
+                return hourlyRate;
+            } else if (stipendAmount) {
+                const stipendAmountNum = dollarToNumber(stipendAmount.textContent);
+                const fringeRate = await getFringeRateFromRowAsync(row);
+                const yearlyPay = stipendAmountNum * (1+fringeRate);
+                const hourlyRate = yearlyPay / maxYearlyBillableHours;
+
+                return hourlyRate;
+            }
+        }
 
         async function calculateYearlyWagesWithFringeRateFromRowAsync(row, yearIndex) {
             const salary = row.querySelector(".salary");
@@ -1442,8 +1465,8 @@ if ($conn->connect_error) {
                 ["Funding Source: "],
                 ["PI: ",                   "Co-PIs: "],
                 ["Project Start and End Dates: "],
-                ["",                                    "",                 "Salary"],
-                ["Personnel Compensation",              "Percent Effort"],
+                ["",                                    "",                 "Hourly rate at start date"],
+                ["Personnel Compensation",              "Year 1 hours"],
                 [],
                 ["Other Personnel"],
                 ["UI professional staff & Post Docs"],
@@ -1534,31 +1557,31 @@ if ($conn->connect_error) {
             spreadsheetData[3][0] += budgetStartDate.value + " – " + budgetEndDate.value;
 
             // Apply principle investigators
-            // Apply principal investigators
             const piRows = piTableBody.children;
             for (let i = 0; i < piRows.length; i++) {
                 const row = piRows[i];
                 const piType = row.querySelector(".type").textContent.trim();
-
-                // percent-effort calculation is done inside calculateYearlyWagesWithFringeRateFromRowAsync
+                const salary = row.querySelector(".salary").textContent.trim();
+                const year1HoursWorked = calculateYearlyHoursWorkedFromRow(row);
+                if (year1HoursWorked === 0) continue
                 const yearlyWages = await calculateYearlyWagesWithFringeRateFromRowAsync(row);
-                if (!yearlyWages || yearlyWages === 0) continue;
-
-                const totalWagesForBudgetDuration = yearlyWages * numBudgetYears;
-
-                // Insert: [ Role, Year1, Year2, ..., Total ]
-                spreadsheetData.splice(i+6,0,[piType,...Array(numBudgetYears).fill(toDollar(yearlyWages)),toDollar(totalWagesForBudgetDuration)]);
+                const hourlyRate = await calculateHourlyRateWithFringeRateFromRowAsync(row);
+                const totalWagesForBudgetDuration = yearlyWages*numBudgetYears;
+                spreadsheetData.splice(i+6, 0, [piType, year1HoursWorked, toDollar(hourlyRate), ...Array(numBudgetYears).fill(toDollar(yearlyWages)), toDollar(totalWagesForBudgetDuration)])
             }
-
 
             async function pushOtherPersonnelAggregationDataAsync(t1Id, t2Id, rowOffset) {
                 const t1Rows = document.querySelector(`#${t1Id} tbody`).children;
                 const t2Rows = document.querySelector(`#${t2Id} tbody`).children;
 
+                let aggregatedYear1HoursWorked = 0;
                 let aggregatedYearlyWages = Array(numBudgetYears).fill(0);
                 let allPromises = [];
 
                 for (const row of [...t1Rows, ...t2Rows]) {
+                    const year1HoursWorked = calculateYearlyHoursWorkedFromRow(row);
+                    aggregatedYear1HoursWorked += year1HoursWorked;
+
                     for (let i = 0; i < numBudgetYears; i++) {
                         const p = calculateYearlyWagesWithFringeRateFromRowAsync(row, i)
                             .then(yearlyWages => {
@@ -1569,21 +1592,16 @@ if ($conn->connect_error) {
                 }
 
                 await Promise.all(allPromises);
-
+                
                 if (aggregatedYearlyWages[0] > 0) {
                     let totalWagesForBudgetDuration = aggregatedYearlyWages.reduce((acc, val) => acc + val, 0);
                     let spreadsheetRow = spreadsheetData[getSpreadsheetRowIndexByLabel("Other Personnel") + rowOffset];
 
                     aggregatedYearlyWages = aggregatedYearlyWages.map(toDollar);
 
-                    // Push only yearly columns + total (no hours, no hourly blank)
-                    spreadsheetRow.push(
-                        ...aggregatedYearlyWages,
-                        toDollar(totalWagesForBudgetDuration)
-                    );
+                    spreadsheetRow.push(aggregatedYear1HoursWorked, null, ...aggregatedYearlyWages, toDollar(totalWagesForBudgetDuration))
                 }
             }
-
 
             // Apply UI professional staff & Post Docs
             await pushOtherPersonnelAggregationDataAsync("pro-staff", "post-docs", 1);
@@ -1719,14 +1737,14 @@ if ($conn->connect_error) {
                 "Participant support costs (NSF only)",
                 "Other Direct Costs",
                 "Consortia/Subawards",
-                "Year 1 Salary",
+                "Year 1 hours",
                 "FY26 Fringe Rates",
             ];
 
             // E. TEXT: BOLD ONLY (Specific cells)
             const boldOnlyLabels = [
                 "Total Project Cost",
-                "Salary",
+                "Hourly rate at start date",
                 "Modified Total Direct Costs",
                 "Indirect Costs",
                 "Total",
