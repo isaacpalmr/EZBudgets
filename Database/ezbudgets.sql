@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 10, 2025 at 04:11 AM
+-- Generation Time: Dec 10, 2025 at 09:09 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -53,14 +53,7 @@ INSERT INTO `budgets` (`budget_id`, `user_id`, `budget_name`, `funding_source`, 
 (6, 5, 'Super neat Budget', 'National Science Foundation', NULL, NULL, 0, '2025-11-19 18:44:37', '2025-11-19 18:44:37', '2025-11-18', '2028-09-14'),
 (7, 1, 'yupyupyup', 'National Science Foundation', NULL, NULL, 0, '2025-11-19 18:55:14', '2025-11-19 23:55:20', '2025-11-04', '2027-12-05'),
 (8, 1, 'Awesome', 'National Science Foundation', NULL, NULL, 0, '2025-11-19 23:34:34', '2025-11-19 23:40:34', '2025-11-12', '2027-11-17'),
-(10, 0, 'Test', 'National Science Foundation', NULL, NULL, 0, '2025-11-20 10:06:29', '2025-12-09 19:04:51', '2025-11-22', '2028-10-25'),
-(11, 0, '', NULL, NULL, NULL, 0, '2025-11-20 10:06:59', '2025-11-20 10:06:59', NULL, NULL),
-(12, 0, '', '', NULL, NULL, 0, '2025-11-20 10:20:00', '2025-11-20 10:22:07', '2025-11-20', '2025-11-20'),
-(13, 0, 'BILLY', '', NULL, NULL, 0, '2025-11-20 10:24:52', '2025-11-20 10:25:02', '2025-11-06', '2025-11-20'),
-(14, 0, '', '', NULL, NULL, 0, '2025-11-20 10:26:35', '2025-11-20 10:30:24', '2025-11-06', '2025-11-20'),
-(15, 0, '', NULL, NULL, NULL, 0, '2025-11-29 22:37:45', '2025-11-29 22:37:45', NULL, NULL),
-(16, 0, '', 'National Science Foundation', NULL, NULL, 0, '2025-12-09 12:49:48', '2025-12-09 15:11:40', '2025-12-11', '2028-12-02'),
-(17, 0, '', NULL, NULL, NULL, 0, '2025-12-09 18:50:24', '2025-12-09 18:50:24', NULL, NULL);
+(18, 0, 'New Budget', NULL, NULL, NULL, 0, '2025-12-09 19:34:46', '2025-12-09 19:34:46', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -82,10 +75,7 @@ CREATE TABLE `budget_items` (
 --
 
 INSERT INTO `budget_items` (`id`, `budget_id`, `item_type`, `name`, `quantity`, `unit_cost`) VALUES
-(31, 1, 'Facility Useage Fees', 'dfsdfsdsdfd', 3, 4.00),
-(227, 16, 'Materials & Supplies', '', 0, 0.00),
-(244, 10, 'Conference Registration', '', 0, 0.00),
-(245, 10, 'Publication Costs', '', 0, 0.00);
+(31, 1, 'Facility Useage Fees', 'dfsdfsdsdfd', 3, 4.00);
 
 -- --------------------------------------------------------
 
@@ -132,20 +122,6 @@ INSERT INTO `budget_personnel` (`bp_id`, `budget_id`, `personnel_type`, `personn
 (402, 1, 'undergrad_assistant', 1, 0, 0, 5000.00),
 (514, 12, 'PI', 1, 0, 0, 0.00),
 (515, 14, 'PI', 4, 0, 0, 0.00),
-(568, 16, 'PI', 5, 34, 0, 0.00),
-(569, 16, 'PI', 1, 87, 0, 0.00),
-(570, 16, 'staff', 3, 0, 0, 0.00),
-(571, 16, 'staff', 4, 0, 0, 0.00),
-(572, 16, 'postdoc', 2, 0, 1, 60000.00),
-(573, 16, 'postdoc', 1, 0, 1, 55000.00),
-(574, 16, 'grad_assistant', 1, 0, 0, 32000.00),
-(575, 16, 'grad_assistant', 5, 0, 0, 25000.00),
-(576, 16, 'grad_assistant', 2, 0, 0, 28000.00),
-(577, 16, 'grad_assistant', 3, 0, 0, 34500.00),
-(578, 16, 'grad_assistant', 4, 0, 1, 31000.00),
-(579, 16, 'undergrad_assistant', 3, 0, 1, 4800.00),
-(580, 16, 'undergrad_assistant', 2, 0, 1, 5500.00),
-(581, 16, 'undergrad_assistant', 4, 0, 1, 5200.00),
 (582, 9, 'PI', 3, 2, 0, 0.00),
 (583, 9, 'PI', 1, 2, 0, 0.00),
 (584, 9, 'PI', 5, 0, 0, 0.00),
@@ -156,10 +132,25 @@ INSERT INTO `budget_personnel` (`bp_id`, `budget_id`, `personnel_type`, `personn
 (589, 9, 'grad_assistant', 5, 2, 1, 0.00),
 (590, 9, 'undergrad_assistant', 1, 1, 1, 0.00),
 (591, 9, 'undergrad_assistant', 3, 2, 1, 0.00),
-(592, 10, 'PI', 1, 0, 0, 0.00),
-(593, 10, 'PI', 4, 0, 0, 0.00),
-(594, 10, 'staff', 5, 65, 0, 0.00),
-(595, 10, 'staff', 3, 65, 0, 0.00);
+(596, 16, 'PI', 0, 34, 0, 0.00),
+(597, 16, 'PI', 0, 87, 0, 0.00),
+(598, 16, 'postdoc', 2, 0, 1, 0.00),
+(599, 16, 'postdoc', 1, 0, 1, 0.00),
+(600, 16, 'grad_assistant', 1, 0, 0, 0.00),
+(601, 16, 'grad_assistant', 5, 0, 0, 0.00),
+(602, 16, 'grad_assistant', 2, 0, 0, 0.00),
+(603, 16, 'grad_assistant', 3, 0, 0, 0.00),
+(604, 16, 'grad_assistant', 4, 0, 0, 0.00),
+(605, 16, 'undergrad_assistant', 3, 0, 1, 0.00),
+(606, 16, 'undergrad_assistant', 2, 0, 1, 0.00),
+(607, 16, 'undergrad_assistant', 4, 0, 1, 0.00),
+(610, 10, 'PI', 1, 3, 0, 0.00),
+(611, 10, 'staff', 4, 65, 0, 0.00),
+(612, 10, 'staff', 3, 65, 0, 0.00),
+(613, 13, 'PI', 3, 0, 0, 0.00),
+(614, 13, 'PI', 4, 0, 0, 0.00),
+(615, 13, 'staff', 5, 0, 0, 0.00),
+(616, 13, 'postdoc', 1, 0, 0, 55000.00);
 
 -- --------------------------------------------------------
 
@@ -181,24 +172,7 @@ CREATE TABLE `budget_travels` (
 
 INSERT INTO `budget_travels` (`travel_id`, `budget_id`, `travel_type`, `num_nights`, `num_travelers`) VALUES
 (47, 1, 'Domestic', 1, 2),
-(48, 1, 'International', 1, 2),
-(93, 14, 'International', 0, 0),
-(107, 16, 'International', 0, 0),
-(108, 16, 'International', 0, 0),
-(109, 16, 'Domestic', 0, 0),
-(114, 10, 'Domestic', 0, 0),
-(115, 10, 'International', 0, 0);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `employee_fringe_rates`
---
-
-CREATE TABLE `employee_fringe_rates` (
-  `staff_id` int(11) NOT NULL,
-  `staff_title` varchar(50) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+(48, 1, 'International', 1, 2);
 
 -- --------------------------------------------------------
 
@@ -287,46 +261,6 @@ INSERT INTO `post_doctoral_researchers` (`postdoc_id`, `name`, `field`, `appoint
 -- --------------------------------------------------------
 
 --
--- Table structure for table `semesters_attended`
---
-
-CREATE TABLE `semesters_attended` (
-  `student_id` int(11) NOT NULL,
-  `semester_year` varchar(20) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `semester_tuition`
---
-
-CREATE TABLE `semester_tuition` (
-  `semester_year` varchar(20) NOT NULL,
-  `tuition_increase_projection` decimal(5,2) DEFAULT NULL,
-  `in_state_tuition` decimal(10,2) DEFAULT NULL,
-  `out_of_state_tuition` decimal(10,2) DEFAULT NULL,
-  `fees` decimal(10,2) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `students`
---
-
-CREATE TABLE `students` (
-  `student_id` int(11) NOT NULL,
-  `name` varchar(100) NOT NULL,
-  `degree` varchar(50) DEFAULT NULL,
-  `max_fte` decimal(4,2) NOT NULL,
-  `stipend_per_year` decimal(10,2) DEFAULT NULL,
-  `residency` enum('In-State','Out-of-State') NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `travel_profiles`
 --
 
@@ -344,6 +278,46 @@ CREATE TABLE `travel_profiles` (
 INSERT INTO `travel_profiles` (`travel_type`, `airfare`, `max_lodging_days`, `per_diem`) VALUES
 ('Domestic', 450.00, 7, 59.00),
 ('International', 1500.00, 14, 85.00);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tuition_schedule`
+--
+
+CREATE TABLE `tuition_schedule` (
+  `id` int(11) NOT NULL,
+  `semester` enum('fall','spring','summer') NOT NULL,
+  `student_level` enum('undergrad','masters','phd') NOT NULL,
+  `residency` enum('In-State','Out-of-State') NOT NULL,
+  `base_tuition` decimal(12,2) NOT NULL,
+  `mandatory_fees` decimal(12,2) NOT NULL,
+  `tuition_increase_pct` decimal(5,4) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `tuition_schedule`
+--
+
+INSERT INTO `tuition_schedule` (`id`, `semester`, `student_level`, `residency`, `base_tuition`, `mandatory_fees`, `tuition_increase_pct`) VALUES
+(1, 'fall', 'masters', 'In-State', 7850.00, 620.00, 0.0300),
+(2, 'fall', 'masters', 'Out-of-State', 14600.00, 620.00, 0.0300),
+(3, 'fall', 'phd', 'In-State', 7600.00, 580.00, 0.0300),
+(4, 'fall', 'phd', 'Out-of-State', 14350.00, 580.00, 0.0300),
+(5, 'fall', 'undergrad', 'In-State', 5200.00, 510.00, 0.0250),
+(6, 'fall', 'undergrad', 'Out-of-State', 14600.00, 510.00, 0.0250),
+(7, 'spring', 'masters', 'In-State', 7850.00, 620.00, 0.0300),
+(8, 'spring', 'masters', 'Out-of-State', 14600.00, 620.00, 0.0300),
+(9, 'spring', 'phd', 'In-State', 7600.00, 580.00, 0.0300),
+(10, 'spring', 'phd', 'Out-of-State', 14350.00, 580.00, 0.0300),
+(11, 'spring', 'undergrad', 'In-State', 5200.00, 510.00, 0.0250),
+(12, 'spring', 'undergrad', 'Out-of-State', 14600.00, 510.00, 0.0250),
+(13, 'summer', 'masters', 'In-State', 3000.00, 450.00, 0.0300),
+(14, 'summer', 'masters', 'Out-of-State', 6000.00, 450.00, 0.0300),
+(15, 'summer', 'phd', 'In-State', 2800.00, 430.00, 0.0300),
+(16, 'summer', 'phd', 'Out-of-State', 5600.00, 430.00, 0.0300),
+(17, 'summer', 'undergrad', 'In-State', 2600.00, 400.00, 0.0250),
+(18, 'summer', 'undergrad', 'Out-of-State', 5200.00, 400.00, 0.0250);
 
 -- --------------------------------------------------------
 
@@ -456,13 +430,6 @@ ALTER TABLE `budget_travels`
   ADD KEY `fk_budget_travels_budget` (`budget_id`);
 
 --
--- Indexes for table `employee_fringe_rates`
---
-ALTER TABLE `employee_fringe_rates`
-  ADD PRIMARY KEY (`staff_id`,`staff_title`),
-  ADD KEY `staff_title` (`staff_title`);
-
---
 -- Indexes for table `fa_rate`
 --
 ALTER TABLE `fa_rate`
@@ -487,29 +454,16 @@ ALTER TABLE `post_doctoral_researchers`
   ADD PRIMARY KEY (`postdoc_id`);
 
 --
--- Indexes for table `semesters_attended`
---
-ALTER TABLE `semesters_attended`
-  ADD PRIMARY KEY (`student_id`,`semester_year`),
-  ADD KEY `semester_year` (`semester_year`);
-
---
--- Indexes for table `semester_tuition`
---
-ALTER TABLE `semester_tuition`
-  ADD PRIMARY KEY (`semester_year`);
-
---
--- Indexes for table `students`
---
-ALTER TABLE `students`
-  ADD PRIMARY KEY (`student_id`);
-
---
 -- Indexes for table `travel_profiles`
 --
 ALTER TABLE `travel_profiles`
   ADD PRIMARY KEY (`travel_type`);
+
+--
+-- Indexes for table `tuition_schedule`
+--
+ALTER TABLE `tuition_schedule`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `undergraduate_research_assistants`
@@ -540,25 +494,25 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `budgets`
 --
 ALTER TABLE `budgets`
-  MODIFY `budget_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `budget_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `budget_items`
 --
 ALTER TABLE `budget_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=246;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=252;
 
 --
 -- AUTO_INCREMENT for table `budget_personnel`
 --
 ALTER TABLE `budget_personnel`
-  MODIFY `bp_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=596;
+  MODIFY `bp_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=617;
 
 --
 -- AUTO_INCREMENT for table `budget_travels`
 --
 ALTER TABLE `budget_travels`
-  MODIFY `travel_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=116;
+  MODIFY `travel_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=123;
 
 --
 -- AUTO_INCREMENT for table `graduate_research_assistants`
@@ -573,10 +527,10 @@ ALTER TABLE `post_doctoral_researchers`
   MODIFY `postdoc_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
--- AUTO_INCREMENT for table `students`
+-- AUTO_INCREMENT for table `tuition_schedule`
 --
-ALTER TABLE `students`
-  MODIFY `student_id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `tuition_schedule`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `undergraduate_research_assistants`
