@@ -44,6 +44,46 @@ if ($conn->connect_error) {
             margin: 5px 0px
         }
 
+        .include-label {
+            background: #ffffff;        /* unchecked */
+            color: #333;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            padding: 2px 8px;
+            margin: 2px 0;
+            font-size: 0.85em;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* when checked */
+        .include-label:has(.include-check:checked) {
+            background: #46b5ffff;
+            color: #000000ff;
+            border-color: #3b94cfff;
+        }
+
+        .include-check {
+            accent-color: #ffffffff;
+            cursor: pointer;
+        }
+
+        .add_row {
+            border-radius: 3px;
+            padding: 0px 3px;
+            padding-top: 3px;
+            margin-left: 10px;
+        }
+        
+        .rem_row {
+            border-radius: 3px;
+            padding: 0px 3px;
+            padding-top: 3px;
+            margin-left: 10px;
+        }
+
         th {
             border: 2px solid rgb(0, 0, 0);
             padding: 5px 10px;
@@ -69,10 +109,6 @@ if ($conn->connect_error) {
         #yearly-costs-caption {
             text-align: center;
             margin-bottom: 10px;
-        }
-
-        .add_row {
-            margin-left: 10px;
         }
 
         main {
@@ -215,7 +251,7 @@ if ($conn->connect_error) {
                                 <th>Type</th>
                                 <th>Name</th>
                                 <th>Title</th>
-                                <th>Percent effort (of 40 hr week)</th>
+                                <th>Percent Effort<br><i style="font-weight: normal;  font-size: 0.85em;">of 40 hr week</i></th>
                                 <th>Salary</th>
                             </tr>
                         </thead>
@@ -237,7 +273,7 @@ if ($conn->connect_error) {
                             <tr>
                                 <th>Name</th>
                                 <th>Title</th>
-                                <th>Percent effort (of 40 hr week)</th>
+                                <th>Percent Effort<br><i style="font-weight: normal;  font-size: 0.85em;">of 40 hr week</i></th>
                                 <th>Salary</th>
                             </tr>
                         </thead>
@@ -258,9 +294,8 @@ if ($conn->connect_error) {
                         <thead>
                             <tr>
                                 <th>Name</th>
-                                <th>Request stipend?</th>
-                                <th>Percent effort (of 40 hr week)</th>
-                                <th>Stipend amount (per academic year)</th>
+                                <th>Percent Effort<br><i style="font-weight: normal;  font-size: 0.85em;">of 40 hr week</i></th>
+                                <th>Stipend<br><i style="font-weight: normal;  font-size: 0.85em;">per academic year</i></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -280,9 +315,9 @@ if ($conn->connect_error) {
                         <thead>
                             <tr>
                                 <th>Name</th>
-                                <th>Request stipend?</th>
-                                <th>Percent effort (of 40 hr week, 50% max)</th>
-                                <th>Stipend amount (per academic year)</th>
+                                <th>Percent Effort<br><i style="font-weight: normal;  font-size: 0.85em;">of 40 hr week, 50% max</i></th>
+                                <th>Stipend<br><i style="font-weight: normal;  font-size: 0.85em;">per academic year</i></th>
+                                <th>Tuition<br><i style="font-weight: normal;  font-size: 0.85em;">per academic year</i></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -302,9 +337,9 @@ if ($conn->connect_error) {
                         <thead>
                             <tr>
                                 <th>Name</th>
-                                <th>Request stipend?</th>
-                                <th>Percent effort (of 40 hr week, 50% max)</th>
-                                <th>Stipend amount (per academic year)</th>
+                                <th>Percent Effort<br><i style="font-weight: normal;  font-size: 0.85em;">of 40 hr week, 50% max</i></th>
+                                <th>Stipend<br><i style="font-weight: normal;  font-size: 0.85em;">per academic year</i></th>
+                                <th>Tuition<br><i style="font-weight: normal;  font-size: 0.85em;">per academic year</i></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -490,7 +525,7 @@ if ($conn->connect_error) {
                             fireChange(select);
                         }
 
-                        // Percent effort
+                        // Percent Effort
                         const percentEl = row.querySelector(".percent-effort");
                         if (percentEl) {
                             percentEl.disabled = false;
@@ -504,7 +539,7 @@ if ($conn->connect_error) {
                             fireInput(stipendCheckbox);
                         }
 
-                        // Stipend amount cell
+                        // Stipend cell
                         const stipendAmountEl = row.querySelector(".stipend-amount");
                         if (stipendAmountEl) {
                             if ('value' in stipendAmountEl) stipendAmountEl.value = p.stipend_amount ?? 0;
@@ -518,19 +553,6 @@ if ($conn->connect_error) {
                         const t = document.getElementById(tid);
                         if (t) t.querySelector("tbody").innerHTML = "";
                     });
-
-                    // Updating/adding first PI row
-                    const piTable = document.querySelector("#pi-table");
-                    const piBody = piTable.querySelector("tbody");
-                    let piRow;
-                    if (piBody.children.length === 0) {
-                        piRow = addRow(piTable, 1);
-                    } else {
-                        piRow = piBody.firstElementChild;
-                    }
-                    piRow.querySelector(".type").textContent = "PI";
-                    piRow.querySelector("option").textContent = "Select PI";
-                    piRow.lastElementChild.remove() // Remove the remove button
 
                     const travelTableEl = document.getElementById("travel");
                     if (travelTableEl) {
@@ -585,7 +607,7 @@ if ($conn->connect_error) {
             }
         }
 
-        // Call loadBudget on DOM ready — prefer currentBudgetId or budget_id query param
+        /* // Call loadBudget on DOM ready — prefer currentBudgetId or budget_id query param
         document.addEventListener("DOMContentLoaded", () => {
             const urlParams = new URLSearchParams(window.location.search);
             const queryBudgetId = urlParams.get("budget_id");
@@ -594,7 +616,6 @@ if ($conn->connect_error) {
                     loadBudget(effectiveId);
                 }
         });
-
 
         // On page load
         document.addEventListener("DOMContentLoaded", () => {
@@ -605,6 +626,31 @@ if ($conn->connect_error) {
                 const urlParams = new URLSearchParams(window.location.search);
                 const bid = urlParams.get("budget_id");
                 if (bid) loadBudget(bid);
+            }
+        }); */
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const queryBudgetId = Number(urlParams.get("budget_id") || 0);
+            const effectiveId = Number(window.currentBudgetId || queryBudgetId);
+
+            if (effectiveId > 0) {
+                loadBudget(effectiveId)
+                .then(() => {
+                    // Updating/adding first PI row
+                    const piTable = document.querySelector("#pi-table");
+                    const piBody = piTable.querySelector("tbody");
+                    let piRow;
+                    if (piBody.children.length === 0) {
+                        piRow = addRow(piTable, 1);
+                    } else {
+                        piRow = piBody.firstElementChild;
+                    }
+                    piRow.querySelector(".type").textContent = "PI";
+                    piRow.querySelector(".staff-picker").tom.setTextboxValue("Select PI")
+                    // piRow.querySelector("option").textContent = "Select PI";
+                    piRow.lastElementChild.remove() // Remove the remove button
+                })
             }
         });
 
@@ -651,9 +697,8 @@ if ($conn->connect_error) {
                             <option value="">Select Post Doc</option>
                         </select>
                     </td>
-                    <td><input class="request-stipend" type="checkbox"></td>
-                    <td><input class="percent-effort" type="number" value="0" min="0" max="100" disabled></td>
-                    <td class="stipend-amount">$0.00</td>
+                    <td><input class="percent-effort" type="number" value="0" min="0" max="100"></td>
+                    <td class="stipend-amount"><p>$0.00<p></td>
                     <td>
                         <button class="rem_row" style="background-color: rgb(255, 82, 82); border-width: 1px;">
                             <img src="Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
@@ -668,9 +713,23 @@ if ($conn->connect_error) {
                             <option value="">Select GRA</option>
                         </select>
                     </td>
-                    <td><input class="request-stipend" type="checkbox"></td>
                     <td><input class="percent-effort" type="number" value="0" min="0" max="50" disabled></td>
-                    <td class="stipend-amount">$0.00</td>
+                    <td class="stipend-amount">
+                        <p style="margin: 0; padding: 0">$0.00</p>
+
+                        <label class="include-label">
+                            <input class="include-check" type="checkbox">
+                            Include?
+                        </label>
+                    </td>
+                    <td class="tuition-amount">
+                        <p style="margin: 0; padding: 0">$0.00</p>
+
+                        <label class="include-label">
+                            <input class="include-check" type="checkbox">
+                            Include?
+                        </label>
+                    </td>
                     <td>
                         <button class="rem_row" style="background-color: rgb(255, 82, 82); border-width: 1px;">
                             <img src="Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
@@ -685,9 +744,23 @@ if ($conn->connect_error) {
                             <option value="">Select UGrad</option>
                         </select>
                     </td>
-                    <td><input class="request-stipend" type="checkbox"></td>
                     <td><input class="percent-effort" type="number" value="0" min="0" max="50" disabled></td>
-                    <td class="stipend-amount">$0.00</td>
+                    <td class="stipend-amount">
+                        <p style="margin: 0; padding: 0">$0.00</p>
+
+                        <label class="include-label">
+                            <input class="include-check" type="checkbox">
+                            Include?
+                        </label>
+                    </td>
+                    <td class="tuition-amount">
+                        <p style="margin: 0; padding: 0">$0.00</p>
+
+                        <label class="include-label">
+                            <input class="include-check" type="checkbox">
+                            Include?
+                        </label>
+                    </td>
                     <td>
                         <button class="rem_row" style="background-color: rgb(255, 82, 82); border-width: 1px;">
                             <img src="Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
@@ -829,9 +902,14 @@ if ($conn->connect_error) {
             }
 
             if (!staffUniqueKey) {
-                const stipendAmount = row.querySelector(".stipend-amount");
+                const stipendAmount = row.querySelector(".stipend-amount p");
                 if (stipendAmount) {
                     stipendAmount.textContent = toDollar(0);
+                }
+                
+                const tuitionAmount = row.querySelector(".tuition-amount p");
+                if (tuitionAmount) {
+                    tuitionAmount.textContent = toDollar(0);
                 }
 
                 const salary = row.querySelector(".salary");
@@ -855,9 +933,15 @@ if ($conn->connect_error) {
                 fetch(`get_single_personnel.php?personnelType=${personnelType}&personnelId=${staffId}`)
                     .then(r => r.json())
                     .then(data => {
-                        const stipendAmount = row.querySelector(".stipend-amount");
+                        const stipendAmount = row.querySelector(".stipend-amount p");
                         if (stipendAmount) {
                             stipendAmount.textContent = toDollar(data.stipend_per_academic_year ?? 0);
+                        }
+
+                        const tuitionAmount = row.querySelector(".tuition-amount p");
+                        if (tuitionAmount) {
+                            tuitionAmount.textContent = toDollar(data.tuition_per_academic_year ?? 0);
+                            tuitionAmount.dataset.tuitionIncreasePct = data.projected_tuition_increase_pct ?? 0
                         }
 
                         const salary = row.querySelector(".salary");
@@ -1067,7 +1151,7 @@ if ($conn->connect_error) {
 
         async function calculateHourlyRateWithFringeRateFromRowAsync(row) {
             const salary = row.querySelector(".salary");
-            const stipendAmount = row.querySelector(".stipend-amount");
+            const stipendAmount = row.querySelector(".stipend-amount p");
             if (salary) {
                 const salaryNum = dollarToNumber(salary.textContent.trim())
                 const fringeRate = await getFringeRateFromRowAsync(row);
@@ -1085,9 +1169,8 @@ if ($conn->connect_error) {
             }
         }
 
-        async function calculateYearlyWagesWithFringeRateFromRowAsync(row) {
+        async function calculateYearlyWagesWithFringeRateFromRowAsync(row, yearIndex) {
             const salary = row.querySelector(".salary");
-            const stipendAmount = row.querySelector(".stipend-amount");
             if (salary) {
                 const salaryNum = dollarToNumber(salary.textContent.trim())
                 const percentEffort = getPercentEffortFromRow(row);
@@ -1095,24 +1178,49 @@ if ($conn->connect_error) {
                 const yearlyWages = (percentEffort*salaryNum) * (1+fringeRate);
 
                 return yearlyWages;
-            } else if (stipendAmount) {
-                const stipendAmountNum = dollarToNumber(stipendAmount.textContent);
-                const percentEffort = getPercentEffortFromRow(row);
+            } else {
+                const stipendAmount = row.querySelector(".stipend-amount p");
+                const stipendIncludeCheckbox = stipendAmount.parentElement.querySelector(".include-check")
+                const tuitionAmount = row.querySelector(".tuition-amount p");
 
-                const fringeRate = await getFringeRateFromRowAsync(row);
-                const yearlyWages = (percentEffort*stipendAmountNum) * (1+fringeRate);
+                let fringeRate = null
+                let yearlyWages = 0
+
+                if (stipendAmount && (!stipendIncludeCheckbox || stipendIncludeCheckbox.checked)) {
+                    const stipendAmountNum = dollarToNumber(stipendAmount.textContent);
+                    const percentEffort = getPercentEffortFromRow(row);
+
+                    fringeRate = await getFringeRateFromRowAsync(row);
+                    yearlyWages = (percentEffort*stipendAmountNum) * (1+fringeRate);
+                }
+
+                if (tuitionAmount && tuitionAmount.parentElement.querySelector(".include-check").checked) {
+                    const tuitionIncreasePct = Number(tuitionAmount.dataset.tuitionIncreasePct)
+                    const tuitionAmountNum = dollarToNumber(tuitionAmount.textContent);
+
+                    fringeRate = fringeRate || await getFringeRateFromRowAsync(row);
+                    yearlyWages += tuitionAmountNum * (1 + tuitionIncreasePct)**(yearIndex ?? 0);
+                }
 
                 return yearlyWages;
             }
         }
 
-        async function getTotalWagesForYearWithFringeRateAsync(yearNum) {
+        async function getTotalWagesForYearWithFringeRateAsync(yearIndex) {
             let totalWagesPerYear = 0;
+            const usedRows = []
 
-            const payFields = [...document.querySelectorAll(".salary"), ...document.querySelectorAll(".stipend-amount")];
+            const payFields = [...document.querySelectorAll(".salary"), ...document.querySelectorAll(".stipend-amount p"), ...document.querySelectorAll(".tuition-amount p")];
             for (const td of payFields) {
                 const row = td.closest("tr");
-                const yearlyWages = await calculateYearlyWagesWithFringeRateFromRowAsync(row);
+                
+                if (usedRows.indexOf(row) !== -1) {
+                    continue
+                }
+                usedRows.push(row)
+
+                const yearlyWages = await calculateYearlyWagesWithFringeRateFromRowAsync(row, yearIndex);
+
                 if (yearlyWages > 0 && !isNaN(yearlyWages)) {
                     totalWagesPerYear += yearlyWages;
                 }
@@ -1182,12 +1290,13 @@ if ($conn->connect_error) {
             const totalItemizedCosts = getTotalItemizedCosts();
             const totalTravelCosts = getTotalTravelCosts();
 
-            getTotalWagesForYearWithFringeRateAsync()
-            .then(totalYearlyWages => {
-                for (const td of yearlyCostsTableBodyRow.children) {
-                    td.textContent = toDollar(totalYearlyWages + totalItemizedCosts + totalTravelCosts);
-                }
-            });
+            for (let yearIndex = 0; yearIndex < getNumBudgetYears(); yearIndex++) {
+                getTotalWagesForYearWithFringeRateAsync(yearIndex)
+                    .then(totalYearlyWages => {
+                        const td = yearlyCostsTableBodyRow.children[yearIndex];
+                        td.textContent = toDollar(totalYearlyWages + totalItemizedCosts + totalTravelCosts);
+                    });
+            }
         }
 
         // Calculates the number of budget years based off of start and end dates (default is 1)
@@ -1328,16 +1437,20 @@ if ($conn->connect_error) {
         // Listen for stipend request button clicked
         document.addEventListener("input", event => {
             const checkbox = event.target;
-            if (!checkbox.classList.contains("request-stipend")) return;
+            if (!checkbox.classList.contains("include-check")) return;
 
-            const row = checkbox.closest("tr");
-            const percentEffort = row.querySelector(".percent-effort");
+            const isStipendType = checkbox.closest(".stipend-amount"); // As opposed to tuition type
 
-            if (checkbox.checked) {
-                percentEffort.disabled = false;
-            } else {
-                percentEffort.value = 0;
-                percentEffort.disabled = true;
+            if (isStipendType) {
+                const row = checkbox.closest("tr");
+                const percentEffort = row.querySelector(".percent-effort");
+
+                if (checkbox.checked) {
+                    percentEffort.disabled = false;
+                } else {
+                    percentEffort.value = 0;
+                    percentEffort.disabled = true;
+                }
             }
 
             updateYearlyCosts();
@@ -1382,7 +1495,6 @@ if ($conn->connect_error) {
                 ["Facility useage fees"],
                 ["Conference registration"],
                 ["Other"],
-                ["Grad Student Tuition & Health Insurance"],
                 [],
                 ["Consortia/Subawards"],
                 [],
@@ -1450,7 +1562,7 @@ if ($conn->connect_error) {
                 const piType = row.querySelector(".type").textContent.trim();
                 const salary = row.querySelector(".salary").textContent.trim();
                 const year1HoursWorked = calculateYearlyHoursWorkedFromRow(row);
-                if (year1HoursWorked == 0) continue;
+                if (year1HoursWorked === 0) continue
                 const yearlyWages = await calculateYearlyWagesWithFringeRateFromRowAsync(row);
                 const hourlyRate = await calculateHourlyRateWithFringeRateFromRowAsync(row);
                 const totalWagesForBudgetDuration = yearlyWages*numBudgetYears;
@@ -1462,25 +1574,31 @@ if ($conn->connect_error) {
                 const t2Rows = document.querySelector(`#${t2Id} tbody`).children;
 
                 let aggregatedYear1HoursWorked = 0;
-                let aggregatedYearlyWages = 0;
+                let aggregatedYearlyWages = Array(numBudgetYears).fill(0);
+                let allPromises = [];
 
-                for (const row of t1Rows) {
+                for (const row of [...t1Rows, ...t2Rows]) {
                     const year1HoursWorked = calculateYearlyHoursWorkedFromRow(row);
-                    const yearlyWages = await calculateYearlyWagesWithFringeRateFromRowAsync(row);
                     aggregatedYear1HoursWorked += year1HoursWorked;
-                    aggregatedYearlyWages += yearlyWages;
+
+                    for (let i = 0; i < numBudgetYears; i++) {
+                        const p = calculateYearlyWagesWithFringeRateFromRowAsync(row, i)
+                            .then(yearlyWages => {
+                                aggregatedYearlyWages[i] += yearlyWages;
+                            });
+                        allPromises.push(p);
+                    }
                 }
-                for (const row of t2Rows) {
-                    const year1HoursWorked = calculateYearlyHoursWorkedFromRow(row);
-                    const yearlyWages = await calculateYearlyWagesWithFringeRateFromRowAsync(row);
-                    aggregatedYear1HoursWorked += year1HoursWorked;
-                    aggregatedYearlyWages += yearlyWages;
-                }
+
+                await Promise.all(allPromises);
                 
-                let totalWagesForBudgetDuration = aggregatedYearlyWages*numBudgetYears;
-                let spreadsheetRow = spreadsheetData[getSpreadsheetRowIndexByLabel("Other Personnel") + rowOffset];
-                if (aggregatedYear1HoursWorked > 0) {
-                    spreadsheetRow.push(aggregatedYear1HoursWorked, null, ...Array(numBudgetYears).fill(toDollar(aggregatedYearlyWages)), toDollar(totalWagesForBudgetDuration))
+                if (aggregatedYearlyWages[0] > 0) {
+                    let totalWagesForBudgetDuration = aggregatedYearlyWages.reduce((acc, val) => acc + val, 0);
+                    let spreadsheetRow = spreadsheetData[getSpreadsheetRowIndexByLabel("Other Personnel") + rowOffset];
+
+                    aggregatedYearlyWages = aggregatedYearlyWages.map(toDollar);
+
+                    spreadsheetRow.push(aggregatedYear1HoursWorked, null, ...aggregatedYearlyWages, toDollar(totalWagesForBudgetDuration))
                 }
             }
 
@@ -1556,6 +1674,8 @@ if ($conn->connect_error) {
                 const rowCost = calculateTotalItemCostFromRow(row);
                 spreadsheetData.splice(equipmentLabelRowIndex + i + 1, 0, [name, null, null, ...Array(numBudgetYears).fill(toDollar(rowCost)), toDollar(rowCost * numBudgetYears)])
             }
+
+            // Apply grad student tuition
 
             const worksheet = XLSX.utils.aoa_to_sheet(spreadsheetData);
 
