@@ -317,6 +317,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["personnel_type"])) {
 <p style="color: red;">⚠ Warning: Please double-check entries before adding!</p>
 <p style="color: red;">EzBudgets is not meant to support custom entries. If you think a mistake has been made, contact your financial department to update our databases with your university's personnel information and rates.</p>
 
+<!-- Back to Dashboard Button -->
+<a href="dashboard.php" style="display:inline-block;">
+    <button type="button" style="background-color: rgb(200,200,200); border: 1px solid black; border-radius: 0; width: 100px; height: 28px; cursor: pointer;">
+        Back
+    </button>
+</a>
 
 
 <script>
