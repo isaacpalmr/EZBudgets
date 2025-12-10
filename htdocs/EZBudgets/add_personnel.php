@@ -84,95 +84,92 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["personnel_type"])) {
         if (checkDuplicate($conn, "university_employee", "name", $name)) {
             $error = "A staff member with this name already exists.";
         } else {
+            $salary = $_POST["salary"];
+            $staffTitle = $_POST["staff_title"];
+            $isPIEligible = 0;
+            $job = null; // job description removed
+
             $stmt = $conn->prepare("
-                INSERT INTO university_employee (name, hourly_rate, job, staff_title, is_pi_eligible)
+                INSERT INTO university_employee (name, salary, job, staff_title, is_pi_eligible)
                 VALUES (?, ?, ?, ?, ?)
             ");
-
             $stmt->bind_param(
                 "sdssi",
                 $name,
-                $_POST["hourly_rate"],
-                $_POST["job"],
-                $_POST["staff_title"],
-                $_POST["is_pi_eligible"]
+                $salary,
+                $job,
+                $staffTitle,
+                $isPIEligible
             );
-
             if ($stmt->execute()) $message = "Staff member added!";
             else $error = "Error: " . $stmt->error;
         }
     }
 
     else if ($type === "undergrad") {
-
         if (checkDuplicate($conn, "undergraduate_research_assistants", "name", $name)) {
             $error = "An undergraduate RA with this name already exists.";
         } else {
+            $maxFTE = 0.25; // always 25%
             $stmt = $conn->prepare("
                 INSERT INTO undergraduate_research_assistants
                 (name, major, residency, max_fte, stipend_per_academic_year)
                 VALUES (?, ?, ?, ?, ?)
             ");
-
             $stmt->bind_param(
                 "sssdd",
                 $name,
                 $_POST["major"],
                 $_POST["residency"],
-                $_POST["max_fte"],
-                $_POST["stipend"]
+                $maxFTE,
+                $_POST['stipend_undergrad']
             );
-
             if ($stmt->execute()) $message = "Undergraduate RA added!";
             else $error = "Error: " . $stmt->error;
         }
     }
 
     else if ($type === "grad") {
-
         if (checkDuplicate($conn, "graduate_research_assistants", "name", $name)) {
             $error = "A graduate RA with this name already exists.";
         } else {
+            $maxFTE = 0.5; // always 50%
+            $program = trim($_POST["degree_type"] . " " . $_POST["program"]); // prepend MD/PhD
             $stmt = $conn->prepare("
                 INSERT INTO graduate_research_assistants
                 (name, program, residency, max_fte, stipend_per_academic_year)
                 VALUES (?, ?, ?, ?, ?)
             ");
-
             $stmt->bind_param(
                 "sssdd",
                 $name,
-                $_POST["program"],
+                $program,
                 $_POST["residency"],
-                $_POST["max_fte"],
-                $_POST["stipend"]
+                $maxFTE,
+                $_POST['stipend_grad']
             );
-
             if ($stmt->execute()) $message = "Graduate RA added!";
             else $error = "Error: " . $stmt->error;
         }
     }
 
     else if ($type === "postdoc") {
-
         if (checkDuplicate($conn, "post_doctoral_researchers", "name", $name)) {
             $error = "A post-doctoral researcher with this name already exists.";
         } else {
+            $maxFTE = 1.0; // always 100%
             $stmt = $conn->prepare("
                 INSERT INTO post_doctoral_researchers
-                (name, field, appointment_type, max_fte, stipend_per_academic_year)
-                VALUES (?, ?, ?, ?, ?)
+                (name, field, max_fte, stipend_per_academic_year)
+                VALUES (?, ?, ?, ?)
             ");
-
             $stmt->bind_param(
-                "sssdd",
+                "ssdd",
                 $name,
                 $_POST["field"],
-                $_POST["appointment_type"],
-                $_POST["max_fte"],
-                $_POST["stipend"]
+                $maxFTE,
+                $_POST['stipend_postdoc']
             );
-
             if ($stmt->execute()) $message = "Post-Doctoral Researcher added!";
             else $error = "Error: " . $stmt->error;
         }
@@ -218,28 +215,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["personnel_type"])) {
 
     <!-- STAFF FIELDS -->
     <div id="staff_fields" class="hidden">
-
-        <label>Hourly Rate:</label>
-        <input type="number" step="0.01" name="hourly_rate"><br><br>
-
-        <label>Job (description):</label>
-        <input type="text" name="job"><br><br>
+        <label>Salary:</label>
+        <input type="number" step="0.01" name="salary"><br><br>
 
         <label>Staff Title:</label>
         <select name="staff_title">
             <?php foreach ($staff_titles as $t): ?>
                 <option value="<?= $t ?>"><?= $t ?></option>
             <?php endforeach; ?>
-        </select>
-        <br><br>
-
-        <label>PI Eligible:</label>
-        <select name="is_pi_eligible">
-            <option value="0">No</option>
-            <option value="1">Yes</option>
-        </select>
-
-        <br><br>
+        </select><br><br>
     </div>
 
     <!-- UNDERGRAD FIELDS -->
@@ -253,15 +237,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["personnel_type"])) {
             <option value="Out-of-State">Out-of-State</option>
         </select><br><br>
 
-        <label>Max FTE:</label>
-        <input type="number" step="0.01" name="max_fte"><br><br>
-
         <label>Stipend Per Academic Year:</label>
-        <input type="number" step="0.01" name="stipend"><br><br>
+        <input type="number" step="0.01" name="stipend_undergrad"><br><br>
     </div>
 
     <!-- GRAD FIELDS -->
     <div id="grad_fields" class="hidden">
+        <label>Degree Type:</label>
+        <select name="degree_type">
+            <option value="">Select...</option>
+            <option value="MD">MD</option>
+            <option value="PhD">PhD</option>
+        </select><br><br>
+
         <label>Program:</label>
         <input type="text" name="program"><br><br>
 
@@ -271,11 +259,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["personnel_type"])) {
             <option value="Out-of-State">Out-of-State</option>
         </select><br><br>
 
-        <label>Max FTE:</label>
-        <input type="number" step="0.01" name="max_fte"><br><br>
-
         <label>Stipend Per Academic Year:</label>
-        <input type="number" step="0.01" name="stipend"><br><br>
+        <input type="number" step="0.01" name="stipend_grad"><br><br>
     </div>
 
     <!-- POSTDOC FIELDS -->
@@ -283,22 +268,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["personnel_type"])) {
         <label>Field:</label>
         <input type="text" name="field"><br><br>
 
-        <label>Appointment Type:</label>
-        <select name="appointment_type">
-            <option value="Full-Time">Full-Time</option>
-            <option value="Part-Time">Part-Time</option>
+        <label>Residency:</label>
+        <select name="residency">
+            <option value="In-State">In-State</option>
+            <option value="Out-of-State">Out-of-State</option>
         </select><br><br>
 
-        <label>Max FTE:</label>
-        <input type="number" step="0.01" name="max_fte"><br><br>
-
         <label>Stipend Per Academic Year:</label>
-        <input type="number" step="0.01" name="stipend"><br><br>
+        <input type="number" step="0.01" name="stipend_postdoc"><br><br>
     </div>
 
     <button type="submit">Add Personnel</button>
 </form>
-
 
 <fieldset>
 <legend>Add New Job Title</legend>
@@ -324,8 +305,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["personnel_type"])) {
     </button>
 </a>
 
-
 <script>
+
+window.addEventListener("DOMContentLoaded", () => {
+    const personnelSelect = document.getElementById("personnel_type");
+    personnelSelect.value = ""; // Reset to the placeholder option
+});
+
+    
 function showFields() {
     let type = document.getElementById("personnel_type").value;
 
@@ -339,6 +326,9 @@ function showFields() {
     if (type === "grad") document.getElementById("grad_fields").style.display = "block";
     if (type === "postdoc") document.getElementById("postdoc_fields").style.display = "block";
 }
+
+
+
 </script>
 
 </body>
