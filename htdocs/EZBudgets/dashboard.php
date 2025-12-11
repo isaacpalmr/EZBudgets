@@ -46,9 +46,16 @@ $result = $conn->query($sql);
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+
     <meta charset="UTF-8">
     <title>Dashboard</title>
     <style>
+        body {
+            font-family: "Open Sans", sans-serif;
+        }
         .delete-btn {
             background-color: red;
             border: none;
@@ -113,14 +120,14 @@ $result = $conn->query($sql);
 
                     <!-- Edit Button -->
                     <a href='main.php?budget_id=$budget_id' style='display:inline-block; margin-left: 10px; vertical-align: middle;'>
-                        <button type='button' style='background-color: rgb(255, 235, 59); border: 1px solid black; border-radius: 0; width: 24px; height: 24px; display: flex; justify-content: center; align-items: center; padding: 0; cursor: pointer;'>
+                        <button type='button' style='background-color: rgb(255, 235, 59); border: 1px solid black; border-radius: 4px; width: 24px; height: 24px; display: flex; justify-content: center; align-items: center; padding: 0; cursor: pointer;'>
                             <img src='Images/pencil.png' width='16' height='16' alt='Edit' style='display:block; margin:0;'>
                         </button>
                     </a>
 
                     <!-- Delete Button -->
                     <form method='POST' style='display:inline-block; vertical-align: middle; margin-left: 5px;'>
-                        <button type='submit' name='delete_budget' value='$budget_id' style='background-color: rgb(255, 82, 82); border: 1px solid black; border-radius: 0; width: 24px; height: 24px; display: flex; justify-content: center; align-items: center; padding: 0; cursor: pointer;'>
+                        <button type='submit' name='delete_budget' value='$budget_id' style='background-color: rgb(255, 82, 82); border: 1px solid black; border-radius: 4px; width: 24px; height: 24px; display: flex; justify-content: center; align-items: center; padding: 0; cursor: pointer;'>
                             <img src='Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png' width='16' height='16' alt='Delete' style='display:block; margin:0;'>
                         </button>
                     </form>
