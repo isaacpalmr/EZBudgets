@@ -106,16 +106,16 @@ if (isset($_POST['delete_budget'])) {
             border-radius: 3px;
             padding: 0px 3px;
             padding-top: 3px;
-            margin-left: 10px;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px 10px;
+            text-align: center;
         }
 
         th {
-            border: 2px solid rgb(0, 0, 0);
-            padding: 5px 10px;
-        }
-
-        td {
-            text-align: center;
+            background-color: #f5f5f5;
         }
 
         #tables {
@@ -155,6 +155,19 @@ if (isset($_POST['delete_budget'])) {
 
         .option {
             z-index: 9999; 
+        }
+
+        .table-card {
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 6px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 15px; 
+            margin-bottom: 30px;
+        }
+
+        table {
+            border-collapse: collapse;
         }
 
         #right-side {
@@ -262,7 +275,7 @@ if (isset($_POST['delete_budget'])) {
         
         <div id="tables">
             <div id="user_tables" style="text-align: center;">
-                <div>
+                <div class="table-card">
                     <table id="pi-table">
                         <caption>
                             Principle investigators
@@ -285,7 +298,7 @@ if (isset($_POST['delete_budget'])) {
                     </table>
                 </div>
                 
-                <div>
+                <div class="table-card">
                     <table id="pro-staff">
                         <caption>
                             UI professional staff
@@ -307,7 +320,7 @@ if (isset($_POST['delete_budget'])) {
                     </table>
                 </div>
                 
-                <div>
+                <div class="table-card">
                     <table id="post-docs">
                         <caption>
                             Post doctoral researchers
@@ -328,7 +341,7 @@ if (isset($_POST['delete_budget'])) {
                     </table>
                 </div>
                 
-                <div>
+                <div class="table-card">
                     <table id="gras">
                         <caption>
                             Graduate research assistants
@@ -350,7 +363,7 @@ if (isset($_POST['delete_budget'])) {
                     </table>
                 </div>
                 
-                <div>
+                <div class="table-card">
                     <table id="ugrads">
                         <caption>
                             Undergraduate research assistants
@@ -372,7 +385,7 @@ if (isset($_POST['delete_budget'])) {
                     </table>
                 </div>
 
-                <div>
+                <div class="table-card">
                     <table id="travel">
                         <caption>
                             Travel
@@ -396,7 +409,7 @@ if (isset($_POST['delete_budget'])) {
                     </table>
                 </div>
 
-                <div>
+                <div class="table-card">
                     <table id="itemized-costs">
                         <caption>
                             Itemized costs
@@ -419,7 +432,7 @@ if (isset($_POST['delete_budget'])) {
                     </table>
                 </div>
                 
-                <div>
+                <div class="table-card">
                     <table id="subawards">
                         <caption>
                             Subawards
@@ -440,7 +453,7 @@ if (isset($_POST['delete_budget'])) {
                 </div>
             </div>
 
-            <div id="right-side">
+            <div class="table-card" id="right-side">
                 <div id="yearly_costs">
                     <table>
                         <caption id="yearly-costs-caption">

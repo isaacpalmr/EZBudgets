@@ -43,7 +43,7 @@
                 $_SESSION["last_name"] = $user["last_name"];
                 $_SESSION["user_id"] = $user["user_id"];
 
-                header("Location: dashboard.php");
+                header("Location: ../pages/dashboard.php");
                 exit;
             } else {
                 echo "<p style='color:red;'>Incorrect password.</p>";
