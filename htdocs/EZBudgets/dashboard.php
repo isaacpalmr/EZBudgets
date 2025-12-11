@@ -15,7 +15,6 @@ $last_name = $_SESSION['last_name'];
 // Handle new budget creation
 if (isset($_POST['create_budget'])) {
     $budget_name = $_POST['budget_name'] ?? 'New Budget';
-
     $sql_insert = "INSERT INTO budgets (user_id, budget_name) VALUES ($user_id, '$budget_name')";
     if ($conn->query($sql_insert) === TRUE) {
         $new_budget_id = $conn->insert_id;
@@ -46,106 +45,156 @@ $result = $conn->query($sql);
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
+<meta charset="UTF-8">
+<title>Dashboard - EZBudgets</title>
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+    body {
+        font-family: "Open Sans", sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 0;
+        padding: 20px;
+    }
 
+    h1, h2 {
+        text-align: center;
+        margin-bottom: 10px;
+    }
 
-    <meta charset="UTF-8">
-    <title>Dashboard</title>
-    <style>
-        body {
-            font-family: "Open Sans", sans-serif;
-        }
-        .delete-btn {
-            background-color: red;
-            border: none;
-            cursor: pointer;
-            padding: 1px;
-            margin-left: 10px;
-            border-radius: 4px;
-        }
-        .delete-btn img {
-            width: 24px;
-            height: 24px;
-        }
-        .modify-btn {
-            background-color: orange;
-            color: white;
-            padding: 1px 12px;
-            text-decoration: none;
-            border-radius: 5px;
-            margin-bottom: 15px;
-            display: inline-block;
-        }
-        .logout-btn {
-            background-color: gray;
-            color: white;
-            padding: 8px 12px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-left: 10px;
-        }
-        li {
-            margin-bottom: 8px;
-        }
-    </style>
+    ul {
+        list-style: none;
+        padding: 0;
+        margin: 20px 0;
+        width: 100%;
+        max-width: 500px;
+    }
+
+    li {
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background-color: #f8f8f8;
+        padding: 10px;
+        border-radius: 6px;
+        border: 1px solid #ddd;
+    }
+
+    .buttons {
+        display: flex;
+        gap: 5px;
+        align-items: center;
+    }
+
+    button, .modify-btn, .logout-btn {
+        font-family: "Open Sans", sans-serif;
+        cursor: pointer;
+        border-radius: 4px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 0;
+    }
+
+    .modify-btn {
+        background-color: orange;
+        color: white;
+        padding: 8px 12px;
+        margin-bottom: 20px;
+        text-decoration: none;
+    }
+
+    .logout-btn {
+        background-color: gray;
+        color: white;
+        padding: 8px 12px;
+        border: none;
+        margin-left: 10px;
+    }
+
+    .budget-btn {
+        width: 24px;
+        height: 24px;
+        padding: 0;
+        border: 1px solid black;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: rgb(255, 235, 59);
+    }
+
+    .delete-btn {
+        width: 24px;
+        height: 24px;
+        padding: 0;
+        border: 1px solid black;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: rgb(255, 82, 82);
+    }
+
+    form.create-budget {
+        margin-top: 20px;
+    }
+</style>
 </head>
 <body>
-    <h1>Welcome <?php echo htmlspecialchars($first_name . ' ' . $last_name); ?></h1>
 
-    <?php if (isset($message)) echo "<p style='color:red;'>$message</p>"; ?>
+<h1>EZBudgets</h1>
+<h2>Welcome <?php echo htmlspecialchars($first_name . ' ' . $last_name); ?></h2>
 
-    <!-- Buttons at top -->
+<?php if (isset($message)) echo "<p style='color:red;'>$message</p>"; ?>
+
+<div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 20px;">
     <a href="add_personnel.php" class="modify-btn" 
         title="⚠️ WARNING: This page allows for manual addition of personnel and fringe rates into the database. This may allow for creation of inaccurate budgets.">
         Modify Database ⚠️
     </a>
 
-
-    <form style="display:inline;" action="logout.php" method="POST">
+    <form action="logout.php" method="POST">
         <button class="logout-btn" type="submit">Logout</button>
     </form>
+</div>
 
-    <h2>Your Budgets</h2>
-    <ul>
-    <?php
-    if ($result && $result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            $budget_id = $row['budget_id'];
-            $budget_name = htmlspecialchars($row['budget_name']);
-
-            echo "<li style='margin-bottom: 6px;'>
-                    $budget_name
-
-                    <!-- Edit Button -->
-                    <a href='main.php?budget_id=$budget_id' style='display:inline-block; margin-left: 10px; vertical-align: middle;'>
-                        <button type='button' style='background-color: rgb(255, 235, 59); border: 1px solid black; border-radius: 4px; width: 24px; height: 24px; display: flex; justify-content: center; align-items: center; padding: 0; cursor: pointer;'>
-                            <img src='Images/pencil.png' width='16' height='16' alt='Edit' style='display:block; margin:0;'>
+<h2>Your Budgets</h2>
+<ul>
+<?php
+if ($result && $result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $budget_id = $row['budget_id'];
+        $budget_name = htmlspecialchars($row['budget_name']);
+        echo "<li>
+                <span>$budget_name</span>
+                <div class='buttons'>
+                    <a href='main.php?budget_id=$budget_id'>
+                        <button type='button' class='budget-btn'>
+                            <img src='Images/pencil.png' width='16' height='16' alt='Edit'>
                         </button>
                     </a>
-
-                    <!-- Delete Button -->
-                    <form method='POST' style='display:inline-block; vertical-align: middle; margin-left: 5px;'>
-                        <button type='submit' name='delete_budget' value='$budget_id' style='background-color: rgb(255, 82, 82); border: 1px solid black; border-radius: 4px; width: 24px; height: 24px; display: flex; justify-content: center; align-items: center; padding: 0; cursor: pointer;'>
-                            <img src='Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png' width='16' height='16' alt='Delete' style='display:block; margin:0;'>
+                    <form method='POST'>
+                        <button type='submit' name='delete_budget' value='$budget_id' class='delete-btn'>
+                            <img src='Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png' width='16' height='16' alt='Delete'>
                         </button>
                     </form>
-
-                </li>";
-        }
-    } else {
-        echo "<li>No budgets yet.</li>";
+                </div>
+              </li>";
     }
-    ?>
-    </ul>
+} else {
+    echo "<li>No budgets yet.</li>";
+}
+?>
+</ul>
+
+<form class="create-budget" method="POST" style="display: flex; justify-content: center; margin-top: 20px;">
+    <button type="submit" name="create_budget" 
+        style="background-color: rgb(1, 255, 136); border: 1px solid black; border-radius: 4px; width: 100px; height: 32px; cursor: pointer; font-family: 'Open Sans', sans-serif; font-weight: 600;">
+        Create Budget
+    </button>
+</form>
 
 
-
-
-
-    <form method="POST">
-        <button type="submit" name="create_budget">Create Budget</button>
-    </form>
 </body>
 </html>
