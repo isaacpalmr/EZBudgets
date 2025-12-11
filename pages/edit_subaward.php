@@ -428,9 +428,7 @@ $subawardInstitution = $_GET["subawardInstitution"];
         document.querySelector("#back-to-prime").addEventListener("click", () => {
             collectAndSave().then(success => {
                 if (success) {
-                    setTimeout(() => {
-                        window.history.back();
-                    }, 250); // delay in milliseconds
+                    window.history.back();
                 }
             });
         });

@@ -902,17 +902,28 @@ async function loadBudget() {
         }
         
         // --- Populate subawards table ---
+        console.log("populating subawards table")
         const subawardsTable = document.getElementById("subawards");
         if (subawardsTable) {
             for (const s of subawards) {
+                console.log("populating subawards table. s:", s)
+
                 const row = await addRow(subawardsTable);
                 if (s.subbudget_id) row.dataset.subbudget_id = s.subbudget_id;
 
                 const nameEl = row.querySelector(".name");
-                if (nameEl) nameEl.value = s.subaward_institution ?? "";
+                console.log("populating subawards table. name element content before:", nameEl.textContent)
+                if (nameEl) {
+                    nameEl.value = s.subaward_institution ?? "";
+                    console.log("populating subawards table. name element content after:", nameEl.textContent)
+                }
                 
                 const totalCostEl = row.querySelector(".total-cost");
-                if (totalCostEl) totalCostEl.textContent = toDollar(s.total_cost ?? 0);
+                console.log("populating subawards table. total cost element content before:", totalCostEl.textContent)
+                if (totalCostEl) {
+                    totalCostEl.textContent = toDollar(s.total_cost ?? 0)
+                    console.log("populating subawards table. total cost element content after:", totalCostEl.textContent)
+                }
             }
         }
 
