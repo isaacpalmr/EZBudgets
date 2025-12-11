@@ -426,12 +426,13 @@ $subawardInstitution = $_GET["subawardInstitution"];
     <script src="edit.js"></script>
     <script>
         document.querySelector("#back-to-prime").addEventListener("click", () => {
-            collectAndSave()
-                .then(success => {
-                    if (success) {
+            collectAndSave().then(success => {
+                if (success) {
+                    setTimeout(() => {
                         window.history.back();
-                    }
-                });
+                    }, 250); // delay in milliseconds
+                }
+            });
         });
     </script>
 </body>
