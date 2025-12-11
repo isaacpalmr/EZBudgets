@@ -905,25 +905,18 @@ async function loadBudget() {
         console.log("populating subawards table.")
         const subawardsTable = document.getElementById("subawards");
         if (subawardsTable) {
-            console.log("populating subawards table. subawards:", subawards)
             for (const s of subawards) {
-                console.log("populating subawards table. s:", s)
-
                 const row = await addRow(subawardsTable);
                 if (s.subbudget_id) row.dataset.subbudget_id = s.subbudget_id;
 
                 const nameEl = row.querySelector(".name");
-                console.log("populating subawards table. name element content before:", nameEl.value)
                 if (nameEl) {
                     nameEl.value = s.subaward_institution ?? "";
-                    console.log("populating subawards table. name element content after:", nameEl.value)
                 }
                 
                 const totalCostEl = row.querySelector(".total-cost");
-                console.log("populating subawards table. total cost element content before:", totalCostEl.textContent)
                 if (totalCostEl) {
                     totalCostEl.textContent = toDollar(s.total_cost ?? 0)
-                    console.log("populating subawards table. total cost element content after:", totalCostEl.textContent)
                 }
             }
         }
@@ -1038,7 +1031,7 @@ async function collectAndSave(clickedButton) {
     if (subawardsTable) {
         for (const r of subawardsTable.querySelectorAll("tbody tr")) {
             const subaward_institution = r.querySelector(".name")?.value || "";
-            const total_cost = r.querySelector(".total-cost")?.value || 0;
+            const total_cost = dollarToNumber(r.querySelector(".total-cost")?.textContent) || 0;
             const subbudget_id = Number(r.dataset.subbudget_id) || 0 
 
             console.log("subbudget_id:", subbudget_id)
