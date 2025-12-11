@@ -43,7 +43,7 @@
                     VALUES ('$first', '$last', '$username', '$email', '$password', NOW(), NOW())";
 
             if ($conn->query($sql) === TRUE) {
-                echo "<p style='color:green;'>Registration successful. <a href='login.php'>Login now</a></p>";
+                echo "<p style='color:green;'>Registration successful. <a href='../php/login.php'>Login now</a></p>";
             } else {
                 if ($conn->errno == 1062) {
                     echo "<p style='color:red;'>That username is already taken. Please choose another.</p>";

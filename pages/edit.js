@@ -277,6 +277,13 @@ function hideStaffPickerOpt(select, staffId, staffName, staffUniqueKey) {
     }
 };
 
+function getStaffPickerSelectedName(row) {
+    const select = row.querySelector(".staff-picker");
+    const staffId = select.tom.getValue()
+    const staffName = staffId && select.tom.getOption(staffId).textContent.trim()
+    return staffName
+}
+
 // Staff picker dropdown logic. Note: Staff means personnel here
 function onStaffPickerSelect(row) {
     const table = row.closest("table");
@@ -1291,14 +1298,18 @@ downloadButton.addEventListener("click", async () => {
     spreadsheetData[1][0] += budgetFundingSource.value;
 
     // Apply PI
-    const piSelector = piTableBody.firstElementChild.querySelector(".staff-picker");
-    spreadsheetData[2][0] += piSelector.options[piSelector.selectedIndex].text;
+    let name = getStaffPickerSelectedName(piTableBody.firstElementChild)
+    if (name) {
+        spreadsheetData[2][0] += name
+    }
     
     // Apply Co-PIs
     const names = [];
     for (let i = 1; i < piTableBody.children.length; i++) {
-        const selector = piTableBody.children[i].querySelector(".staff-picker");
-        names.push(selector.options[selector.selectedIndex].text);
+        let name = getStaffPickerSelectedName(piTableBody.children[i])
+        if (name) {
+            names.push(name);
+        }
     }
     spreadsheetData[2][1] += names.join(", ");
 
@@ -1310,7 +1321,6 @@ downloadButton.addEventListener("click", async () => {
     for (let i = 0; i < piRows.length; i++) {
         const row = piRows[i];
         const piType = row.querySelector(".type").textContent.trim();
-        const salary = row.querySelector(".salary").textContent.trim();
         const year1HoursWorked = calculateYearlyHoursWorkedFromRow(row);
         if (year1HoursWorked === 0) continue
         const yearlyWages = await calculateYearlyWagesWithFringeRateFromRow(row);
