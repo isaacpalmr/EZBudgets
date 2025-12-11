@@ -808,17 +808,19 @@ if ($conn->connect_error) {
                 tbody.insertAdjacentHTML("beforeend", templateRows[table.id]);
             }
             
-            const staffPickerSelect = tbody.lastElementChild.querySelector(".staff-picker");
+            const row = tbody.lastElementChild
+
+            const staffPickerSelect = row.querySelector(".staff-picker");
             if (staffPickerSelect) {
                 await initializeStaffPicker(staffPickerSelect);
             }
             
-            const itemTypeSelect = tbody.lastElementChild.querySelector(".item-picker");
+            const itemTypeSelect = row.querySelector(".item-picker");
             if (itemTypeSelect) {
                 initializeItemPicker(itemTypeSelect);
             } 
 
-            return tbody.lastElementChild;
+            return row;
         }
 
         function showError(msg) {
@@ -1177,6 +1179,8 @@ if ($conn->connect_error) {
                     promises.push(
                         addRowAsync(table)
                             .then(row => {
+                                console.log("initializing row", row)
+
                                 // Force select the personnel
                                 const tomselect = row.querySelector(".staff-picker").tom
                                 tomselect.setValue(personnelData.id);
