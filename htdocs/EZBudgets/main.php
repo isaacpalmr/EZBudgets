@@ -798,6 +798,7 @@ if ($conn->connect_error) {
         }
 
         // Adds a row to the table, appending if 'pos' is null
+        // Only asynchronous if the row has a staff picker
         async function addRowAsync(table, pos) {
             const tbody = table.querySelector("tbody");
 
@@ -1210,7 +1211,7 @@ if ($conn->connect_error) {
                 const travelTableEl = document.getElementById("travel");
                 if (travelTableEl) {
                     for (const t of travels) {
-                        const row = addRowAsync(travelTableEl);                    // <-- pass the table
+                        const row = await addRowAsync(travelTableEl);                    // <-- pass the table
                         const typeSelect = row.querySelector("select.type") || row.querySelector(".type");
                         if (typeSelect) typeSelect.value = t.travel_type || "";
 
@@ -1231,7 +1232,7 @@ if ($conn->connect_error) {
                 const itemsTableEl = document.getElementById("itemized-costs");
                 if (itemsTableEl) {
                     for (const i of items) {
-                        const row = addRowAsync(itemsTableEl);  // pass table
+                        const row = await addRowAsync(itemsTableEl);  // pass table
                         const itemSelect = row.querySelector("select.type");
                         if (itemSelect) itemSelect.value = i.item_type ?? "";
 
@@ -1301,8 +1302,6 @@ if ($conn->connect_error) {
                     const stipendRequested = stipendCheckbox ? (stipendCheckbox.checked ? 1 : 0) : 0;
                     const tuitionCheckbox = r.querySelector(".tuition-amount .include-check");
                     const tuitionRequested = tuitionCheckbox ? (tuitionCheckbox.checked ? 1 : 0) : 0;
-
-                    if (personnelId === 0 && percentVal === 0 && stipendRequested === 0 && tuitionRequested === 0) continue;
 
                     rows.push({
                         personnel_type: tableIdToPersonnelType[tableId],
