@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 10, 2025 at 09:09 AM
+-- Generation Time: Dec 11, 2025 at 01:01 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -53,7 +53,8 @@ INSERT INTO `budgets` (`budget_id`, `user_id`, `budget_name`, `funding_source`, 
 (6, 5, 'Super neat Budget', 'National Science Foundation', NULL, NULL, 0, '2025-11-19 18:44:37', '2025-11-19 18:44:37', '2025-11-18', '2028-09-14'),
 (7, 1, 'yupyupyup', 'National Science Foundation', NULL, NULL, 0, '2025-11-19 18:55:14', '2025-11-19 23:55:20', '2025-11-04', '2027-12-05'),
 (8, 1, 'Awesome', 'National Science Foundation', NULL, NULL, 0, '2025-11-19 23:34:34', '2025-11-19 23:40:34', '2025-11-12', '2027-11-17'),
-(18, 0, 'New Budget', NULL, NULL, NULL, 0, '2025-12-09 19:34:46', '2025-12-09 19:34:46', NULL, NULL);
+(18, 0, 'New Budget', 'National Science Foundation', NULL, NULL, 0, '2025-12-09 19:34:46', '2025-12-10 11:15:46', '2025-12-25', '2026-06-18'),
+(19, 0, 'New Budget', '', NULL, NULL, 0, '2025-12-10 12:01:12', '2025-12-10 12:04:25', '2025-12-16', '2028-11-22');
 
 -- --------------------------------------------------------
 
@@ -86,71 +87,34 @@ INSERT INTO `budget_items` (`id`, `budget_id`, `item_type`, `name`, `quantity`, 
 CREATE TABLE `budget_personnel` (
   `bp_id` int(11) NOT NULL,
   `budget_id` int(11) NOT NULL,
-  `personnel_type` enum('PI','staff','postdoc','student','grad_assistant','undergrad_assistant') DEFAULT NULL,
+  `personnel_type` enum('staff','gra','ugrad','post-doc') DEFAULT NULL,
   `personnel_id` int(11) NOT NULL,
   `percent_effort` int(11) DEFAULT NULL,
   `stipend_requested` tinyint(1) DEFAULT 0,
-  `stipend_amount` decimal(10,2) DEFAULT 0.00
+  `tuition_requested` tinyint(1) DEFAULT 0,
+  `html_table_id` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `budget_personnel`
 --
 
-INSERT INTO `budget_personnel` (`bp_id`, `budget_id`, `personnel_type`, `personnel_id`, `percent_effort`, `stipend_requested`, `stipend_amount`) VALUES
-(17, 6, 'PI', 4, 4, 0, 0.00),
-(18, 6, 'staff', 3, 3, 0, 0.00),
-(19, 6, 'postdoc', 2, 5, 1, 60000.00),
-(20, 6, 'grad_assistant', 1, 0, 0, 32000.00),
-(21, 6, 'undergrad_assistant', 3, 1, 1, 4800.00),
-(54, 8, 'PI', 1, 30, 0, 0.00),
-(55, 8, 'PI', 3, 2, 0, 0.00),
-(56, 8, 'PI', 5, 1, 0, 0.00),
-(57, 8, 'PI', 4, 8, 0, 0.00),
-(58, 8, 'staff', 3, 100, 0, 0.00),
-(59, 7, 'PI', 3, 1, 0, 0.00),
-(60, 7, 'staff', 3, 1, 0, 0.00),
-(61, 7, 'postdoc', 1, 1, 1, 55000.00),
-(62, 7, 'grad_assistant', 5, 0, 0, 25000.00),
-(63, 7, 'undergrad_assistant', 5, 0, 1, 5100.00),
-(396, 1, 'PI', 1, 2, 0, 0.00),
-(397, 1, 'PI', 3, 6, 0, 0.00),
-(398, 1, 'PI', 5, 1, 0, 0.00),
-(399, 1, 'staff', 3, 1, 0, 0.00),
-(400, 1, 'postdoc', 1, 0, 0, 55000.00),
-(401, 1, 'grad_assistant', 4, 50, 1, 31000.00),
-(402, 1, 'undergrad_assistant', 1, 0, 0, 5000.00),
-(514, 12, 'PI', 1, 0, 0, 0.00),
-(515, 14, 'PI', 4, 0, 0, 0.00),
-(582, 9, 'PI', 3, 2, 0, 0.00),
-(583, 9, 'PI', 1, 2, 0, 0.00),
-(584, 9, 'PI', 5, 0, 0, 0.00),
-(585, 9, 'staff', 4, 2, 0, 0.00),
-(586, 9, 'postdoc', 1, 1, 1, 0.00),
-(587, 9, 'postdoc', 3, 2, 1, 0.00),
-(588, 9, 'grad_assistant', 1, 1, 1, 0.00),
-(589, 9, 'grad_assistant', 5, 2, 1, 0.00),
-(590, 9, 'undergrad_assistant', 1, 1, 1, 0.00),
-(591, 9, 'undergrad_assistant', 3, 2, 1, 0.00),
-(596, 16, 'PI', 0, 34, 0, 0.00),
-(597, 16, 'PI', 0, 87, 0, 0.00),
-(598, 16, 'postdoc', 2, 0, 1, 0.00),
-(599, 16, 'postdoc', 1, 0, 1, 0.00),
-(600, 16, 'grad_assistant', 1, 0, 0, 0.00),
-(601, 16, 'grad_assistant', 5, 0, 0, 0.00),
-(602, 16, 'grad_assistant', 2, 0, 0, 0.00),
-(603, 16, 'grad_assistant', 3, 0, 0, 0.00),
-(604, 16, 'grad_assistant', 4, 0, 0, 0.00),
-(605, 16, 'undergrad_assistant', 3, 0, 1, 0.00),
-(606, 16, 'undergrad_assistant', 2, 0, 1, 0.00),
-(607, 16, 'undergrad_assistant', 4, 0, 1, 0.00),
-(610, 10, 'PI', 1, 3, 0, 0.00),
-(611, 10, 'staff', 4, 65, 0, 0.00),
-(612, 10, 'staff', 3, 65, 0, 0.00),
-(613, 13, 'PI', 3, 0, 0, 0.00),
-(614, 13, 'PI', 4, 0, 0, 0.00),
-(615, 13, 'staff', 5, 0, 0, 0.00),
-(616, 13, 'postdoc', 1, 0, 0, 55000.00);
+INSERT INTO `budget_personnel` (`bp_id`, `budget_id`, `personnel_type`, `personnel_id`, `percent_effort`, `stipend_requested`, `tuition_requested`, `html_table_id`) VALUES
+(11, 22, 'staff', 1, 0, 0, 0, 'pi-table'),
+(12, 22, 'staff', 3, 0, 0, 0, 'pro-staff'),
+(13, 22, 'ugrad', 3, 23, 1, 1, 'ugrads');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `budget_subawards`
+--
+
+CREATE TABLE `budget_subawards` (
+  `id` int(11) NOT NULL,
+  `budget_id` int(11) NOT NULL,
+  `subbudget_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -172,7 +136,8 @@ CREATE TABLE `budget_travels` (
 
 INSERT INTO `budget_travels` (`travel_id`, `budget_id`, `travel_type`, `num_nights`, `num_travelers`) VALUES
 (47, 1, 'Domestic', 1, 2),
-(48, 1, 'International', 1, 2);
+(48, 1, 'International', 1, 2),
+(124, 19, 'Domestic', 7, 22);
 
 -- --------------------------------------------------------
 
@@ -244,7 +209,6 @@ CREATE TABLE `post_doctoral_researchers` (
   `postdoc_id` int(11) NOT NULL,
   `name` varchar(100) NOT NULL,
   `field` varchar(100) DEFAULT NULL,
-  `appointment_type` enum('Full-Time','Part-Time') NOT NULL DEFAULT 'Full-Time',
   `max_fte` decimal(4,2) NOT NULL DEFAULT 1.00,
   `stipend_per_academic_year` decimal(10,2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -253,10 +217,170 @@ CREATE TABLE `post_doctoral_researchers` (
 -- Dumping data for table `post_doctoral_researchers`
 --
 
-INSERT INTO `post_doctoral_researchers` (`postdoc_id`, `name`, `field`, `appointment_type`, `max_fte`, `stipend_per_academic_year`) VALUES
-(1, 'Dr. Hannah Lee', 'Biochemistry', 'Full-Time', 1.00, 55000.00),
-(2, 'Dr. Rajesh Kumar', 'Physics', 'Full-Time', 1.00, 60000.00),
-(3, 'Dr. Emily Chen', 'Computer Science', 'Full-Time', 1.00, 58000.00);
+INSERT INTO `post_doctoral_researchers` (`postdoc_id`, `name`, `field`, `max_fte`, `stipend_per_academic_year`) VALUES
+(1, 'Dr. Hannah Lee', 'Biochemistry', 1.00, 55000.00),
+(2, 'Dr. Rajesh Kumar', 'Physics', 1.00, 60000.00),
+(3, 'Dr. Emily Chen', 'Computer Science', 1.00, 58000.00);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `subbudgets`
+--
+
+CREATE TABLE `subbudgets` (
+  `subbudget_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `granted_to` varchar(255) DEFAULT NULL,
+  `funding_source` varchar(150) DEFAULT NULL,
+  `default_fa_year` int(11) DEFAULT NULL,
+  `default_tuition_year` varchar(20) DEFAULT NULL,
+  `travel_is_international` tinyint(1) DEFAULT 0,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `start_date` date DEFAULT NULL,
+  `end_date` date DEFAULT NULL,
+  `total` decimal(10,2) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `subbudgets`
+--
+
+INSERT INTO `subbudgets` (`subbudget_id`, `user_id`, `granted_to`, `funding_source`, `default_fa_year`, `default_tuition_year`, `travel_is_international`, `created_at`, `updated_at`, `start_date`, `end_date`, `total`) VALUES
+(1, 1, 'THIS IS A TEST BUDGET', 'National Science Foundation', NULL, NULL, 0, '2025-11-18 16:10:44', '2025-11-19 19:00:51', '2025-11-04', '2027-12-08', NULL),
+(2, 1, 'Super COol Budget', NULL, NULL, NULL, 0, '2025-11-18 16:11:42', '2025-11-18 16:11:42', NULL, NULL, NULL),
+(3, 5, 'Super cool', NULL, NULL, NULL, 0, '2025-11-19 12:33:30', '2025-11-19 12:33:30', NULL, NULL, NULL),
+(5, 5, 'Super neat Budget', 'National Science Foundation', NULL, NULL, 0, '2025-11-19 18:44:02', '2025-11-19 18:44:02', '2025-11-18', '2028-09-14', NULL),
+(6, 5, 'Super neat Budget', 'National Science Foundation', NULL, NULL, 0, '2025-11-19 18:44:37', '2025-11-19 18:44:37', '2025-11-18', '2028-09-14', NULL),
+(7, 1, 'yupyupyup', 'National Science Foundation', NULL, NULL, 0, '2025-11-19 18:55:14', '2025-11-19 23:55:20', '2025-11-04', '2027-12-05', NULL),
+(8, 1, 'Awesome', 'National Science Foundation', NULL, NULL, 0, '2025-11-19 23:34:34', '2025-11-19 23:40:34', '2025-11-12', '2027-11-17', NULL),
+(18, 0, 'New Budget', 'National Science Foundation', NULL, NULL, 0, '2025-12-09 19:34:46', '2025-12-10 11:15:46', '2025-12-25', '2026-06-18', NULL),
+(19, 0, 'New Budget', '', NULL, NULL, 0, '2025-12-10 12:01:12', '2025-12-10 12:04:25', '2025-12-16', '2028-11-22', NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `subbudget_items`
+--
+
+CREATE TABLE `subbudget_items` (
+  `id` int(11) NOT NULL DEFAULT 0,
+  `budget_id` int(11) NOT NULL,
+  `item_type` enum('Equipment','Materials & Supplies','Publication Costs','Computer Services','Software','Facility Useage Fees','Conference Registration','Other') NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `quantity` int(11) NOT NULL DEFAULT 1,
+  `unit_cost` decimal(10,2) NOT NULL DEFAULT 0.00
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `subbudget_items`
+--
+
+INSERT INTO `subbudget_items` (`id`, `budget_id`, `item_type`, `name`, `quantity`, `unit_cost`) VALUES
+(31, 1, 'Facility Useage Fees', 'dfsdfsdsdfd', 3, 4.00);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `subbudget_personnel`
+--
+
+CREATE TABLE `subbudget_personnel` (
+  `bp_id` int(11) NOT NULL DEFAULT 0,
+  `budget_id` int(11) NOT NULL,
+  `personnel_type` enum('PI','staff','postdoc','student','grad_assistant','undergrad_assistant') DEFAULT NULL,
+  `personnel_id` int(11) NOT NULL,
+  `percent_effort` int(11) DEFAULT NULL,
+  `stipend_requested` tinyint(1) DEFAULT 0,
+  `stipend_amount` decimal(10,2) DEFAULT 0.00
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `subbudget_personnel`
+--
+
+INSERT INTO `subbudget_personnel` (`bp_id`, `budget_id`, `personnel_type`, `personnel_id`, `percent_effort`, `stipend_requested`, `stipend_amount`) VALUES
+(17, 6, 'PI', 4, 4, 0, 0.00),
+(18, 6, 'staff', 3, 3, 0, 0.00),
+(19, 6, 'postdoc', 2, 5, 1, 60000.00),
+(20, 6, 'grad_assistant', 1, 0, 0, 32000.00),
+(21, 6, 'undergrad_assistant', 3, 1, 1, 4800.00),
+(54, 8, 'PI', 1, 30, 0, 0.00),
+(55, 8, 'PI', 3, 2, 0, 0.00),
+(56, 8, 'PI', 5, 1, 0, 0.00),
+(57, 8, 'PI', 4, 8, 0, 0.00),
+(58, 8, 'staff', 3, 100, 0, 0.00),
+(59, 7, 'PI', 3, 1, 0, 0.00),
+(60, 7, 'staff', 3, 1, 0, 0.00),
+(61, 7, 'postdoc', 1, 1, 1, 55000.00),
+(62, 7, 'grad_assistant', 5, 0, 0, 25000.00),
+(63, 7, 'undergrad_assistant', 5, 0, 1, 5100.00),
+(396, 1, 'PI', 1, 2, 0, 0.00),
+(397, 1, 'PI', 3, 6, 0, 0.00),
+(398, 1, 'PI', 5, 1, 0, 0.00),
+(399, 1, 'staff', 3, 1, 0, 0.00),
+(400, 1, 'postdoc', 1, 0, 0, 55000.00),
+(401, 1, 'grad_assistant', 4, 50, 1, 31000.00),
+(402, 1, 'undergrad_assistant', 1, 0, 0, 5000.00),
+(514, 12, 'PI', 1, 0, 0, 0.00),
+(515, 14, 'PI', 4, 0, 0, 0.00),
+(582, 9, 'PI', 3, 2, 0, 0.00),
+(583, 9, 'PI', 1, 2, 0, 0.00),
+(584, 9, 'PI', 5, 0, 0, 0.00),
+(585, 9, 'staff', 4, 2, 0, 0.00),
+(586, 9, 'postdoc', 1, 1, 1, 0.00),
+(587, 9, 'postdoc', 3, 2, 1, 0.00),
+(588, 9, 'grad_assistant', 1, 1, 1, 0.00),
+(589, 9, 'grad_assistant', 5, 2, 1, 0.00),
+(590, 9, 'undergrad_assistant', 1, 1, 1, 0.00),
+(591, 9, 'undergrad_assistant', 3, 2, 1, 0.00),
+(596, 16, 'PI', 0, 34, 0, 0.00),
+(597, 16, 'PI', 0, 87, 0, 0.00),
+(598, 16, 'postdoc', 2, 0, 1, 0.00),
+(599, 16, 'postdoc', 1, 0, 1, 0.00),
+(600, 16, 'grad_assistant', 1, 0, 0, 0.00),
+(601, 16, 'grad_assistant', 5, 0, 0, 0.00),
+(602, 16, 'grad_assistant', 2, 0, 0, 0.00),
+(603, 16, 'grad_assistant', 3, 0, 0, 0.00),
+(604, 16, 'grad_assistant', 4, 0, 0, 0.00),
+(605, 16, 'undergrad_assistant', 3, 0, 1, 0.00),
+(606, 16, 'undergrad_assistant', 2, 0, 1, 0.00),
+(607, 16, 'undergrad_assistant', 4, 0, 1, 0.00),
+(610, 10, 'PI', 1, 3, 0, 0.00),
+(611, 10, 'staff', 4, 65, 0, 0.00),
+(612, 10, 'staff', 3, 65, 0, 0.00),
+(627, 18, 'PI', 0, 100, 0, 0.00),
+(628, 18, 'PI', 0, 1, 0, 0.00),
+(629, 18, 'staff', 4, 0, 0, 0.00),
+(635, 19, 'PI', 5, 100, 0, 0.00),
+(636, 19, 'staff', 4, 99, 0, 0.00),
+(637, 19, 'postdoc', 1, 13, 0, 55000.00),
+(638, 19, 'grad_assistant', 4, 21, 0, 31000.00),
+(639, 19, 'undergrad_assistant', 3, 18, 0, 4800.00);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `subbudget_travels`
+--
+
+CREATE TABLE `subbudget_travels` (
+  `travel_id` int(11) NOT NULL DEFAULT 0,
+  `budget_id` int(11) NOT NULL,
+  `travel_type` enum('Domestic','International') NOT NULL,
+  `num_nights` int(11) NOT NULL DEFAULT 0,
+  `num_travelers` int(11) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `subbudget_travels`
+--
+
+INSERT INTO `subbudget_travels` (`travel_id`, `budget_id`, `travel_type`, `num_nights`, `num_travelers`) VALUES
+(47, 1, 'Domestic', 1, 2),
+(48, 1, 'International', 1, 2),
+(124, 19, 'Domestic', 7, 22);
 
 -- --------------------------------------------------------
 
@@ -423,6 +547,13 @@ ALTER TABLE `budget_personnel`
   ADD KEY `budget_id` (`budget_id`);
 
 --
+-- Indexes for table `budget_subawards`
+--
+ALTER TABLE `budget_subawards`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `subaward_id` (`subbudget_id`);
+
+--
 -- Indexes for table `budget_travels`
 --
 ALTER TABLE `budget_travels`
@@ -452,6 +583,12 @@ ALTER TABLE `graduate_research_assistants`
 --
 ALTER TABLE `post_doctoral_researchers`
   ADD PRIMARY KEY (`postdoc_id`);
+
+--
+-- Indexes for table `subbudgets`
+--
+ALTER TABLE `subbudgets`
+  ADD PRIMARY KEY (`subbudget_id`);
 
 --
 -- Indexes for table `travel_profiles`
@@ -494,7 +631,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `budgets`
 --
 ALTER TABLE `budgets`
-  MODIFY `budget_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `budget_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `budget_items`
@@ -506,25 +643,37 @@ ALTER TABLE `budget_items`
 -- AUTO_INCREMENT for table `budget_personnel`
 --
 ALTER TABLE `budget_personnel`
-  MODIFY `bp_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=617;
+  MODIFY `bp_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+
+--
+-- AUTO_INCREMENT for table `budget_subawards`
+--
+ALTER TABLE `budget_subawards`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `budget_travels`
 --
 ALTER TABLE `budget_travels`
-  MODIFY `travel_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=123;
+  MODIFY `travel_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=125;
 
 --
 -- AUTO_INCREMENT for table `graduate_research_assistants`
 --
 ALTER TABLE `graduate_research_assistants`
-  MODIFY `gra_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `gra_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `post_doctoral_researchers`
 --
 ALTER TABLE `post_doctoral_researchers`
-  MODIFY `postdoc_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `postdoc_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT for table `subbudgets`
+--
+ALTER TABLE `subbudgets`
+  MODIFY `subbudget_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `tuition_schedule`
@@ -536,7 +685,7 @@ ALTER TABLE `tuition_schedule`
 -- AUTO_INCREMENT for table `undergraduate_research_assistants`
 --
 ALTER TABLE `undergraduate_research_assistants`
-  MODIFY `ugra_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `ugra_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `university_employee`
