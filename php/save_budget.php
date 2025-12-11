@@ -8,7 +8,7 @@ ini_set('error_log', __DIR__ . '/php_errors.log');
 error_reporting(E_ALL);
 
 session_start();
-include("db_connect.php");
+require_once "db_connect.php";
 
 function respond($ok, $data = []) {
     header('Content-Type: application/json');
@@ -31,27 +31,28 @@ $end_date       = isset($input['end_date']) ? $input['end_date'] : null;
 $personnel      = isset($input['personnel']) && is_array($input['personnel']) ? $input['personnel'] : [];
 $travels        = isset($input['travels']) && is_array($input['travels']) ? $input['travels'] : [];
 $items          = isset($input['items']) && is_array($input['items']) ? $input['items'] : [];
+$subawards      = isset($input['subawards']) && is_array($input['subawards']) ? $input['subawards'] : [];
 
 $user_id = intval($_SESSION['user_id']);
 
 try {
-    $conn->begin_transaction();
+$conn->begin_transaction();
 
-    // Create or update budget
-    if ($budget_id <= 0) {
-        $stmt = $conn->prepare("INSERT INTO budgets (user_id, budget_name, funding_source, start_date, end_date) VALUES (?, ?, ?, ?, ?)");
-        $stmt->bind_param("issss", $user_id, $budget_name, $funding_source, $start_date, $end_date);
-        $stmt->execute();
-        $budget_id = $stmt->insert_id;
-        $stmt->close();
-    } else {
-        $stmt = $conn->prepare("UPDATE budgets SET budget_name = ?, funding_source = ?, start_date = ?, end_date = ? WHERE budget_id = ?");
-        $stmt->bind_param("ssssi", $budget_name, $funding_source, $start_date, $end_date, $budget_id);
-        $stmt->execute();
-        $stmt->close();
-    }
+// Create or update budget
+if ($budget_id <= 0) {
+    $stmt = $conn->prepare("INSERT INTO budgets (user_id, budget_name, funding_source, start_date, end_date) VALUES (?, ?, ?, ?, ?)");
+    $stmt->bind_param("issss", $user_id, $budget_name, $funding_source, $start_date, $end_date);
+    $stmt->execute();
+    $budget_id = $stmt->insert_id;
+    $stmt->close();
+} else {
+    $stmt = $conn->prepare("UPDATE budgets SET budget_name = ?, funding_source = ?, start_date = ?, end_date = ? WHERE budget_id = ?");
+    $stmt->bind_param("ssssi", $budget_name, $funding_source, $start_date, $end_date, $budget_id);
+    $stmt->execute();
+    $stmt->close();
+}
 
-    // --- Clear old rows for this budget ---
+// --- Clear old rows for this budget ---
 // Personnel
 $stmtDel = $conn->prepare("DELETE FROM budget_personnel WHERE budget_id = ?");
 $stmtDel->bind_param("i", $budget_id);
@@ -66,6 +67,12 @@ $stmtDel->close();
 
 // Itemized costs
 $stmtDel = $conn->prepare("DELETE FROM budget_items WHERE budget_id = ?");
+$stmtDel->bind_param("i", $budget_id);
+$stmtDel->execute();
+$stmtDel->close();
+
+// Subawards
+$stmtDel = $conn->prepare("DELETE FROM budget_subawards WHERE budget_id = ?");
 $stmtDel->bind_param("i", $budget_id);
 $stmtDel->execute();
 $stmtDel->close();
@@ -139,14 +146,34 @@ if (!empty($items)) {
     $stmtItem->close();
 }
 
+// --- Insert/update subawards ---
+if (!empty($subawards)) {
+    $stmtItem = $conn->prepare("INSERT INTO budget_subawards (budget_id, subbudget_id) VALUES (?, ?)");
+    $stmtUpdate = $conn->prepare("UPDATE subbudgets SET subaward_institution = ? WHERE subbudget_id = ?");
 
+    foreach ($subawards as $s) {
+        $subbudget_id = intval($s['subbudget_id'] ?? 0);
+        $subaward_institution = trim($s['subaward_institution'] ?? '');
 
-    $conn->commit();
-    respond(true, [
-        "budget_id" => $budget_id,
-        "travels" => $travelResults,
-        "items" => $itemResults
-    ]);
+        // Insert into budget_subawards
+        $stmtItem->bind_param("ii", $budget_id, $subbudget_id);
+        $stmtItem->execute();
+
+        // Update the subaward name
+        $stmtUpdate->bind_param("si", $subaward_institution, $subbudget_id);
+        $stmtUpdate->execute();
+    }
+
+    $stmtItem->close();
+    $stmtUpdate->close();
+}
+
+$conn->commit();
+respond(true, [
+    "budget_id" => $budget_id,
+    // "travels" => $travelResults,
+    // "items" => $itemResults
+]);
 
 } catch (Exception $e) {
     $conn->rollback();

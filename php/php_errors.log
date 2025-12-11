@@ -1,0 +1,190 @@
+[11-Dec-2025 06:13:16 Europe/Berlin] Payload: Array
+(
+    [budget_id] => 22
+    [budget_name] => New Budget
+    [funding_source] => 
+    [start_date] => 2025-12-10
+    [end_date] => 2025-12-10
+    [personnel] => Array
+        (
+            [0] => Array
+                (
+                    [personnel_type] => staff
+                    [html_table_id] => pi-table
+                    [personnel_id] => 1
+                    [percent_effort] => 0
+                    [tuition_requested] => 0
+                    [stipend_requested] => 0
+                )
+
+            [1] => Array
+                (
+                    [personnel_type] => staff
+                    [html_table_id] => pro-staff
+                    [personnel_id] => 3
+                    [percent_effort] => 0
+                    [tuition_requested] => 0
+                    [stipend_requested] => 0
+                )
+
+            [2] => Array
+                (
+                    [personnel_type] => ugrad
+                    [html_table_id] => ugrads
+                    [personnel_id] => 3
+                    [percent_effort] => 23
+                    [tuition_requested] => 1
+                    [stipend_requested] => 1
+                )
+
+        )
+
+    [travels] => Array
+        (
+        )
+
+    [items] => Array
+        (
+        )
+
+    [subawards] => Array
+        (
+        )
+
+)
+
+[11-Dec-2025 06:15:49 Europe/Berlin] Payload: Array
+(
+    [budget_id] => 23
+    [budget_name] => New Budget
+    [funding_source] => 
+    [start_date] => 2025-12-10
+    [end_date] => 2025-12-10
+    [personnel] => Array
+        (
+            [0] => Array
+                (
+                    [personnel_type] => staff
+                    [html_table_id] => pi-table
+                    [personnel_id] => 0
+                    [percent_effort] => 0
+                    [tuition_requested] => 0
+                    [stipend_requested] => 0
+                )
+
+        )
+
+    [travels] => Array
+        (
+        )
+
+    [items] => Array
+        (
+        )
+
+    [subawards] => Array
+        (
+        )
+
+)
+
+[11-Dec-2025 06:17:43 Europe/Berlin] Payload: Array
+(
+    [budget_id] => 23
+    [budget_name] => New Budget
+    [funding_source] => 
+    [start_date] => 2025-12-10
+    [end_date] => 2025-12-10
+    [personnel] => Array
+        (
+            [0] => Array
+                (
+                    [personnel_type] => staff
+                    [html_table_id] => pi-table
+                    [personnel_id] => 0
+                    [percent_effort] => 0
+                    [tuition_requested] => 0
+                    [stipend_requested] => 0
+                )
+
+        )
+
+    [travels] => Array
+        (
+        )
+
+    [items] => Array
+        (
+        )
+
+    [subawards] => Array
+        (
+        )
+
+)
+
+[11-Dec-2025 06:17:54 Europe/Berlin] Payload: Array
+(
+    [budget_id] => 23
+    [budget_name] => New Budget
+    [funding_source] => 
+    [start_date] => 2025-12-10
+    [end_date] => 2025-12-10
+    [personnel] => Array
+        (
+            [0] => Array
+                (
+                    [personnel_type] => staff
+                    [html_table_id] => pi-table
+                    [personnel_id] => 0
+                    [percent_effort] => 0
+                    [tuition_requested] => 0
+                    [stipend_requested] => 0
+                )
+
+        )
+
+    [travels] => Array
+        (
+        )
+
+    [items] => Array
+        (
+        )
+
+    [subawards] => Array
+        (
+            [0] => Array
+                (
+                    [subbudget_id] => 35
+                    [subaward_institution] => test
+                    [total_cost] => 0
+                )
+
+            [1] => Array
+                (
+                    [subbudget_id] => 36
+                    [subaward_institution] => best
+                    [total_cost] => 0
+                )
+
+        )
+
+)
+
+[11-Dec-2025 06:24:57 Europe/Berlin] PHP Fatal error:  Uncaught Error: mysqli_stmt object is already closed in C:\xampp\htdocs\EZBudgets\php\save_budget.php:163
+Stack trace:
+#0 C:\xampp\htdocs\EZBudgets\php\save_budget.php(163): mysqli_stmt->bind_param('si', 'test', 36)
+#1 {main}
+  thrown in C:\xampp\htdocs\EZBudgets\php\save_budget.php on line 163
+[11-Dec-2025 06:28:42 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'subbudget_id' in 'field list' in C:\xampp\htdocs\EZBudgets\php\get_subbudget.php:56
+Stack trace:
+#0 C:\xampp\htdocs\EZBudgets\php\get_subbudget.php(56): mysqli->prepare('SELECT id, subb...')
+#1 {main}
+  thrown in C:\xampp\htdocs\EZBudgets\php\get_subbudget.php on line 56
+[11-Dec-2025 06:31:43 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'subbudget_id' in 'field list' in C:\xampp\htdocs\EZBudgets\php\get_subbudget.php:90
+Stack trace:
+#0 C:\xampp\htdocs\EZBudgets\php\get_subbudget.php(90): mysqli->prepare('SELECT travel_i...')
+#1 {main}
+  thrown in C:\xampp\htdocs\EZBudgets\php\get_subbudget.php on line 90
+[11-Dec-2025 06:32:00 Europe/Berlin] PHP Warning:  Undefined array key "subbudget_institution" in C:\xampp\htdocs\EZBudgets\php\get_subbudget.php on line 142

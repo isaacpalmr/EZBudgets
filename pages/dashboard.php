@@ -1,10 +1,10 @@
 <?php
 session_start();
-include("db_connect.php");
+include("../php/db_connect.php");
 
 // Redirect if not logged in
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: ../php/login.php");
     exit();
 }
 
@@ -18,7 +18,7 @@ if (isset($_POST['create_budget'])) {
     $sql_insert = "INSERT INTO budgets (user_id, budget_name) VALUES ($user_id, '$budget_name')";
     if ($conn->query($sql_insert) === TRUE) {
         $new_budget_id = $conn->insert_id;
-        header("Location: main.php?budget_id=$new_budget_id");
+        header("Location: edit_budget.php?budget_id=$new_budget_id");
         exit();
     } else {
         $message = "Error creating budget: " . $conn->error;
@@ -28,8 +28,18 @@ if (isset($_POST['create_budget'])) {
 // Handle budget deletion
 if (isset($_POST['delete_budget'])) {
     $delete_id = intval($_POST['delete_budget']);
-    $sql_delete = "DELETE FROM budgets WHERE budget_id = $delete_id AND user_id = $user_id";
-    if ($conn->query($sql_delete) === TRUE) {
+
+    // Delete all subawards for this budget
+    $stmtSub = $conn->prepare("DELETE FROM subbudgets WHERE prime_budget_id = ?");
+    $stmtSub->bind_param("i", $delete_id);
+    $stmtSub->execute();
+    $stmtSub->close();
+
+    // Now delete the budget itself
+    $stmtBudget = $conn->prepare("DELETE FROM budgets WHERE budget_id = ? AND user_id = ?");
+    $stmtBudget->bind_param("ii", $delete_id, $user_id);
+    if ($stmtBudget->execute()) {
+        $stmtBudget->close();
         header("Location: dashboard.php");
         exit();
     } else {
@@ -154,7 +164,8 @@ $result = $conn->query($sql);
         Modify Database ⚠️
     </a>
 
-    <form action="logout.php" method="POST">
+
+    <form style="display:inline;" action="../php/logout.php" method="POST">
         <button class="logout-btn" type="submit">Logout</button>
     </form>
 </div>
@@ -169,14 +180,14 @@ if ($result && $result->num_rows > 0) {
         echo "<li>
                 <span>$budget_name</span>
                 <div class='buttons'>
-                    <a href='main.php?budget_id=$budget_id'>
+                    <a href='edit_budget.php?budget_id=$budget_id'>
                         <button type='button' class='budget-btn'>
-                            <img src='Images/pencil.png' width='16' height='16' alt='Edit'>
+                            <img src='../images/pencil.png' width='16' height='16' alt='Edit'>
                         </button>
                     </a>
                     <form method='POST'>
                         <button type='submit' name='delete_budget' value='$budget_id' class='delete-btn'>
-                            <img src='Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png' width='16' height='16' alt='Delete'>
+                            <img src='../images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png' width='16' height='16' alt='Delete'>
                         </button>
                     </form>
                 </div>

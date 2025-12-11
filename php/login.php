@@ -1,4 +1,4 @@
-<?php include("db_connect.php"); session_start(); ?>
+<?php require_once "db_connect.php"; session_start(); ?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -54,6 +54,6 @@
     }
     ?>
 
-    <p>Not a user yet? <a href="index.php">Register now!</a></p>
+    <p>Not a user yet? <a href="../pages/index.php">Register now!</a></p>
 </body>
 </html>

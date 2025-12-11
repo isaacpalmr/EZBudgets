@@ -58,6 +58,6 @@
     }
     ?>
 
-    <p>Already a user? <a href="login.php">Login here</a>.</p>
+    <p>Already a user? <a href="../php/login.php">Login here</a>.</p>
 </body>
 </html>
