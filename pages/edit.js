@@ -902,9 +902,10 @@ async function loadBudget() {
         }
         
         // --- Populate subawards table ---
-        console.log("populating subawards table")
+        console.log("populating subawards table.")
         const subawardsTable = document.getElementById("subawards");
         if (subawardsTable) {
+            console.log("populating subawards table. subawards:", subawards)
             for (const s of subawards) {
                 console.log("populating subawards table. s:", s)
 
@@ -912,10 +913,10 @@ async function loadBudget() {
                 if (s.subbudget_id) row.dataset.subbudget_id = s.subbudget_id;
 
                 const nameEl = row.querySelector(".name");
-                console.log("populating subawards table. name element content before:", nameEl.textContent)
+                console.log("populating subawards table. name element content before:", nameEl.value)
                 if (nameEl) {
                     nameEl.value = s.subaward_institution ?? "";
-                    console.log("populating subawards table. name element content after:", nameEl.textContent)
+                    console.log("populating subawards table. name element content after:", nameEl.value)
                 }
                 
                 const totalCostEl = row.querySelector(".total-cost");
