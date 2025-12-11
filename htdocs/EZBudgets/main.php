@@ -131,17 +131,6 @@ if ($conn->connect_error) {
         .option {
             z-index: 9999; 
         }
-
-        #right-side {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-
-            position: sticky;
-            top: 50%;                /* middle of viewport */
-            transform: translateY(-50%);  /* shift it up by half its own height */
-        }
-
         #downloadspreadsheet {
             margin-top: 50px;
         }
@@ -179,6 +168,128 @@ if ($conn->connect_error) {
         #budget-dates > * {
             margin: 0px 10px;
         }
+        table {
+            border-collapse: separate;
+            border-spacing: 0 5px; 
+            width: 100%;
+        }
+
+        tr {
+            border: 1px solid #ccc;
+            background-color: #fff; 
+        }
+
+        td, th {
+            border: 1px solid #ccc;
+            padding: 8px 10px;
+        }
+        .button-cell {
+            padding: 0;
+            border: none; 
+            background: transparent;
+            width: 1px;
+        }
+
+        .rem_row {
+            all: unset;
+            cursor: pointer;
+            display: inline-flex;     
+            align-items: center;
+            justify-content: center;
+            border-radius: 3px;
+            width: 28px;
+            height: 28px;
+            background-color: rgb(255, 82, 82); 
+            border: 1px solid #d9534f;
+            padding: 0;
+            transition: transform 0.1s, filter 0.1s;
+            margin-left: 0px;
+        }
+
+        .rem_row img {
+            display: block;
+            pointer-events: none;
+        }
+
+        .rem_row:hover {
+            filter: brightness(85%);
+            transform: scale(1.05);
+        }
+        .table-card {
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 6px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 15px; 
+            margin-bottom: 30px;
+        }
+
+        .table-card table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table-card th, .table-card td {
+            border: 1px solid #ccc;
+            padding: 8px 10px;
+            text-align: center;
+        }
+
+        .table-card th {
+            background-color: #f5f5f5;
+        }
+
+        .add_row {
+            background-color: rgb(1, 255, 136);
+        }
+        #right-side {
+            position: fixed;
+            top: 50%;
+            right: 90px;
+            transform: translateY(-50%);
+            min-width: 300px;
+            max-width: 100%;
+            width: max-content;
+            max-height: 400px;
+            overflow-y: auto;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 8px 12px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+            font-family: 'Open Sans';
+            font-size: 0.9em;
+            color: #333;
+            z-index: 100;
+        }
+
+        #right-side table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        #right-side caption {
+            caption-side: top;
+            text-align: center;
+            font-weight: 600;
+            color: #333;
+            padding-bottom: 4px;
+            margin-bottom: 0;
+        }
+
+        #right-side thead th {
+            background-color: #eee; 
+            color: #333;     
+            font-weight: 700;       
+            padding: 4px 6px;
+            text-align: center;
+        }
+
+        #right-side tbody td {
+            padding: 2px 6px;
+            text-align: right;
+        }
+
     </style>
 </head>
 
@@ -236,164 +347,161 @@ if ($conn->connect_error) {
         </div>
         
         <div id="tables">
-            <div id="user_tables" style="text-align: center;">
-                <div>
-                    <table id="pi-table">
-                        <caption>
-                            Principle investigators
-                            <button class="add_row" style="background-color: rgb(1, 255, 136); border-width: 1px; margin-top: 20px;">
-                                <img src="Images/add_circle_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png"
-                                width="24" height="24">
-                            </button>
-                        </caption>
-                        <thead>
-                            <tr>
-                                <th>Type</th>
-                                <th>Name</th>
-                                <th>Title</th>
-                                <th>Percent Effort<br><i style="font-weight: normal;  font-size: 0.85em;">of 40 hr week</i></th>
-                                <th>Salary</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                </div>
-                
-                <div>
-                    <table id="pro-staff">
-                        <caption>
-                            UI professional staff
-                            <button class="add_row" style="background-color: rgb(1, 255, 136); border-width: 1px; margin-top: 20px;">
-                                <img src="Images/add_circle_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png"
-                                width="24" height="24">
-                            </button>
-                        </caption>
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Title</th>
-                                <th>Percent Effort<br><i style="font-weight: normal;  font-size: 0.85em;">of 40 hr week</i></th>
-                                <th>Salary</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                </div>
-                
-                <div>
-                    <table id="post-docs">
-                        <caption>
-                            Post doctoral researchers
-                            <button class="add_row" style="background-color: rgb(1, 255, 136); border-width: 1px; margin-top: 20px;">
-                                <img src="Images/add_circle_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png"
-                                width="24" height="24">
-                            </button>
-                        </caption>
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Percent Effort<br><i style="font-weight: normal;  font-size: 0.85em;">of 40 hr week</i></th>
-                                <th>Stipend<br><i style="font-weight: normal;  font-size: 0.85em;">per academic year</i></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                </div>
-                
-                <div>
-                    <table id="gras">
-                        <caption>
-                            Graduate research assistants
-                            <button class="add_row" style="background-color: rgb(1, 255, 136); border-width: 1px; margin-top: 20px;">
-                                <img src="Images/add_circle_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png"
-                                width="24" height="24">
-                            </button>
-                        </caption>
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Percent Effort<br><i style="font-weight: normal;  font-size: 0.85em;">of 40 hr week, 50% max</i></th>
-                                <th>Stipend<br><i style="font-weight: normal;  font-size: 0.85em;">per academic year</i></th>
-                                <th>Tuition<br><i style="font-weight: normal;  font-size: 0.85em;">per academic year</i></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                </div>
-                
-                <div>
-                    <table id="ugrads">
-                        <caption>
-                            Undergraduate research assistants
-                            <button class="add_row" style="background-color: rgb(1, 255, 136); border-width: 1px; margin-top: 20px;">
-                                <img src="Images/add_circle_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png"
-                                width="24" height="24">
-                            </button>
-                        </caption>
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Percent Effort<br><i style="font-weight: normal;  font-size: 0.85em;">of 40 hr week, 50% max</i></th>
-                                <th>Stipend<br><i style="font-weight: normal;  font-size: 0.85em;">per academic year</i></th>
-                                <th>Tuition<br><i style="font-weight: normal;  font-size: 0.85em;">per academic year</i></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                </div>
+        <div id="user_tables" style="text-align: center;">
 
-                <div>
-                    <table id="travel">
-                        <caption>
-                            Travel
-                            <button class="add_row" style="background-color: rgb(1, 255, 136); border-width: 1px; margin-top: 20px;">
-                                <img src="Images/add_circle_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png"
-                                width="24" height="24">
-                            </button>
-                        </caption>
-                        <thead>
-                            <tr>
-                                <th>Travel Type</th>
-                                <th>Per Diem</th>
-                                <th>Airfare</th>
-                                <th>Number of Nights</th>
-                                <th>Number of Travelers</th>
-                                <th>Trip Total Cost</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div>
-                    <table id="itemized-costs">
-                        <caption>
-                            Itemized costs
-                            <button class="add_row" style="background-color: rgb(1, 255, 136); border-width: 1px; margin-top: 20px;">
-                                <img src="Images/add_circle_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png"
-                                width="24" height="24">
-                            </button>
-                        </caption>
-                        <thead>
-                            <tr>
-                                <th>Type</th>
-                                <th>Name</th>
-                                <th>Quantity</th>
-                                <th>Unit Cost</th>
-                                <th>Total Cost</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                </div>
+            <div class="table-card">
+                <table id="pi-table">
+                    <caption>
+                        Principle investigators
+                        <button class="add_row">
+                            <img src="Images/add_circle_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
+                        </button>
+                    </caption>
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Name</th>
+                            <th>Title</th>
+                            <th>Percent Effort<br><i style="font-weight: normal;  font-size: 0.85em;">of 40 hr week</i></th>
+                            <th>Salary</th>
+                            <th>Remove</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
             </div>
+
+            <div class="table-card">
+                <table id="pro-staff">
+                    <caption>
+                        UI professional staff
+                        <button class="add_row">
+                            <img src="Images/add_circle_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
+                        </button>
+                    </caption>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Title</th>
+                            <th>Percent Effort<br><i style="font-weight: normal;  font-size: 0.85em;">of 40 hr week</i></th>
+                            <th>Salary</th>
+                            <th>Remove</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div class="table-card">
+                <table id="post-docs">
+                    <caption>
+                        Post doctoral researchers
+                        <button class="add_row">
+                            <img src="Images/add_circle_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
+                        </button>
+                    </caption>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Percent Effort<br><i style="font-weight: normal;  font-size: 0.85em;">of 40 hr week</i></th>
+                            <th>Stipend<br><i style="font-weight: normal;  font-size: 0.85em;">per academic year</i></th>
+                            <th>Remove</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div class="table-card">
+                <table id="gras">
+                    <caption>
+                        Graduate research assistants
+                        <button class="add_row">
+                            <img src="Images/add_circle_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
+                        </button>
+                    </caption>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Percent Effort<br><i style="font-weight: normal;  font-size: 0.85em;">of 40 hr week, 50% max</i></th>
+                            <th>Stipend<br><i style="font-weight: normal;  font-size: 0.85em;">per academic year</i></th>
+                            <th>Tuition<br><i style="font-weight: normal;  font-size: 0.85em;">per academic year</i></th>
+                            <th>Remove</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div class="table-card">
+                <table id="ugrads">
+                    <caption>
+                        Undergraduate research assistants
+                        <button class="add_row">
+                            <img src="Images/add_circle_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
+                        </button>
+                    </caption>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Percent Effort<br><i style="font-weight: normal;  font-size: 0.85em;">of 40 hr week, 50% max</i></th>
+                            <th>Stipend<br><i style="font-weight: normal;  font-size: 0.85em;">per academic year</i></th>
+                            <th>Tuition<br><i style="font-weight: normal;  font-size: 0.85em;">per academic year</i></th>
+                            <th>Remove</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div class="table-card">
+                <table id="travel">
+                    <caption>
+                        Travel
+                        <button class="add_row">
+                            <img src="Images/add_circle_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
+                        </button>
+                    </caption>
+                    <thead>
+                        <tr>
+                            <th>Travel Type</th>
+                            <th>Per Diem</th>
+                            <th>Airfare</th>
+                            <th>Number of Nights</th>
+                            <th>Number of Travelers</th>
+                            <th>Trip Total Cost</th>
+                            <th>Remove</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div class="table-card">
+                <table id="itemized-costs">
+                    <caption>
+                        Itemized costs
+                        <button class="add_row">
+                            <img src="Images/add_circle_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
+                        </button>
+                    </caption>
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Name</th>
+                            <th>Quantity</th>
+                            <th>Unit Cost</th>
+                            <th>Total Cost</th>
+                            <th>Remove</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
 
             <div id="right-side">
                 <div id="yearly_costs">
@@ -434,191 +542,163 @@ if ($conn->connect_error) {
         window.currentBudgetId = currentBudgetId;
 
         const templateRows = {
-            "pi-table": `
-                <tr>
-                    <td class="type">Co-PI</td>
-                    <td>
-                        <select class="staff-picker" data-filter="pi">
-                            <option value="">Select Co-PI</option>
-                        </select>
-                    </td>
-                    <td class="title">—</td>
-                    <td><input class="percent-effort" type="number" value="0" min="0" max="100"></td>
-                    <td class="salary">$0.00</td>
-                    <td>
-                        <button class="rem_row" style="background-color: rgb(255, 82, 82); border-width: 1px;">
-                            <img src="Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
-                        </button>
-                    </td>
-                </tr>
-            `,
-            "pro-staff": `
-                <tr>
-                    <td>
-                        <select class="staff-picker" data-filter="pro-staff">
-                            <option value="">Select Pro Staff</option>
-                        </select>
-                    </td>
-                    <td class="title">—</td>
-                    <td><input class="percent-effort" type="number" value="0" min="0" max="100"></td>
-                    <td class="salary">$0.00</td>
-                    <td>
-                        <button class="rem_row" style="background-color: rgb(255, 82, 82); border-width: 1px;">
-                            <img src="Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
-                        </button>
-                    </td>
-                </tr>
-            `,
-            "post-docs": `
-                <tr>
-                    <td>
-                        <select class="staff-picker" data-filter="post-doc">
-                            <option value="">Select Post Doc</option>
-                        </select>
-                    </td>
-                    <td><input class="percent-effort" type="number" value="0" min="0" max="100"></td>
-                    <td class="stipend-amount"><p>$0.00<p></td>
-                    <td>
-                        <button class="rem_row" style="background-color: rgb(255, 82, 82); border-width: 1px;">
-                            <img src="Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
-                        </button>
-                    </td>
-                </tr>
-            `,
-            "gras": `
-                <tr>
-                    <td>
-                        <select class="staff-picker" data-filter="gra">
-                            <option value="">Select GRA</option>
-                        </select>
-                    </td>
-                    <td><input class="percent-effort" type="number" value="0" min="0" max="50" disabled></td>
-                    <td class="stipend-amount">
-                        <p style="margin: 0; padding: 0">$0.00</p>
+    "pi-table": `
+        <tr>
+            <td class="type">Co-PI</td>
+            <td>
+                <select class="staff-picker" data-filter="pi">
+                    <option value="">Select Co-PI</option>
+                </select>
+            </td>
+            <td class="title">—</td>
+            <td><input class="percent-effort" type="number" value="0" min="0" max="100"></td>
+            <td class="salary">$0.00</td>
+            <td class="button-cell">
+                <button class="rem_row">
+                    <img src="Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
+                </button>
+            </td>
+        </tr>
+    `,
+    "pro-staff": `
+        <tr>
+            <td>
+                <select class="staff-picker" data-filter="pro-staff">
+                    <option value="">Select Pro Staff</option>
+                </select>
+            </td>
+            <td class="title">—</td>
+            <td><input class="percent-effort" type="number" value="0" min="0" max="100"></td>
+            <td class="salary">$0.00</td>
+            <td class="button-cell">
+                <button class="rem_row">
+                    <img src="Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
+                </button>
+            </td>
+        </tr>
+    `,
+    "post-docs": `
+        <tr>
+            <td>
+                <select class="staff-picker" data-filter="post-doc">
+                    <option value="">Select Post Doc</option>
+                </select>
+            </td>
+            <td><input class="percent-effort" type="number" value="0" min="0" max="100"></td>
+            <td class="stipend-amount"><p>$0.00</p></td>
+            <td class="button-cell">
+                <button class="rem_row">
+                    <img src="Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
+                </button>
+            </td>
+        </tr>
+    `,
+    "gras": `
+        <tr>
+            <td>
+                <select class="staff-picker" data-filter="gra">
+                    <option value="">Select GRA</option>
+                </select>
+            </td>
+            <td><input class="percent-effort" type="number" value="0" min="0" max="50" disabled></td>
+            <td class="stipend-amount">
+                <p style="margin:0; padding:0;">$0.00</p>
+                <label class="include-label">
+                    <input class="include-check" type="checkbox">
+                    Include?
+                </label>
+            </td>
+            <td class="tuition-amount">
+                <p style="margin:0; padding:0;">$0.00</p>
+                <label class="include-label">
+                    <input class="include-check" type="checkbox">
+                    Include?
+                </label>
+            </td>
+            <td class="button-cell">
+                <button class="rem_row">
+                    <img src="Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
+                </button>
+            </td>
+        </tr>
+    `,
+    "ugrads": `
+        <tr>
+            <td>
+                <select class="staff-picker" data-filter="ugrad">
+                    <option value="">Select UGrad</option>
+                </select>
+            </td>
+            <td><input class="percent-effort" type="number" value="0" min="0" max="50" disabled></td>
+            <td class="stipend-amount">
+                <p style="margin:0; padding:0;">$0.00</p>
+                <label class="include-label">
+                    <input class="include-check" type="checkbox">
+                    Include?
+                </label>
+            </td>
+            <td class="tuition-amount">
+                <p style="margin:0; padding:0;">$0.00</p>
+                <label class="include-label">
+                    <input class="include-check" type="checkbox">
+                    Include?
+                </label>
+            </td>
+            <td class="button-cell">
+                <button class="rem_row">
+                    <img src="Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
+                </button>
+            </td>
+        </tr>
+    `,
+    "travel": `
+        <tr>
+            <td>
+                <select class="type">
+                    <option value="">Select Travel Type</option>
+                    <option value="Domestic">Domestic</option>
+                    <option value="International">International</option>
+                </select>
+            </td>
+            <td class="per-diem">$0.00</td>
+            <td class="airfare">$0.00</td>
+            <td><input class="num-nights" type="number" value="0" min="0" max="0"></td>
+            <td><input class="num-travelers" type="number" value="0" min="0"></td>
+            <td class="total-cost">$0.00</td>
+            <td class="button-cell">
+                <button class="rem_row">
+                    <img src="Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
+                </button>
+            </td>
+        </tr>
+    `,
+    "itemized-costs": `
+        <tr>
+            <td>
+                <select class="type">
+                    <option value="">Select Item Type</option>
+                    <option value="Equipment">Equipment</option>
+                    <option value="Materials & Supplies">Materials & Supplies</option>
+                    <option value="Publication Costs">Publication Costs</option>
+                    <option value="Computer Services">Computer Services</option>
+                    <option value="Software">Software</option>
+                    <option value="Facility Useage Fees">Facility Useage Fees</option>
+                    <option value="Conference Registration">Conference Registration</option>
+                </select>
+            </td>
+            <td><input class="name" type="text"></td>
+            <td><input class="quantity" type="number" value="0" min="0"></td>
+            <td><input class="unit-cost" type="number" value="0" min="0"></td>
+            <td class="total-cost">$0.00</td>
+            <td class="button-cell">
+                <button class="rem_row">
+                    <img src="Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
+                </button>
+            </td>
+        </tr>
+    `
+}
 
-                        <label class="include-label">
-                            <input class="include-check" type="checkbox">
-                            Include?
-                        </label>
-                    </td>
-                    <td class="tuition-amount">
-                        <p style="margin: 0; padding: 0">$0.00</p>
-
-                        <label class="include-label">
-                            <input class="include-check" type="checkbox">
-                            Include?
-                        </label>
-                    </td>
-                    <td>
-                        <button class="rem_row" style="background-color: rgb(255, 82, 82); border-width: 1px;">
-                            <img src="Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
-                        </button>
-                    </td>
-                </tr>
-            `,
-            "ugrads": `
-                <tr>
-                    <td>
-                        <select class="staff-picker" data-filter="ugrad">
-                            <option value="">Select UGrad</option>
-                        </select>
-                    </td>
-                    <td><input class="percent-effort" type="number" value="0" min="0" max="50" disabled></td>
-                    <td class="stipend-amount">
-                        <p style="margin: 0; padding: 0">$0.00</p>
-
-                        <label class="include-label">
-                            <input class="include-check" type="checkbox">
-                            Include?
-                        </label>
-                    </td>
-                    <td class="tuition-amount">
-                        <p style="margin: 0; padding: 0">$0.00</p>
-
-                        <label class="include-label">
-                            <input class="include-check" type="checkbox">
-                            Include?
-                        </label>
-                    </td>
-                    <td>
-                        <button class="rem_row" style="background-color: rgb(255, 82, 82); border-width: 1px;">
-                            <img src="Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
-                        </button>
-                    </td>
-                </tr>
-            `,
-            "travel": `
-                <tr>
-                    <td>
-                        <select class="type">
-                            <option value="">Select Travel Type</option>
-                            <option value="Domestic">Domestic</option>
-                            <option value="International">International</option>
-                        </select>
-                    </td>
-                    <td class="per-diem">$0.00</td>
-                    <td class="airfare">$0.00</td>
-                    <td><input class="num-nights" type="number" value="0" min="0" max="0"></td>
-                    <td><input class="num-travelers" type="number" value="0" min="0"></td>
-                    <td class="total-cost">$0.00</td>
-                    <td>
-                        <button class="rem_row" style="background-color: rgb(255, 82, 82); border-width: 1px;">
-                            <img src="Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
-                        </button>
-                    </td>
-                </tr>
-            `,
-            "itemized-costs": `
-                <tr>
-                    <td>
-                        <select class="type">
-                            <option value="">Select Item Type</option>
-                            <option value="Equipment">Equipment</option>
-                            <option value="Materials & Supplies">Materials & Supplies</option>
-                            <option value="Publication Costs">Publication Costs</option>
-                            <option value="Computer Services">Computer Services</option>
-                            <option value="Software">Software</option>
-                            <option value="Facility Useage Fees">Facility Useage Fees</option>
-                            <option value="Conference Registration">Conference Registration</option>
-                        </select>
-                    </td>
-                    <td><input class="name" type="text"></td>
-                    <td><input class="quantity" type="number" value="0" min="0"></td>
-                    <td><input class="unit-cost" type="number" value="0" min="0"></td>
-                    <td class="total-cost">$0.00</td>
-                    <td>
-                        <button class="rem_row" style="background-color: rgb(255, 82, 82); border-width: 1px;">
-                            <img src="Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
-                        </button>
-                    </td>
-                </tr>
-            `,
-            "itemized-costs": `
-                <tr>
-                    <td>
-                        <select class="type">
-                            <option value="">Select Item Type</option>
-                            <option value="Equipment">Equipment</option>
-                            <option value="Materials & Supplies">Materials & Supplies</option>
-                            <option value="Publication Costs">Publication Costs</option>
-                            <option value="Computer Services">Computer Services</option>
-                            <option value="Software">Software</option>
-                            <option value="Facility Useage Fees">Facility Useage Fees</option>
-                            <option value="Conference Registration">Conference Registration</option>
-                        </select>
-                    </td>
-                    <td><input class="name" type="text"></td>
-                    <td><input class="quantity" type="number" value="0" min="0"></td>
-                    <td><input class="unit-cost" type="number" value="0" min="0"></td>
-                    <td class="total-cost">$0.00</td>
-                    <td>
-                        <button class="rem_row" style="background-color: rgb(255, 82, 82); border-width: 1px;">
-                            <img src="Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
-                        </button>
-                    </td>
-                </tr>
-            `,
-        }
 
         const tableIdToPersonnelType = {
             "pi-table": "staff",
