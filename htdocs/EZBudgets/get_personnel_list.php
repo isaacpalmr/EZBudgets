@@ -1,14 +1,14 @@
 <?php
 $conn = new mysqli("localhost", "root", "", "ezbudgets");
 
-$filter = $_GET['filter'] ?? '';
+$html_table_id = $_GET['html_table_id'] ?? '';
 
-switch ($filter) {
-    case 'pi':
+switch ($html_table_id) {
+    case 'pi-table':
         $sql = "SELECT staff_id AS id, name FROM university_employee";
         break;
 
-    case 'post-doc':
+    case 'post-docs':
         $sql = "SELECT postdoc_id AS id, name FROM post_doctoral_researchers ORDER BY name ASC";
         break;
 
@@ -17,16 +17,12 @@ switch ($filter) {
                 WHERE staff_title <> 'Faculty' ORDER BY name ASC";
         break;
 
-    case 'gra':
+    case 'gras':
         $sql = "SELECT gra_id AS id, name FROM graduate_research_assistants ORDER BY name ASC";
         break;
     
-    case 'ugrad':
+    case 'ugrads':
         $sql = "SELECT ugra_id AS id, name FROM undergraduate_research_assistants ORDER BY name ASC";
-        break;
-    
-    case 'student':
-        $sql = "SELECT student_id AS id, name FROM students ORDER BY name ASC";
         break;
 
     default:

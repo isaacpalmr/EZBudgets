@@ -19,7 +19,7 @@ if (isset($_POST['create_budget'])) {
     $sql_insert = "INSERT INTO budgets (user_id, budget_name) VALUES ($user_id, '$budget_name')";
     if ($conn->query($sql_insert) === TRUE) {
         $new_budget_id = $conn->insert_id;
-        header("Location: PI.php?budget_id=$new_budget_id");
+        header("Location: main.php?budget_id=$new_budget_id");
         exit();
     } else {
         $message = "Error creating budget: " . $conn->error;
@@ -112,7 +112,7 @@ $result = $conn->query($sql);
                     $budget_name
 
                     <!-- Edit Button -->
-                    <a href='PI.php?budget_id=$budget_id' style='display:inline-block; margin-left: 10px; vertical-align: middle;'>
+                    <a href='main.php?budget_id=$budget_id' style='display:inline-block; margin-left: 10px; vertical-align: middle;'>
                         <button type='button' style='background-color: rgb(255, 235, 59); border: 1px solid black; border-radius: 0; width: 24px; height: 24px; display: flex; justify-content: center; align-items: center; padding: 0; cursor: pointer;'>
                             <img src='Images/pencil.png' width='16' height='16' alt='Edit' style='display:block; margin:0;'>
                         </button>

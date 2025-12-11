@@ -429,231 +429,9 @@ if ($conn->connect_error) {
     <!-- <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script> -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
     <script>
-        async function fetchJson(url, opts = {}) {
-            const resp = await fetch(url, opts);
-            const text = await resp.text();
-            // Helpful debug: if response isn't JSON this logs the raw server output
-            try {
-                return JSON.parse(text);
-            } catch (e) {
-                console.error(`Invalid JSON from ${url} — response text:\n`, text);
-                // rethrow something helpful to your existing try/catch
-                throw new Error('Invalid JSON from server (see console for server output)');
-            }
-        }
-
-        // At the very top of your existing <script> in PI.php
+        // At the very top of your existing <script> in main.php
         const currentBudgetId = <?php echo isset($_GET['budget_id']) ? intval($_GET['budget_id']) : 0; ?>;
         window.currentBudgetId = currentBudgetId;
-
-        //BUDGET LOAD HANDLER
-        // --- loadBudget + on-ready hookup (replace the old version) ---
-        async function loadBudget(budgetId) {
-            if (!budgetId) return;
-
-            try {
-                // const resp = await fetch(`get_budget.php?budget_id=${budgetId}`);
-                // const data = await resp.json();
-                const data = await fetchJson(`get_budget.php?budget_id=${budgetId}`);
-
-                if (!data.success) throw new Error(data.error || "Budget not found");
-
-                    const budget = data.budget || {};
-                    const personnel = data.personnel || [];
-                    const travels = data.travels || [];
-                    const items = data.items || [];
-
-
-                    // Set global budget ID
-                    window.currentBudgetId = parseInt(budget.budget_id || budgetId || window.currentBudgetId || 0);
-
-                    // Populate top-level fields
-                    budgetTitle.value = budget.budget_name ?? "";
-                    budgetFundingSource.value = budget.funding_source ?? "";
-                    budgetStartDate.value = budget.start_date ?? "";
-                    budgetEndDate.value = budget.end_date ?? "";
-
-                    // Recompute number of years (will recreate yearly-costs columns)
-                    onNumBudgetYearsChanged();
-
-                    // Table mapping: personnel_type -> table id
-                    const personnelMap = {
-                        "PI": "pi-table",
-                        "staff": "pro-staff",
-                        "postdoc": "post-docs",
-                        "grad_assistant": "gras",
-                        "undergrad_assistant": "ugrads",
-                    };
-
-                    // Clear all tables
-                    Object.values(personnelMap).forEach(tid => {
-                        const t = document.getElementById(tid);
-                        if (t) t.querySelector("tbody").innerHTML = "";
-                    });
-                    
-
-                    // Helper functions to fire events
-                    const fireChange = el => el.dispatchEvent(new Event('change', { bubbles: true }));
-                    const fireInput = el => el.dispatchEvent(new Event('input', { bubbles: true }));
-                    
-                    // Populate personnel rows
-                    for (const p of personnel) {
-                        const tid = personnelMap[p.personnel_type] || "pro-staff";
-                        const table = document.getElementById(tid);
-                        if (!table) continue;
-
-                        const row = addRow(table);
-                        const select = row.querySelector(".staff-picker");
-
-                        // Only for PI/pro-staff do we simulate selection with TomSelect
-                        if (select && select.tom && (p.personnel_type === "PI" || p.personnel_type === "staff")) {
-                            select.tom.addOption({ value: String(p.personnel_id), text: p.name });
-
-                            // Defer setValue to allow TomSelect to fully initialize
-                            setTimeout(() => {
-                                select.tom.setValue(String(p.personnel_id));
-
-                                onStaffPickerSelect(row);
-                            }, 0);
-                        } else if (select) {
-                            // Other tables: just set the raw value
-                            const opt = document.createElement("option");
-                            opt.value = p.personnel_id;
-                            opt.textContent = p.name;
-                            select.appendChild(opt);
-                            select.value = p.personnel_id;
-                            fireChange(select);
-                        }
-
-                        // Percent Effort
-                        const percentEl = row.querySelector(".percent-effort");
-                        if (percentEl) {
-                            percentEl.disabled = false;
-                            percentEl.value = p.percent_effort ?? 0;
-                        }
-
-                        // Stipend checkbox
-                        const stipendCheckbox = row.querySelector(".request-stipend");
-                        if (stipendCheckbox) {
-                            stipendCheckbox.checked = !!Number(p.stipend_requested);
-                            fireInput(stipendCheckbox);
-                        }
-
-                        // Stipend cell
-                        const stipendAmountEl = row.querySelector(".stipend-amount");
-                        if (stipendAmountEl) {
-                            if ('value' in stipendAmountEl) stipendAmountEl.value = p.stipend_amount ?? 0;
-                            else stipendAmountEl.textContent = toDollar(p.stipend_amount ?? 0);
-                        }
-                        onStaffPickerSelect(row);
-                    }
-
-                    // Clear travel and itemized-costs tables (use the actual IDs from your HTML)
-                    ["travel", "itemized-costs"].forEach(tid => {
-                        const t = document.getElementById(tid);
-                        if (t) t.querySelector("tbody").innerHTML = "";
-                    });
-
-                    const travelTableEl = document.getElementById("travel");
-                    if (travelTableEl) {
-                        for (const t of travels) {
-                            const row = addRow(travelTableEl);                    // <-- pass the table
-                            const typeSelect = row.querySelector("select.type") || row.querySelector(".type");
-                            if (typeSelect) typeSelect.value = t.travel_type || "";
-
-                            const nightsEl = row.querySelector(".num-nights");
-                            if (nightsEl) nightsEl.value = (t.num_nights ?? 0);
-
-                            const travelersEl = row.querySelector(".num-travelers");
-                            if (travelersEl) travelersEl.value = (t.num_travelers ?? 0);
-
-                            // store id (optional) and recompute cost display
-                            if (t.id) row.dataset.travelId = t.id;
-                            const totalCostEl = row.querySelector(".total-cost");
-                            if (totalCostEl) totalCostEl.textContent = toDollar(calculateTotalTravelCostFromRow(row));
-                        }
-                    }
-
-                    // --- Populate Itemized Costs Table ---
-                    const itemsTableEl = document.getElementById("itemized-costs");
-                    if (itemsTableEl) {
-                        for (const i of items) {
-                            const row = addRow(itemsTableEl);  // pass table
-                            const itemSelect = row.querySelector("select.type");
-                            if (itemSelect) itemSelect.value = i.item_type ?? "";
-
-                            const nameEl = row.querySelector(".name");
-                            if (nameEl) nameEl.value = i.name ?? "";
-
-                            const qtyEl = row.querySelector(".quantity");
-                            if (qtyEl) qtyEl.value = i.quantity ?? 0;
-
-                            const unitCostEl = row.querySelector(".unit-cost");
-                            if (unitCostEl) unitCostEl.value = i.unit_cost ?? 0;
-
-                            if (i.id) row.dataset.itemId = i.id;
-                            const totalCostEl = row.querySelector(".total-cost");
-                            if (totalCostEl) totalCostEl.textContent = toDollar(calculateTotalItemCostFromRow(row));
-                        }
-                    }
-
-
-                    // Recalculate totals
-                    updateYearlyCosts();
-
-            } catch (err) {
-                console.error("Error loading budget:", err);
-                showError("Failed to load budget: " + (err.message || err));
-            }
-        }
-
-        /* // Call loadBudget on DOM ready — prefer currentBudgetId or budget_id query param
-        document.addEventListener("DOMContentLoaded", () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const queryBudgetId = urlParams.get("budget_id");
-            const effectiveId = Number(window.currentBudgetId || queryBudgetId || 0);
-                if (effectiveId > 0) {
-                    loadBudget(effectiveId);
-                }
-        });
-
-        // On page load
-        document.addEventListener("DOMContentLoaded", () => {
-            if (window.currentBudgetId) {
-                loadBudget(window.currentBudgetId);
-            } else {
-                // Optionally, check query string
-                const urlParams = new URLSearchParams(window.location.search);
-                const bid = urlParams.get("budget_id");
-                if (bid) loadBudget(bid);
-            }
-        }); */
-
-        document.addEventListener("DOMContentLoaded", () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const queryBudgetId = Number(urlParams.get("budget_id") || 0);
-            const effectiveId = Number(window.currentBudgetId || queryBudgetId);
-
-            if (effectiveId > 0) {
-                loadBudget(effectiveId)
-                .then(() => {
-                    // Updating/adding first PI row
-                    const piTable = document.querySelector("#pi-table");
-                    const piBody = piTable.querySelector("tbody");
-                    let piRow;
-                    if (piBody.children.length === 0) {
-                        piRow = addRow(piTable, 1);
-                    } else {
-                        piRow = piBody.firstElementChild;
-                    }
-                    piRow.querySelector(".type").textContent = "PI";
-                    const tom = piRow.querySelector(".staff-picker").tom
-                    tom.settings.placeholder = "Select PI";
-                    tom.inputState();
-                    piRow.lastElementChild.remove() // Remove the remove button
-                })
-            }
-        });
 
         const templateRows = {
             "pi-table": `
@@ -815,6 +593,31 @@ if ($conn->connect_error) {
                     </td>
                 </tr>
             `,
+            "itemized-costs": `
+                <tr>
+                    <td>
+                        <select class="type">
+                            <option value="">Select Item Type</option>
+                            <option value="Equipment">Equipment</option>
+                            <option value="Materials & Supplies">Materials & Supplies</option>
+                            <option value="Publication Costs">Publication Costs</option>
+                            <option value="Computer Services">Computer Services</option>
+                            <option value="Software">Software</option>
+                            <option value="Facility Useage Fees">Facility Useage Fees</option>
+                            <option value="Conference Registration">Conference Registration</option>
+                        </select>
+                    </td>
+                    <td><input class="name" type="text"></td>
+                    <td><input class="quantity" type="number" value="0" min="0"></td>
+                    <td><input class="unit-cost" type="number" value="0" min="0"></td>
+                    <td class="total-cost">$0.00</td>
+                    <td>
+                        <button class="rem_row" style="background-color: rgb(255, 82, 82); border-width: 1px;">
+                            <img src="Images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
+                        </button>
+                    </td>
+                </tr>
+            `,
         }
 
         const tableIdToPersonnelType = {
@@ -898,65 +701,23 @@ if ($conn->connect_error) {
                 staffPickerSelected.delete(lastStaffUniqueKey)
 
                 otherStaffPickers.forEach(otherSelect => {
-                    console.log("unhide", lastStaffName)
+                    // console.log("unhide", lastStaffName)
                     unhideStaffPickerOpt(otherSelect, lastStaffId, lastStaffName, lastStaffUniqueKey)})
             }
 
             if (!staffUniqueKey) {
-                const stipendAmount = row.querySelector(".stipend-amount p");
-                if (stipendAmount) {
-                    stipendAmount.textContent = toDollar(0);
-                }
-                
-                const tuitionAmount = row.querySelector(".tuition-amount p");
-                if (tuitionAmount) {
-                    tuitionAmount.textContent = toDollar(0);
-                }
-
-                const salary = row.querySelector(".salary");
-                if (salary) {
-                    salary.textContent = toDollar(0)
-                }
-
-                const title = row.querySelector(".title");
-                if (title) {
-                    title.textContent = "—";
-                }
-
-                updateYearlyCosts();
+                emptyData = {}
+                populatePersonnelRow(row, emptyData)
             } else {
                 staffPickerSelected.set(staffUniqueKey, [staffId, staffName, staffUniqueKey])
 
                 otherStaffPickers.forEach(otherSelect => {
-                    console.log("hide", staffName)
+                    // console.log("hide", staffName)
                     hideStaffPickerOpt(otherSelect, staffId, staffName, staffUniqueKey)})
 
                 fetch(`get_single_personnel.php?personnelType=${personnelType}&personnelId=${staffId}`)
                     .then(r => r.json())
-                    .then(data => {
-                        const stipendAmount = row.querySelector(".stipend-amount p");
-                        if (stipendAmount) {
-                            stipendAmount.textContent = toDollar(data.stipend_per_academic_year ?? 0);
-                        }
-
-                        const tuitionAmount = row.querySelector(".tuition-amount p");
-                        if (tuitionAmount) {
-                            tuitionAmount.textContent = toDollar(data.tuition_per_academic_year ?? 0);
-                            tuitionAmount.dataset.tuitionIncreasePct = data.projected_tuition_increase_pct ?? 0
-                        }
-
-                        const salary = row.querySelector(".salary");
-                        if (salary) {
-                            salary.textContent = toDollar(data.salary ?? 0)
-                        }
-
-                        const title = row.querySelector(".title");
-                        if (title) {
-                            title.textContent = data.staff_title ?? "—";
-                        }
-
-                        updateYearlyCosts();
-                    });
+                    .then(data => populatePersonnelRow(row, data))
             }
         }
 
@@ -979,7 +740,7 @@ if ($conn->connect_error) {
             const row = select.closest("tr");
             const filter = select.dataset.filter;
 
-            fetch(`get_personnel_list.php?filter=${filter}`)
+            return fetch(`get_personnel_list.php?html_table_id=${table.id}`)
                 .then(res => res.json())
                 .then(rows => {
                     rows.forEach(r => {
@@ -990,7 +751,7 @@ if ($conn->connect_error) {
                     });
 
                     Array.from(staffPickerSelected.values()).forEach(([staffId, staffName, staffUniqueKey]) => {
-                        console.log(staffId, staffName, staffUniqueKey)
+                        // console.log(staffId, staffName, staffUniqueKey)
                         hideStaffPickerOpt(select, staffId, staffName, staffUniqueKey)
                     })
                 });
@@ -1037,7 +798,7 @@ if ($conn->connect_error) {
         }
 
         // Adds a row to the table, appending if 'pos' is null
-        function addRow(table, pos) {
+        async function addRowAsync(table, pos) {
             const tbody = table.querySelector("tbody");
 
             if (pos && tbody.children.length > 0) {
@@ -1048,7 +809,7 @@ if ($conn->connect_error) {
             
             const staffPickerSelect = tbody.lastElementChild.querySelector(".staff-picker");
             if (staffPickerSelect) {
-                initializeStaffPicker(staffPickerSelect);
+                await initializeStaffPicker(staffPickerSelect);
             }
             
             const itemTypeSelect = tbody.lastElementChild.querySelector(".item-picker");
@@ -1287,6 +1048,31 @@ if ($conn->connect_error) {
             return totalTravelCosts;
         }
 
+        function populatePersonnelRow(row, data) {
+            const stipendAmount = row.querySelector(".stipend-amount p");
+            if (stipendAmount) {
+                stipendAmount.textContent = toDollar(data.stipend_per_academic_year ?? 0);
+            }
+
+            const tuitionAmount = row.querySelector(".tuition-amount p");
+            if (tuitionAmount) {
+                tuitionAmount.textContent = toDollar(data.tuition_per_academic_year ?? 0);
+                tuitionAmount.dataset.tuitionIncreasePct = data.projected_tuition_increase_pct ?? 0
+            }
+
+            const salary = row.querySelector(".salary");
+            if (salary) {
+                salary.textContent = toDollar(data.salary ?? 0)
+            }
+
+            const title = row.querySelector(".title");
+            if (title) {
+                title.textContent = data.staff_title ?? "—";
+            }
+
+            updateYearlyCosts();
+        }
+
         function updateYearlyCosts() {
             const totalItemizedCosts = getTotalItemizedCosts();
             const totalTravelCosts = getTotalTravelCosts();
@@ -1297,6 +1083,20 @@ if ($conn->connect_error) {
                         const td = yearlyCostsTableBodyRow.children[yearIndex];
                         td.textContent = toDollar(totalYearlyWages + totalItemizedCosts + totalTravelCosts);
                     });
+            }
+        }
+
+        function updateRowPercentEffortState(row) {
+            const stipendIncludeCheckbox = row.querySelector(".stipend-amount .include-check"); // As opposed to tuition type
+            if (!stipendIncludeCheckbox) return
+
+            const percentEffort = row.querySelector(".percent-effort");
+
+            if (stipendIncludeCheckbox.checked) {
+                percentEffort.disabled = false;
+            } else {
+                percentEffort.value = 0;
+                percentEffort.disabled = true;
             }
         }
 
@@ -1319,6 +1119,290 @@ if ($conn->connect_error) {
 
             return numYears;
             // GENERATED//
+        }
+
+        async function fetchJson(url, opts = {}) {
+            const resp = await fetch(url, opts);
+            const text = await resp.text();
+            // Helpful debug: if response isn't JSON this logs the raw server output
+            try {
+                return JSON.parse(text);
+            } catch (e) {
+                console.error(`Invalid JSON from ${url} — response text:\n`, text);
+                // rethrow something helpful to your existing try/catch
+                throw new Error('Invalid JSON from server (see console for server output)');
+            }
+        }
+
+        async function loadBudget(budgetId) {
+            if (!budgetId) return;
+
+            try {
+                const data = await fetchJson(`get_budget.php?budget_id=${budgetId}`);
+
+                console.log("loading budget:", data)
+
+                if (!data.success) throw new Error(data.error || "Budget not found");
+
+                const budget = data.budget || {};
+                const personnel = data.personnel || [];
+                const travels = data.travels || [];
+                const items = data.items || [];
+
+                // Populate top-level fields
+                budgetTitle.value = budget.budget_name ?? "";
+                budgetFundingSource.value = budget.funding_source ?? "";
+                budgetStartDate.value = budget.start_date ?? "";
+                budgetEndDate.value = budget.end_date ?? "";
+
+                // Recompute number of years (will recreate yearly-costs columns)
+                onNumBudgetYearsChanged();
+
+                // Table mapping: personnel_type -> table id
+                const personnelMap = {
+                    "PI": "pi-table",
+                    "staff": "pro-staff",
+                    "postdoc": "post-docs",
+                    "grad_assistant": "gras",
+                    "undergrad_assistant": "ugrads",
+                };
+
+                // Populate personnel rows
+                const promises = []
+                for (const personnelData of personnel) {
+                    const table = document.getElementById(personnelData.html_table_id);
+                    if (!table) continue;
+
+                    promises.push(
+                        addRowAsync(table)
+                            .then(row => {
+                                // Force select the personnel
+                                const tomselect = row.querySelector(".staff-picker").tom
+                                tomselect.setValue(personnelData.id);
+
+                                // Auto-populates row with personnel metadata
+                                tomselect.trigger("change");
+
+                                // Set stipend include checkbox
+                                const stipendIncludeCheckbox = row.querySelector(".stipend-amount .include-check")
+                                if (stipendIncludeCheckbox) {
+                                    stipendIncludeCheckbox.checked = Boolean(personnelData.stipend_requested)
+                                }
+
+                                // Set tuition include checkbox
+                                const tuitionIncludeCheckbox = row.querySelector(".tuition-amount .include-check")
+                                if (tuitionIncludeCheckbox) {
+                                    tuitionIncludeCheckbox.checked = Boolean(personnelData.tuition_requested)
+                                }
+
+                                // Set percent effort
+                                const percentEffort = row.querySelector(".percent-effort")
+                                if (percentEffort) {
+                                    percentEffort.value = Number(personnelData.percent_effort)
+                                }
+
+                                updateRowPercentEffortState(row)
+                            })
+                    )
+                }
+                await Promise.all(promises)
+
+                const travelTableEl = document.getElementById("travel");
+                if (travelTableEl) {
+                    for (const t of travels) {
+                        const row = addRowAsync(travelTableEl);                    // <-- pass the table
+                        const typeSelect = row.querySelector("select.type") || row.querySelector(".type");
+                        if (typeSelect) typeSelect.value = t.travel_type || "";
+
+                        const nightsEl = row.querySelector(".num-nights");
+                        if (nightsEl) nightsEl.value = (t.num_nights ?? 0);
+
+                        const travelersEl = row.querySelector(".num-travelers");
+                        if (travelersEl) travelersEl.value = (t.num_travelers ?? 0);
+
+                        // store id (optional) and recompute cost display
+                        if (t.id) row.dataset.travelId = t.id;
+                        const totalCostEl = row.querySelector(".total-cost");
+                        if (totalCostEl) totalCostEl.textContent = toDollar(calculateTotalTravelCostFromRow(row));
+                    }
+                }
+
+                // --- Populate Itemized Costs Table ---
+                const itemsTableEl = document.getElementById("itemized-costs");
+                if (itemsTableEl) {
+                    for (const i of items) {
+                        const row = addRowAsync(itemsTableEl);  // pass table
+                        const itemSelect = row.querySelector("select.type");
+                        if (itemSelect) itemSelect.value = i.item_type ?? "";
+
+                        const nameEl = row.querySelector(".name");
+                        if (nameEl) nameEl.value = i.name ?? "";
+
+                        const qtyEl = row.querySelector(".quantity");
+                        if (qtyEl) qtyEl.value = i.quantity ?? 0;
+
+                        const unitCostEl = row.querySelector(".unit-cost");
+                        if (unitCostEl) unitCostEl.value = i.unit_cost ?? 0;
+
+                        if (i.id) row.dataset.itemId = i.id;
+                        const totalCostEl = row.querySelector(".total-cost");
+                        if (totalCostEl) totalCostEl.textContent = toDollar(calculateTotalItemCostFromRow(row));
+                    }
+                }
+
+                // Recalculate totals
+                updateYearlyCosts();
+            } catch (err) {
+                console.error("Error loading budget:", err);
+                showError("Failed to load budget: " + (err.message || err));
+            }
+        }
+
+        async function collectAndSaveAsync(clickedButton) {
+            clearError();
+
+            // Validate dates
+            if (!budgetStartDate.value || !budgetEndDate.value) {
+                showError("Please enter budget start and end dates before saving.");
+                return;
+            }
+
+            function parseMoney(text) {
+                if (!text) return 0;
+                const s = ("" + text).replace(/[$,]/g, '').trim();
+                const n = parseFloat(s);
+                return isNaN(n) ? 0 : n;
+            }
+
+            const payload = {
+                budget_id: window.currentBudgetId || 0,
+                budget_name: budgetTitle.value || "",
+                funding_source: budgetFundingSource.value || "",
+                start_date: budgetStartDate.value,
+                end_date: budgetEndDate.value,
+                personnel: [],
+                travels: [],
+                items: []
+            };
+
+            // Collect personnel rows (keep your existing code)
+            function collectTableRows(tableId) {
+                const rows = [];
+                const table = document.getElementById(tableId);
+                if (!table) return rows;
+
+                for (const r of table.querySelectorAll("tbody tr")) {
+                    const picker = r.querySelector(".staff-picker");
+                    const personnelId = picker ? parseInt(picker.value || 0) : 0;
+
+                    const percentEl = r.querySelector(".percent-effort");
+                    const percentVal = percentEl ? parseInt(percentEl.value || 0) : 0;
+                    const stipendCheckbox = r.querySelector(".stipend-amount .include-check");
+                    const stipendRequested = stipendCheckbox ? (stipendCheckbox.checked ? 1 : 0) : 0;
+                    const tuitionCheckbox = r.querySelector(".tuition-amount .include-check");
+                    const tuitionRequested = tuitionCheckbox ? (tuitionCheckbox.checked ? 1 : 0) : 0;
+
+                    if (personnelId === 0 && percentVal === 0 && stipendRequested === 0 && tuitionRequested === 0) continue;
+
+                    rows.push({
+                        personnel_type: tableIdToPersonnelType[tableId],
+                        html_table_id: tableId,
+                        personnel_id: personnelId,
+                        percent_effort: percentVal,
+                        tuition_requested: tuitionRequested,
+                        stipend_requested: stipendRequested,
+                    });
+                }
+                return rows;
+            }
+
+            payload.personnel = payload.personnel.concat(
+                collectTableRows("pi-table"),
+                collectTableRows("pro-staff"),
+                collectTableRows("post-docs"),
+                collectTableRows("gras"),
+                collectTableRows("ugrads")
+            );
+
+            // --- Travel ---
+            const travelTable = document.getElementById("travel");
+            if (travelTable) {
+                for (const r of travelTable.querySelectorAll("tbody tr")) {
+                    const type = r.querySelector(".type")?.value || "";
+                    const nights = parseInt(r.querySelector(".num-nights")?.value || 0);
+                    const travelers = parseInt(r.querySelector(".num-travelers")?.value || 0);
+                    const id = r.dataset.travelId ? parseInt(r.dataset.travelId) : 0;
+
+                    if (!type && nights === 0 && travelers === 0) continue;
+                    payload.travels.push({
+                        id,
+                        travel_type: type,
+                        num_nights: nights,
+                        num_travelers: travelers
+                    });
+                }
+            }
+
+            // --- Itemized Costs ---
+            const itemsTable = document.getElementById("itemized-costs");
+            if (itemsTable) {
+                for (const r of itemsTable.querySelectorAll("tbody tr")) {
+                    const type = r.querySelector(".type")?.value || "";
+                    const name = r.querySelector(".name")?.value || "";
+                    const qty = parseInt(r.querySelector(".quantity")?.value || 0);
+                    const unitCost = parseMoney(r.querySelector(".unit-cost")?.value || "0");
+                    const id = r.dataset.itemId ? parseInt(r.dataset.itemId) : 0;
+
+                    if (!type && !name && qty === 0 && unitCost === 0) continue;
+                    payload.items.push({
+                        id,
+                        item_type: type,
+                        name,
+                        quantity: qty,
+                        unit_cost: unitCost
+                    });
+                }
+            }
+
+            const saveBtn = document.getElementById("saveBudget");
+            if (clickedButton === saveBtn) {
+                saveBtn.disabled = true;
+                saveBtn.value = "Saving...";
+            }
+            
+            console.log("saving budget:", payload);
+
+            try {
+                const resp = await fetch('save_budget.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await resp.json();
+                if (!result.success) throw new Error(result.error || 'Unknown server error');
+
+                if (clickedButton === saveBtn) {
+                    saveBtn.value = "Saved ✓";
+                    setTimeout(() => {
+                        saveBtn.disabled = false;
+                        saveBtn.value = "Save budget";
+                    }, 1200);
+                }
+
+                if (result.budget_id) {
+                    payload.budget_id = result.budget_id;
+                    window.currentBudgetId = result.budget_id;
+                }
+
+            } catch (err) {
+                showError("Save failed: " + err.message);
+                saveBtn.disabled = false;
+                saveBtn.value = "Save budget";
+                return;
+            }
+
+            return true;
         }
 
         // Initialize yearly costs table
@@ -1370,7 +1454,7 @@ if ($conn->connect_error) {
             const table = button.closest("table");
             
             button.addEventListener("click", () => {
-                addRow(table);
+                addRowAsync(table);
             })
         })
 
@@ -1423,8 +1507,6 @@ if ($conn->connect_error) {
             document.addEventListener("input", event => {
                 const table = event.target.closest("table");
                 if (!table || table.id !== "travel") return;
-                
-                console.log("travel input");
 
                 const row = event.target.closest("tr");
                 const totalCost = row.querySelector(".total-cost");
@@ -1435,25 +1517,14 @@ if ($conn->connect_error) {
             })
         })
 
-        // Listen for stipend request button clicked
+        // Listen for include checkbox button clicked
         document.addEventListener("input", event => {
             const checkbox = event.target;
             if (!checkbox.classList.contains("include-check")) return;
 
-            const isStipendType = checkbox.closest(".stipend-amount"); // As opposed to tuition type
+            const row = checkbox.closest("tr");
 
-            if (isStipendType) {
-                const row = checkbox.closest("tr");
-                const percentEffort = row.querySelector(".percent-effort");
-
-                if (checkbox.checked) {
-                    percentEffort.disabled = false;
-                } else {
-                    percentEffort.value = 0;
-                    percentEffort.disabled = true;
-                }
-            }
-
+            updateRowPercentEffortState(row);
             updateYearlyCosts();
         })
 
@@ -1846,159 +1917,30 @@ if ($conn->connect_error) {
             XLSX.writeFile(workbook, budgetTitle.value + (budgetTitle.value !== "" ? "_" : "")  + "EZBudgets.xlsx")
         })
 
-        async function collectAndSaveAsync(clickedButton) {
-            clearError();
+        document.addEventListener("DOMContentLoaded", async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const queryBudgetId = Number(urlParams.get("budget_id") || 0);
+            const effectiveId = Number(window.currentBudgetId || queryBudgetId);
 
-            // Validate dates
-            if (!budgetStartDate.value || !budgetEndDate.value) {
-                showError("Please enter budget start and end dates before saving.");
-                return;
-            }
+            if (effectiveId > 0) {
+                await loadBudget(effectiveId)
 
-            function parseMoney(text) {
-                if (!text) return 0;
-                const s = ("" + text).replace(/[$,]/g, '').trim();
-                const n = parseFloat(s);
-                return isNaN(n) ? 0 : n;
-            }
-
-            const payload = {
-                budget_id: window.currentBudgetId || 0,
-                budget_name: budgetTitle.value || "",
-                funding_source: budgetFundingSource.value || "",
-                start_date: budgetStartDate.value,
-                end_date: budgetEndDate.value,
-                personnel: [],
-                travels: [],
-                items: []
-            };
-
-            // Collect personnel rows (keep your existing code)
-            function collectTableRows(tableId) {
-                const rows = [];
-                const table = document.getElementById(tableId);
-                if (!table) return rows;
-
-                for (const r of table.querySelectorAll("tbody tr")) {
-                    const picker = r.querySelector(".staff-picker");
-                    const personnelId = picker ? parseInt(picker.value || 0) : 0;
-
-                    const percentEl = r.querySelector(".percent-effort");
-                    const percentVal = percentEl ? parseInt(percentEl.value || 0) : 0;
-                    const stipendCheckbox = r.querySelector(".request-stipend");
-                    const stipendRequested = stipendCheckbox ? (stipendCheckbox.checked ? 1 : 0) : 0;
-                    const stipendAmountEl = r.querySelector(".stipend-amount");
-                    const stipendAmount = stipendAmountEl ? parseMoney(stipendAmountEl.textContent || stipendAmountEl.value) : 0;
-
-                    let ptype = "staff";
-                    if (tableId === "pi-table") ptype = "PI";
-                    else if (tableId === "pro-staff") ptype = "staff";
-                    else if (tableId === "post-docs") ptype = "postdoc";
-                    else if (tableId === "gras") ptype = "grad_assistant";
-                    else if (tableId === "ugrads") ptype = "undergrad_assistant";
-
-                    if (personnelId === 0 && percentVal === 0 && stipendRequested === 0 && stipendAmount === 0) continue;
-
-                    rows.push({
-                        personnel_type: ptype,
-                        personnel_id: personnelId,
-                        percent_effort: percentVal,
-                        stipend_requested: stipendRequested,
-                        stipend_amount: stipendAmount
-                    });
+                // Updating/adding first PI row
+                const piTable = document.querySelector("#pi-table");
+                const piBody = piTable.querySelector("tbody");
+                let piRow;
+                if (piBody.children.length === 0) {
+                    piRow = await addRowAsync(piTable, 1);
+                } else {
+                    piRow = piBody.firstElementChild;
                 }
-                return rows;
+                piRow.querySelector(".type").textContent = "PI";
+                const tom = piRow.querySelector(".staff-picker").tom
+                tom.settings.placeholder = "Select PI";
+                tom.inputState();
+                piRow.lastElementChild.remove() // Remove the remove button
             }
-
-            payload.personnel = payload.personnel.concat(
-                collectTableRows("pi-table"),
-                collectTableRows("pro-staff"),
-                collectTableRows("post-docs"),
-                collectTableRows("gras"),
-                collectTableRows("ugrads")
-            );
-
-            // --- Travel ---
-            const travelTable = document.getElementById("travel");
-            if (travelTable) {
-                for (const r of travelTable.querySelectorAll("tbody tr")) {
-                    const type = r.querySelector(".type")?.value || "";
-                    const nights = parseInt(r.querySelector(".num-nights")?.value || 0);
-                    const travelers = parseInt(r.querySelector(".num-travelers")?.value || 0);
-                    const id = r.dataset.travelId ? parseInt(r.dataset.travelId) : 0;
-
-                    if (!type && nights === 0 && travelers === 0) continue;
-                    payload.travels.push({
-                        id,
-                        travel_type: type,
-                        num_nights: nights,
-                        num_travelers: travelers
-                    });
-                }
-            }
-
-            // --- Itemized Costs ---
-            const itemsTable = document.getElementById("itemized-costs");
-            if (itemsTable) {
-                for (const r of itemsTable.querySelectorAll("tbody tr")) {
-                    const type = r.querySelector(".type")?.value || "";
-                    const name = r.querySelector(".name")?.value || "";
-                    const qty = parseInt(r.querySelector(".quantity")?.value || 0);
-                    const unitCost = parseMoney(r.querySelector(".unit-cost")?.value || "0");
-                    const id = r.dataset.itemId ? parseInt(r.dataset.itemId) : 0;
-
-                    if (!type && !name && qty === 0 && unitCost === 0) continue;
-                    payload.items.push({
-                        id,
-                        item_type: type,
-                        name,
-                        quantity: qty,
-                        unit_cost: unitCost
-                    });
-                }
-            }
-
-            const saveBtn = document.getElementById("saveBudget");
-            if (clickedButton === saveBtn) {
-                saveBtn.disabled = true;
-                saveBtn.value = "Saving...";
-            }
-            
-            console.log("Saving budget payload:", payload);
-
-            try {
-                const resp = await fetch('save_budget.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                const result = await resp.json();
-                if (!result.success) throw new Error(result.error || 'Unknown server error');
-
-                if (clickedButton === saveBtn) {
-                    saveBtn.value = "Saved ✓";
-                    setTimeout(() => {
-                        saveBtn.disabled = false;
-                        saveBtn.value = "Save budget";
-                    }, 1200);
-                }
-
-                if (result.budget_id) {
-                    payload.budget_id = result.budget_id;
-                    window.currentBudgetId = result.budget_id;
-                }
-
-            } catch (err) {
-                showError("Save failed: " + err.message);
-                saveBtn.disabled = false;
-                saveBtn.value = "Save budget";
-                return;
-            }
-
-            return true;
-        }
-
+        });
         document.getElementById("saveBudget").addEventListener("click", () => {
             collectAndSaveAsync(document.querySelector("#saveBudget"));
         });

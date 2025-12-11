@@ -13,53 +13,9 @@ error_reporting(E_ALL);
 session_start();
 include("db_connect.php");
 
+require_once 'util.php';
+
 header('Content-Type: application/json');
-
-/**
- * Map personnel_type => canonical table name
- */
-function personnelTypeToTable(string $personnel_type): ?string {
-    $map = [
-        'PI'                 => 'university_employee',
-        'staff'              => 'university_employee',
-        'postdoc'            => 'post_doctoral_researchers',
-        'grad_assistant'     => 'graduate_research_assistants',
-        'undergrad_assistant'=> 'undergraduate_research_assistants'
-    ];
-    return $map[$personnel_type] ?? null;
-}
-
-/**
- * Fetch the name for a given personnel_type + personnel_id
- */
-function getPersonnelName(mysqli $conn, string $personnel_type, $personnel_id): string {
-    $table = personnelTypeToTable($personnel_type);
-    if (!$table) return '';
-
-    $id = intval($personnel_id);
-
-    // Map table => primary key column
-    $pkMap = [
-        'university_employee'              => 'staff_id',
-        'post_doctoral_researchers'        => 'postdoc_id',
-        'graduate_research_assistants'     => 'gra_id',
-        'undergraduate_research_assistants'=> 'ugra_id'
-    ];
-    $pk = $pkMap[$table] ?? 'id';
-
-    $sql = "SELECT name FROM `$table` WHERE `$pk` = ? LIMIT 1";
-    if ($stmt = $conn->prepare($sql)) {
-        $stmt->bind_param("i", $id);
-        $stmt->execute();
-        $stmt->bind_result($name);
-        if ($stmt->fetch()) {
-            $stmt->close();
-            return (string)$name;
-        }
-        $stmt->close();
-    }
-    return '';
-}
 
 // ============================
 // Input validation
@@ -98,7 +54,7 @@ if (!$budget) {
 // ============================
 $personnel = [];
 if ($stmt = $conn->prepare(
-    "SELECT bp_id, budget_id, personnel_type, personnel_id, percent_effort, stipend_requested, stipend_amount 
+    "SELECT bp_id, budget_id, personnel_type, personnel_id, html_table_id, percent_effort, stipend_requested, tuition_requested
      FROM budget_personnel 
      WHERE budget_id = ? 
      ORDER BY bp_id ASC"
@@ -107,17 +63,22 @@ if ($stmt = $conn->prepare(
     $stmt->execute();
     $res = $stmt->get_result();
     while ($row = $res->fetch_assoc()) {
-        $row['name'] = getPersonnelName($conn, $row['personnel_type'], $row['personnel_id']) ?: "ID: ".$row['personnel_id'];
-
-        $personnel[] = [
-            'bp_id' => intval($row['bp_id']),
-            'personnel_type' => $row['personnel_type'],
-            'personnel_id' => intval($row['personnel_id']),
-            'name' => $row['name'],
+        $canonical_personnel_data = get_personnel_data($conn, $row['personnel_type'], $row['personnel_id']);
+        $budget_personnel_data = [
+            'type' => $row['personnel_type'],
+            "html_table_id" => $row["html_table_id"],
             'percent_effort' => floatval($row['percent_effort']),
             'stipend_requested' => intval($row['stipend_requested']),
-            'stipend_amount' => floatval($row['stipend_amount'])
+            'tuition_requested' => intval($row['tuition_requested']),
         ];
+
+        $personnel[] = array_merge(
+            // Budget personnel data (mostly user input)
+            $budget_personnel_data,
+
+            // Canonical personnel data
+            $canonical_personnel_data
+        );
     }
     $stmt->close();
 }
@@ -181,9 +142,6 @@ echo json_encode([
         'user_id' => intval($budget['user_id']),
         'budget_name' => $budget['budget_name'],
         'funding_source' => $budget['funding_source'],
-        'default_fa_year' => $budget['default_fa_year'],
-        'default_tuition_year' => $budget['default_tuition_year'],
-        'travel_is_international' => (bool)$budget['travel_is_international'],
         'start_date' => $budget['start_date'],
         'end_date' => $budget['end_date']
     ],

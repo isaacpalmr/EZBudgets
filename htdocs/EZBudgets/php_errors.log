@@ -6,3 +6,51 @@
 [10-Dec-2025 04:34:44 Europe/Berlin] PHP Warning:  Undefined variable $itemResults in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php on line 147
 [10-Dec-2025 08:53:59 Europe/Berlin] PHP Warning:  Undefined variable $travelResults in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php on line 146
 [10-Dec-2025 08:53:59 Europe/Berlin] PHP Warning:  Undefined variable $itemResults in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php on line 147
+[10-Dec-2025 21:04:37 Europe/Berlin] PHP Warning:  Undefined variable $travelResults in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php on line 146
+[10-Dec-2025 21:04:37 Europe/Berlin] PHP Warning:  Undefined variable $itemResults in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php on line 147
+[10-Dec-2025 21:22:34 Europe/Berlin] PHP Warning:  Undefined variable $travelResults in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php on line 146
+[10-Dec-2025 21:22:34 Europe/Berlin] PHP Warning:  Undefined variable $itemResults in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php on line 147
+[10-Dec-2025 21:53:37 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'tuition_requested' in 'field list' in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\get_budget.php:100
+Stack trace:
+#0 C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\get_budget.php(100): mysqli->prepare('SELECT bp_id, b...')
+#1 {main}
+  thrown in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\get_budget.php on line 100
+[10-Dec-2025 23:08:38 Europe/Berlin] PHP Warning:  Undefined variable $travelResults in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php on line 146
+[10-Dec-2025 23:08:38 Europe/Berlin] PHP Warning:  Undefined variable $itemResults in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php on line 147
+[10-Dec-2025 23:09:00 Europe/Berlin] PHP Warning:  Undefined variable $travelResults in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php on line 146
+[10-Dec-2025 23:09:00 Europe/Berlin] PHP Warning:  Undefined variable $itemResults in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php on line 147
+[10-Dec-2025 23:09:14 Europe/Berlin] PHP Warning:  Undefined variable $travelResults in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php on line 146
+[10-Dec-2025 23:09:14 Europe/Berlin] PHP Warning:  Undefined variable $itemResults in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php on line 147
+[10-Dec-2025 23:09:21 Europe/Berlin] PHP Warning:  Undefined variable $travelResults in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php on line 146
+[10-Dec-2025 23:09:21 Europe/Berlin] PHP Warning:  Undefined variable $itemResults in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php on line 147
+[10-Dec-2025 23:53:39 Europe/Berlin] PHP Warning:  Undefined variable $travelResults in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php on line 146
+[10-Dec-2025 23:53:39 Europe/Berlin] PHP Warning:  Undefined variable $itemResults in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php on line 147
+[10-Dec-2025 23:53:41 Europe/Berlin] PHP Warning:  Undefined variable $travelResults in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php on line 146
+[10-Dec-2025 23:53:41 Europe/Berlin] PHP Warning:  Undefined variable $itemResults in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php on line 147
+[11-Dec-2025 00:28:26 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php:86
+Stack trace:
+#0 C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php(86): mysqli_stmt->bind_param('isiiid', 21, 'staff', 1, NULL, 0, 0, 0)
+#1 {main}
+  thrown in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php on line 86
+[11-Dec-2025 00:28:56 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php:86
+Stack trace:
+#0 C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php(86): mysqli_stmt->bind_param('isiiid', 21, 'staff', 1, 'pi-table', 0, 0, 0)
+#1 {main}
+  thrown in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php on line 86
+[11-Dec-2025 00:29:49 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php:86
+Stack trace:
+#0 C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php(86): mysqli_stmt->bind_param('isiiid', 22, 'staff', 1, 'pi-table', 0, 0, 0)
+#1 {main}
+  thrown in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php on line 86
+[11-Dec-2025 00:33:28 Europe/Berlin] PHP Warning:  Undefined variable $travelResults in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php on line 147
+[11-Dec-2025 00:33:28 Europe/Berlin] PHP Warning:  Undefined variable $itemResults in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php on line 148
+[11-Dec-2025 00:33:30 Europe/Berlin] PHP Warning:  Undefined variable $travelResults in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php on line 147
+[11-Dec-2025 00:33:30 Europe/Berlin] PHP Warning:  Undefined variable $itemResults in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php on line 148
+[11-Dec-2025 00:33:37 Europe/Berlin] PHP Warning:  Undefined variable $travelResults in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php on line 147
+[11-Dec-2025 00:33:37 Europe/Berlin] PHP Warning:  Undefined variable $itemResults in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php on line 148
+[11-Dec-2025 00:34:09 Europe/Berlin] PHP Warning:  Undefined variable $travelResults in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php on line 147
+[11-Dec-2025 00:34:09 Europe/Berlin] PHP Warning:  Undefined variable $itemResults in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php on line 148
+[11-Dec-2025 00:34:19 Europe/Berlin] PHP Warning:  Undefined variable $travelResults in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php on line 147
+[11-Dec-2025 00:34:19 Europe/Berlin] PHP Warning:  Undefined variable $itemResults in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php on line 148
+[11-Dec-2025 00:42:50 Europe/Berlin] PHP Warning:  Undefined variable $travelResults in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php on line 147
+[11-Dec-2025 00:42:50 Europe/Berlin] PHP Warning:  Undefined variable $itemResults in C:\xampp\htdocs\EZBudgets\htdocs\EZBudgets\save_budget.php on line 148

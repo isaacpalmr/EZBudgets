@@ -73,16 +73,17 @@ $stmtDel->close();
 
 // --- Insert personnel ---
 $stmtIns = $conn->prepare("
-    INSERT INTO budget_personnel (budget_id, personnel_type, personnel_id, percent_effort, stipend_requested, stipend_amount)
-    VALUES (?, ?, ?, ?, ?, ?)
+    INSERT INTO budget_personnel (budget_id, personnel_type, personnel_id, html_table_id, percent_effort, stipend_requested, tuition_requested)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
 ");
 foreach ($personnel as $p) {
-    $ptype = $p['personnel_type'] ?? 'staff';
+    $ptype = $p['personnel_type'];
+    $html_table_id = $p['html_table_id'];
     $pid = intval($p['personnel_id'] ?? 0);
     $pct = intval($p['percent_effort'] ?? 0);
     $stip_req = isset($p['stipend_requested']) ? (int)($p['stipend_requested'] ? 1 : 0) : 0;
-    $stip_amt = floatval($p['stipend_amount'] ?? 0);
-    $stmtIns->bind_param("isiiid", $budget_id, $ptype, $pid, $pct, $stip_req, $stip_amt);
+    $tuition_req = isset($p['tuition_requested']) ? (int)($p['tuition_requested'] ? 1 : 0) : 0;
+    $stmtIns->bind_param("isisiid", $budget_id, $ptype, $pid, $html_table_id, $pct, $stip_req, $tuition_req);
     $stmtIns->execute();
 }
 $stmtIns->close();
