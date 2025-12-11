@@ -24,176 +24,14 @@ $subawardInstitution = $_GET["subawardInstitution"];
 
     <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
 
     <title>
         EZBudgets
     </title>
 
     <style>
-                body {
-            font-family: 'Open Sans';
-        }
 
-        body header {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        body header > * {
-            /* background-color: blue; */
-            padding: 0;
-            margin: 5px 0px
-        }
-
-        .include-label {
-            background: #ffffff;        /* unchecked */
-            color: #333;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-            padding: 2px 8px;
-            margin: 2px 0;
-            font-size: 0.85em;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        /* when checked */
-        .include-label:has(.include-check:checked) {
-            background: #46b5ffff;
-            color: #000000ff;
-            border-color: #3b94cfff;
-        }
-
-        .include-check {
-            accent-color: #ffffffff;
-            cursor: pointer;
-        }
-
-        .add_row {
-            border-radius: 3px;
-            padding: 0px 3px;
-            padding-top: 3px;
-            margin-left: 10px;
-        }
-        
-        .rem_row, .edit_subaward {
-            border-radius: 3px;
-            padding: 0px 3px;
-            padding-top: 3px;
-        }
-
-        th, td {
-            border: 1px solid #ccc;
-            padding: 8px 10px;
-            text-align: center;
-        }
-
-        th {
-            background-color: #f5f5f5;
-        }
-
-        #tables {
-            display: flex;
-            flex-direction: row;
-            align-items: flex-start;
-            justify-content: space-evenly;
-            width: 100%;
-        }
-
-        caption {
-            text-align: left;
-            margin-bottom: 10px;
-        }
-
-        #yearly-costs-caption {
-            text-align: center;
-            margin-bottom: 10px;
-        }
-
-        main {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            margin: 20px 0px;
-        }
-
-        main > * {
-            margin: 20px 0px;
-        }
-
-        button:hover {
-            filter: brightness(85%)
-        }
-
-        .option {
-            z-index: 9999; 
-        }
-
-        .table-card {
-            background-color: #fff;
-            border: 1px solid #ccc;
-            border-radius: 6px; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            padding: 15px; 
-            margin-bottom: 30px;
-        }
-
-        table {
-            border-collapse: collapse;
-        }
-
-        #right-side {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-
-            position: sticky;
-            top: 50%;                /* middle of viewport */
-            transform: translateY(-50%);  /* shift it up by half its own height */
-        }
-
-        #downloadspreadsheet {
-            margin-top: 50px;
-        }
-
-        #user_tables {
-            display: flex;
-            flex-direction: column;
-        }
-
-        #user_tables > * {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: max-content;
-            transform: translateX(-100px);
-            margin-bottom: 75px;
-        }
-
-        #budget-metadata {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        #budget-metadata > * {
-            margin: 5px 0px;
-        }
-
-        #budget-dates {
-            display: flex;
-            flex-direction: row;
-            margin-top: 20px;
-        }
-
-        #budget-dates > * {
-            margin: 0px 10px;
-        }
     </style>
 </head>
 
@@ -232,11 +70,11 @@ $subawardInstitution = $_GET["subawardInstitution"];
         
         <div id="tables">
             <div id="user_tables" style="text-align: center;">
-                <div class="table-card">
+                <div class="card-container">
                     <table id="pi-table">
                         <caption>
                             Principle investigators
-                            <button class="add_row" style="background-color: rgb(1, 255, 136); border-width: 1px; margin-top: 20px;">
+                            <button class="add_row dark-border">
                                 <img src="../images/add_circle_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png"
                                 width="24" height="24">
                             </button>
@@ -255,11 +93,11 @@ $subawardInstitution = $_GET["subawardInstitution"];
                     </table>
                 </div>
                 
-                <div class="table-card">
+                <div class="card-container">
                     <table id="pro-staff">
                         <caption>
                             UI professional staff
-                            <button class="add_row" style="background-color: rgb(1, 255, 136); border-width: 1px; margin-top: 20px;">
+                            <button class="add_row dark-border" >
                                 <img src="../images/add_circle_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png"
                                 width="24" height="24">
                             </button>
@@ -277,11 +115,11 @@ $subawardInstitution = $_GET["subawardInstitution"];
                     </table>
                 </div>
                 
-                <div class="table-card">
+                <div class="card-container">
                     <table id="post-docs">
                         <caption>
                             Post doctoral researchers
-                            <button class="add_row" style="background-color: rgb(1, 255, 136); border-width: 1px; margin-top: 20px;">
+                            <button class="add_row dark-border" >
                                 <img src="../images/add_circle_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png"
                                 width="24" height="24">
                             </button>
@@ -298,11 +136,11 @@ $subawardInstitution = $_GET["subawardInstitution"];
                     </table>
                 </div>
                 
-                <div class="table-card">
+                <div class="card-container">
                     <table id="gras">
                         <caption>
                             Graduate research assistants
-                            <button class="add_row" style="background-color: rgb(1, 255, 136); border-width: 1px; margin-top: 20px;">
+                            <button class="add_row dark-border" >
                                 <img src="../images/add_circle_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png"
                                 width="24" height="24">
                             </button>
@@ -320,11 +158,11 @@ $subawardInstitution = $_GET["subawardInstitution"];
                     </table>
                 </div>
                 
-                <div class="table-card">
+                <div class="card-container">
                     <table id="ugrads">
                         <caption>
                             Undergraduate research assistants
-                            <button class="add_row" style="background-color: rgb(1, 255, 136); border-width: 1px; margin-top: 20px;">
+                            <button class="add_row dark-border" >
                                 <img src="../images/add_circle_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png"
                                 width="24" height="24">
                             </button>
@@ -342,11 +180,11 @@ $subawardInstitution = $_GET["subawardInstitution"];
                     </table>
                 </div>
 
-                <div class="table-card">
+                <div class="card-container">
                     <table id="travel">
                         <caption>
                             Travel
-                            <button class="add_row" style="background-color: rgb(1, 255, 136); border-width: 1px; margin-top: 20px;">
+                            <button class="add_row dark-border" >
                                 <img src="../images/add_circle_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png"
                                 width="24" height="24">
                             </button>
@@ -366,11 +204,11 @@ $subawardInstitution = $_GET["subawardInstitution"];
                     </table>
                 </div>
 
-                <div class="table-card">
+                <div class="card-container">
                     <table id="itemized-costs">
                         <caption>
                             Itemized costs
-                            <button class="add_row" style="background-color: rgb(1, 255, 136); border-width: 1px; margin-top: 20px;">
+                            <button class="add_row dark-border" >
                                 <img src="../images/add_circle_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png"
                                 width="24" height="24">
                             </button>
@@ -390,7 +228,7 @@ $subawardInstitution = $_GET["subawardInstitution"];
                 </div>
             </div>
 
-            <div class="table-card" id="right-side">
+            <div class="card-container" id="right-side">
                 <div id="yearly_costs">
                     <table>
                         <caption id="yearly-costs-caption">

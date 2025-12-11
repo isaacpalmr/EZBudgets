@@ -11,7 +11,7 @@ const templateRows = {
             <td><input class="percent-effort" type="number" value="0" min="0" max="100"></td>
             <td class="salary">$0.00</td>
             <td>
-                <button class="rem_row" style="background-color: rgb(255, 82, 82); border-width: 1px;">
+                <button class="rem_row dark-border">
                     <img src="../images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
                 </button>
             </td>
@@ -28,7 +28,7 @@ const templateRows = {
             <td><input class="percent-effort" type="number" value="0" min="0" max="100"></td>
             <td class="salary">$0.00</td>
             <td>
-                <button class="rem_row" style="background-color: rgb(255, 82, 82); border-width: 1px;">
+                <button class="rem_row dark-border">
                     <img src="../images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
                 </button>
             </td>
@@ -44,7 +44,7 @@ const templateRows = {
             <td><input class="percent-effort" type="number" value="0" min="0" max="100"></td>
             <td class="stipend-amount"><p>$0.00<p></td>
             <td>
-                <button class="rem_row" style="background-color: rgb(255, 82, 82); border-width: 1px;">
+                <button class="rem_row dark-border">
                     <img src="../images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
                 </button>
             </td>
@@ -75,7 +75,7 @@ const templateRows = {
                 </label>
             </td>
             <td>
-                <button class="rem_row" style="background-color: rgb(255, 82, 82); border-width: 1px;">
+                <button class="rem_row dark-border">
                     <img src="../images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
                 </button>
             </td>
@@ -106,7 +106,7 @@ const templateRows = {
                 </label>
             </td>
             <td>
-                <button class="rem_row" style="background-color: rgb(255, 82, 82); border-width: 1px;">
+                <button class="rem_row dark-border">
                     <img src="../images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
                 </button>
             </td>
@@ -127,7 +127,7 @@ const templateRows = {
             <td><input class="num-travelers" type="number" value="0" min="0"></td>
             <td class="total-cost">$0.00</td>
             <td>
-                <button class="rem_row" style="background-color: rgb(255, 82, 82); border-width: 1px;">
+                <button class="rem_row dark-border">
                     <img src="../images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
                 </button>
             </td>
@@ -152,7 +152,7 @@ const templateRows = {
             <td><input class="unit-cost" type="number" value="0" min="0"></td>
             <td class="total-cost">$0.00</td>
             <td>
-                <button class="rem_row" style="background-color: rgb(255, 82, 82); border-width: 1px;">
+                <button class="rem_row dark-border">
                     <img src="../images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
                 </button>
             </td>
@@ -163,12 +163,12 @@ const templateRows = {
             <td><input class="name" type="text"></td>
             <td class="total-cost">$0.00</td>
             <td>
-                <button class="edit_subaward" style="background-color: rgb(255, 235, 59); border-width: 1px; width: 32px; height: 32px">
+                <button class="edit_subaward dark-border" style="width: 32px; height: 32px">
                     <img src="../images/pencil.png" width="20" height="20">
                 </button>
             </td>
             <td>
-                <button class="rem_row" style="background-color: rgb(255, 82, 82); border-width: 1px;">
+                <button class="rem_row dark-border">
                     <img src="../images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
                 </button>
             </td>
@@ -193,7 +193,7 @@ const templateRows = {
             <td><input class="unit-cost" type="number" value="0" min="0"></td>
             <td class="total-cost">$0.00</td>
             <td>
-                <button class="rem_row" style="background-color: rgb(255, 82, 82); border-width: 1px;">
+                <button class="rem_row dark-border">
                     <img src="../images/delete_forever_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.png" width="24" height="24">
                 </button>
             </td>
