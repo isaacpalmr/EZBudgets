@@ -1,4 +1,4 @@
-<?php include("db_connect.php"); session_start(); ?>
+<?php require_once "db_connect.php"; session_start(); ?>
 
 <form method="POST">
     <input type="text" name="username" placeholder="Username" required><br>
@@ -23,7 +23,7 @@ if (isset($_POST["login"])) {
             $_SESSION["user_id"] = $user["user_id"]; // use your primary key column for users
 
 
-            header("Location: dashboard.php");
+            header("Location: ../pages/dashboard.php");
             exit;
         } else {
             echo "Incorrect password.";
@@ -34,4 +34,4 @@ if (isset($_POST["login"])) {
 }
 ?>
 
-<p>Not a user yet? <a href="index.php">Register now!</a>.</p>
+<p>Not a user yet? <a href="../pages/index.php">Register now!</a>.</p>

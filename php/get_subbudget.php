@@ -11,7 +11,7 @@ ini_set('error_log', __DIR__ . '/php_errors.log');
 error_reporting(E_ALL);
 
 session_start();
-include("db_connect.php");
+require_once "db_connect.php";
 
 require_once 'util.php';
 
@@ -20,31 +20,31 @@ header('Content-Type: application/json');
 // ============================
 // Input validation
 // ============================
-if (!isset($_GET['budget_id'])) {
-    echo json_encode(['success' => false, 'error' => 'No budget_id provided']);
+if (!isset($_GET['subbudget_id'])) {
+    echo json_encode(['success' => false, 'error' => 'No subbudget_id provided']);
     exit;
 }
-$budget_id = intval($_GET['budget_id']);
-if ($budget_id <= 0) {
-    echo json_encode(['success' => false, 'error' => 'Invalid budget_id']);
+$subbudget_id = intval($_GET['subbudget_id']);
+if ($subbudget_id <= 0) {
+    echo json_encode(['success' => false, 'error' => 'Invalid subbudget_id']);
     exit;
 }
 
 // ============================
 // Fetch budget metadata
 // ============================
-$budget = null;
-if ($stmt = $conn->prepare("SELECT * FROM budgets WHERE budget_id = ? LIMIT 1")) {
-    $stmt->bind_param("i", $budget_id);
+$subbudget = null;
+if ($stmt = $conn->prepare("SELECT * FROM subbudgets WHERE subbudget_id = ? LIMIT 1")) {
+    $stmt->bind_param("i", $subbudget_id);
     $stmt->execute();
     $result = $stmt->get_result();
     if ($result && $row = $result->fetch_assoc()) {
-        $budget = $row;
+        $subbudget = $row;
     }
     $stmt->close();
 }
 
-if (!$budget) {
+if (!$subbudget) {
     echo json_encode(['success' => false, 'error' => 'Budget not found']);
     exit;
 }
@@ -54,17 +54,17 @@ if (!$budget) {
 // ============================
 $personnel = [];
 if ($stmt = $conn->prepare(
-    "SELECT bp_id, budget_id, personnel_type, personnel_id, html_table_id, percent_effort, stipend_requested, tuition_requested
-     FROM budget_personnel 
-     WHERE budget_id = ? 
-     ORDER BY bp_id ASC"
+    "SELECT id, subbudget_id, personnel_type, personnel_id, html_table_id, percent_effort, stipend_requested, tuition_requested
+     FROM subbudget_personnel 
+     WHERE subbudget_id = ? 
+     ORDER BY id ASC"
 )) {
-    $stmt->bind_param("i", $budget_id);
+    $stmt->bind_param("i", $subbudget_id);
     $stmt->execute();
     $res = $stmt->get_result();
     while ($row = $res->fetch_assoc()) {
         $canonical_personnel_data = get_personnel_data($conn, $row['personnel_type'], $row['personnel_id']);
-        $budget_personnel_data = [
+        $subbudget_personnel_data = [
             'type' => $row['personnel_type'],
             "html_table_id" => $row["html_table_id"],
             'percent_effort' => floatval($row['percent_effort']),
@@ -74,7 +74,7 @@ if ($stmt = $conn->prepare(
 
         $personnel[] = array_merge(
             // Budget personnel data (mostly user input)
-            $budget_personnel_data,
+            $subbudget_personnel_data,
 
             // Canonical personnel data
             $canonical_personnel_data
@@ -88,12 +88,12 @@ if ($stmt = $conn->prepare(
 // ============================
 $travels = [];
 if ($stmt = $conn->prepare(
-    "SELECT travel_id, budget_id, travel_type, num_nights, num_travelers 
-     FROM budget_travels 
-     WHERE budget_id = ? 
+    "SELECT travel_id, subbudget_id, travel_type, num_nights, num_travelers 
+     FROM subbudget_travels 
+     WHERE subbudget_id = ? 
      ORDER BY travel_id ASC"
 )) {
-    $stmt->bind_param("i", $budget_id);
+    $stmt->bind_param("i", $subbudget_id);
     $stmt->execute();
     $res = $stmt->get_result();
     while ($row = $res->fetch_assoc()) {
@@ -112,12 +112,12 @@ if ($stmt = $conn->prepare(
 // ============================
 $items = [];
 if ($stmt = $conn->prepare(
-    "SELECT id, budget_id, item_type, name, quantity, unit_cost 
-     FROM budget_items 
-     WHERE budget_id = ? 
+    "SELECT id, subbudget_id, item_type, name, quantity, unit_cost 
+     FROM subbudget_items 
+     WHERE subbudget_id = ? 
      ORDER BY id ASC"
 )) {
-    $stmt->bind_param("i", $budget_id);
+    $stmt->bind_param("i", $subbudget_id);
     $stmt->execute();
     $res = $stmt->get_result();
     while ($row = $res->fetch_assoc()) {
@@ -138,12 +138,8 @@ if ($stmt = $conn->prepare(
 echo json_encode([
     'success' => true,
     'budget' => [
-        'budget_id' => intval($budget['budget_id']),
-        'user_id' => intval($budget['user_id']),
-        'budget_name' => $budget['budget_name'],
-        'funding_source' => $budget['funding_source'],
-        'start_date' => $budget['start_date'],
-        'end_date' => $budget['end_date']
+        'subbudget_id' => intval($subbudget['subbudget_id']),
+        'subaward_institution' => $subbudget['subaward_institution'],
     ],
     'personnel' => $personnel,
     'travels' => $travels,

@@ -1,5 +1,5 @@
 <?php 
-include("db_connect.php"); //Connect to database
+include("../php/db_connect.php"); //Connect to database
 ?>
 
 <form method="POST"> 
@@ -24,7 +24,7 @@ if (isset($_POST["register"])) {
                 VALUES ('$first', '$last', '$username', '$email', '$password', NOW(), NOW())";
 
         if ($conn->query($sql) === TRUE) {
-            echo "<p style='color:green;'>Registration successful. <a href='login.php'>Login now</a></p>";
+            echo "<p style='color:green;'>Registration successful. <a href='../php/login.php'>Login now</a></p>";
         } else {
             // Check for duplicate username (MySQL error code 1062)
             if ($conn->errno == 1062) {
@@ -41,4 +41,4 @@ if (isset($_POST["register"])) {
 }
 ?>
 
-<p>Already a user? <a href="login.php">Login here</a>.</p>
+<p>Already a user? <a href="../php/login.php">Login here</a>.</p>
