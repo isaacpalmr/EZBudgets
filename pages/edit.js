@@ -797,6 +797,8 @@ async function loadBudget() {
             // Populate top-level fields
             budgetTitle.value = budget.budget_name ?? "";
             budgetFundingSource.value = budget.funding_source ?? "";
+            budgetStartDate.value = budget.start_date || budgetStartDate.value
+            budgetEndDate.value = budget.end_date || budgetEndDate.value
         }
 
         // Recompute number of years (will recreate yearly-costs columns)
@@ -1075,6 +1077,9 @@ onNumBudgetYearsChanged();
 
 // Initialize current staff pickers
 document.querySelectorAll(".staff-picker").forEach(initializeStaffPicker);
+
+// Listen for budget num years changed
+document.querySelectorAll("input[type='date']").forEach(el => el.addEventListener("input", onNumBudgetYearsChanged))
 
 // Remove row button
 document.addEventListener("click", async (event) => {
@@ -1419,6 +1424,50 @@ downloadButton.addEventListener("click", async () => {
         const rowCost = calculateTotalItemCostFromRow(row);
         spreadsheetData.splice(equipmentLabelRowIndex + i + 1, 0, [name, null, null, ...Array(numBudgetYears).fill(toDollar(rowCost)), toDollar(rowCost * numBudgetYears)])
     }
+
+    // GENERATED
+    // Calculate and apply totals to the Total Project Cost row
+    const totalProjectCostRowIndex = getSpreadsheetRowIndexByLabel("Total Project Cost");
+    const totalProjectCostRow = spreadsheetData[totalProjectCostRowIndex];
+
+    // Year columns start at index 3 (after the first 3 header columns)
+    const yearStartColumn = 3;
+
+    // Initialize totals array for each year column plus the final total column
+    const yearTotals = Array(numBudgetYears + 1).fill(0);
+
+    // Sum up all dollar values in each year column
+    for (let r = 0; r < spreadsheetData.length; r++) {
+        if (r === totalProjectCostRowIndex) continue; // Skip the total row itself
+        
+        const row = spreadsheetData[r];
+        for (let yearIndex = 0; yearIndex <= numBudgetYears; yearIndex++) {
+            const colIndex = yearStartColumn + yearIndex;
+            if (colIndex < row.length) {
+                const cellValue = row[colIndex];
+                if (typeof cellValue === 'string' && cellValue.startsWith('$')) {
+                    const numValue = parseFloat(cellValue.replace(/[$,]/g, ''));
+                    if (!isNaN(numValue)) {
+                        yearTotals[yearIndex] += numValue;
+                    }
+                } else if (typeof cellValue === 'number') {
+                    yearTotals[yearIndex] += cellValue;
+                }
+            }
+        }
+    }
+
+    // Ensure the row has enough columns to reach yearStartColumn
+    const gapSize = yearStartColumn - totalProjectCostRow.length;
+    if (gapSize > 0) {
+        totalProjectCostRow.push(...Array(gapSize).fill(""));
+    }
+
+    // Add the year totals to the Total Project Cost row
+    for (let i = 0; i <= numBudgetYears; i++) {
+        totalProjectCostRow.push(toDollar(yearTotals[i]));
+    }
+    //
 
     const worksheet = XLSX.utils.aoa_to_sheet(spreadsheetData);
 
