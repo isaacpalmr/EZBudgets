@@ -1226,25 +1226,31 @@ document.addEventListener("input", event => {
 
 // Download spreadsheet
 downloadButton.addEventListener("click", async () => {
-    // Create spreadsheet data table
+    const numBudgetYears = getNumBudgetYears();
+
+    // -------------------------------------------------
+    // 1. Build base spreadsheet
+    // -------------------------------------------------
     const spreadsheetData = [
         ["Title: "],
         ["Funding Source: "],
-        ["PI: ",                   "Co-PIs: "],
+        ["PI: ", "Co-PIs: "],
         ["Project Start and End Dates: "],
-        ["",                                    "",                 "Hourly rate at start date"],
-        ["Personnel Compensation",              "Year 1 hours"],
+        ["", "", "Hourly rate at start date"],
+        ["Personnel Compensation", "Year 1 hours"],
         [],
         ["Other Personnel"],
         ["UI professional staff & Post Docs"],
         ["GRAs/UGrads"],
         ["Temp Help"],
         [],
-        ["Fringe",                              "",                 "FY26 Fringe Rates"],
-        ["UI professional staff & Post Docs",   "",                 "36.7%"],
-        ["Faculty",                             "",                 "29.5%"],
-        ["Temp Help",                           "",                 "10.5%"],
-        ["GRAs/UGrads",                         "",                 "3.2%"],
+        ["Indirect Costs", "F&A Rate:", "50%"],
+        [],
+        ["Fringe", "", "FY26 Fringe Rates"],
+        ["UI professional staff & Post Docs", "", "36.7%"],
+        ["Faculty", "", "29.5%"],
+        ["Temp Help", "", "10.5%"],
+        ["GRAs/UGrads", "", "3.2%"],
         [],
         ["Equipment > $5000.00"],
         [],
@@ -1252,8 +1258,6 @@ downloadButton.addEventListener("click", async () => {
         ["Domestic"],
         ["International"],
         [],
-        // ["Participant support costs (NSF only)"],
-        // [],
         ["Other Direct Costs"],
         ["Materials and supplies"],
         ["<$5K small equipment"],
@@ -1266,99 +1270,84 @@ downloadButton.addEventListener("click", async () => {
         [],
         ["Consortia/Subawards"],
         [],
-        // ["Total Direct Cost"],
-        // ["Back out GRA T&F"],
-        // ["Back out capital EQ"],
-        // ["Back out subawards totals"],
-        // ["Modified Total Direct Costs"],
-        // ["Indirect Costs",                      "50.0%"],
         ["Total Project Cost"],
     ];
 
+    // Insert year headers
+    const headerRow = spreadsheetData[4];
+    for (let i = 0; i < numBudgetYears; i++) headerRow.push("Year " + (i + 1));
+    headerRow.push("Total");
+
     function getSpreadsheetRowIndexByLabel(label) {
         return spreadsheetData.findIndex(row => row[0] === label);
+    }
+
+    function toDollar(value) {
+        return "$" + Number(value).toFixed(2);
     }
 
     function pushRepeatYearlyCost(rowIndex, insertColumnIndex, yearlyCost) {
         if (yearlyCost === 0) return;
 
         const spreadsheetRow = spreadsheetData[rowIndex];
-        
-        // Calculate how many empty cells are needed to reach the insert index
         const gapSize = insertColumnIndex - spreadsheetRow.length;
-
-        // If there is a gap, fill it with empty strings in one go
-        if (gapSize > 0) {
-            spreadsheetRow.push(...Array(gapSize).fill(""));
-        }
-
-        // Insert the yearly cost data
+        if (gapSize > 0) spreadsheetRow.push(...Array(gapSize).fill(""));
         spreadsheetRow.splice(insertColumnIndex, 0, ...Array(numBudgetYears).fill(toDollar(yearlyCost)), toDollar(yearlyCost * numBudgetYears));
     }
 
-    const numBudgetYears = getNumBudgetYears();
-
-    const headerRow = spreadsheetData[4];
-    for (let i = 0; i < numBudgetYears; i++) {
-        headerRow.push("Year " + (i+1));
-    }
-    headerRow.push("Total");
-
-    const subbudgetTitle = document.querySelector("#budget-title label")?.textContent.trim()
-
-    // Apply title + funding source
+    // -------------------------------------------------
+    // 2. Apply main budget info
+    // -------------------------------------------------
+    const subbudgetTitle = document.querySelector("#budget-title label")?.textContent.trim();
     if (isPrimeBudget) {
         spreadsheetData[0][0] += budgetTitle.value;
         spreadsheetData[1][0] += budgetFundingSource.value;
     } else {
-        spreadsheetData[0][0] += subbudgetTitle
+        spreadsheetData[0][0] += subbudgetTitle;
         spreadsheetData[1][0] += budgetFundingSourceStr;
     }
 
     // Apply PI
-    let name = getStaffPickerSelectedName(piTableBody.firstElementChild)
-    if (name) {
-        spreadsheetData[2][0] += name
-    }
-    
-    // Apply Co-PIs
-    const names = [];
-    for (let i = 1; i < piTableBody.children.length; i++) {
-        let name = getStaffPickerSelectedName(piTableBody.children[i])
-        if (name) {
-            names.push(name);
-        }
-    }
-    spreadsheetData[2][1] += names.join(", ");
+    let name = getStaffPickerSelectedName(piTableBody.firstElementChild);
+    if (name) spreadsheetData[2][0] += name;
 
-    // Apply start + end dates
+    const coPiNames = [];
+    for (let i = 1; i < piTableBody.children.length; i++) {
+        let name = getStaffPickerSelectedName(piTableBody.children[i]);
+        if (name) coPiNames.push(name);
+    }
+    spreadsheetData[2][1] += coPiNames.join(", ");
+
+    // Start/End dates
     if (isPrimeBudget) {
         spreadsheetData[3][0] += budgetStartDate.value + " – " + budgetEndDate.value;
     } else {
         spreadsheetData[3][0] += budgetStartDateStr + " – " + budgetEndDateStr;
     }
 
-    // Apply principle investigators
+    // -------------------------------------------------
+    // 3. Apply PI and other personnel wages
+    // -------------------------------------------------
     const piRows = piTableBody.children;
-    let i = 0;
+    let piInsertIndex = 6;
     for (const row of piRows) {
         const piType = row.querySelector(".type").textContent.trim();
         const year1HoursWorked = calculateYearlyHoursWorkedFromRow(row);
         if (year1HoursWorked === 0) continue;
 
         const hourlyRate = await calculateHourlyRateWithFringeRateFromRow(row);
-        
-        // Calculate wages for each year individually
         let yearlyWagesArray = [];
         for (let y = 0; y < numBudgetYears; y++) {
-            const yearWages = await calculateYearlyWagesWithFringeRateFromRow(row, y);
-            yearlyWagesArray.push(yearWages);
+            yearlyWagesArray.push(await calculateYearlyWagesWithFringeRateFromRow(row, y));
         }
-        const totalWagesForBudgetDuration = yearlyWagesArray.reduce((acc, val) => acc + val, 0);
-        
-        spreadsheetData.splice(i+6, 0, [piType, year1HoursWorked, toDollar(hourlyRate), ...yearlyWagesArray.map(toDollar), toDollar(totalWagesForBudgetDuration)])
+        const totalWages = yearlyWagesArray.reduce((acc, val) => acc + val, 0);
 
-        i += 1;
+        spreadsheetData.splice(
+            piInsertIndex,
+            0,
+            [piType, year1HoursWorked, toDollar(hourlyRate), ...yearlyWagesArray.map(toDollar), toDollar(totalWages)]
+        );
+        piInsertIndex++;
     }
 
     async function pushOtherPersonnelAggregationData(t1Id, t2Id, rowOffset) {
@@ -1367,58 +1356,54 @@ downloadButton.addEventListener("click", async () => {
 
         let aggregatedYear1HoursWorked = 0;
         let aggregatedYearlyWages = Array(numBudgetYears).fill(0);
-        let allPromises = [];
+        let promises = [];
 
         for (const row of [...t1Rows, ...t2Rows]) {
-            const year1HoursWorked = calculateYearlyHoursWorkedFromRow(row);
-            aggregatedYear1HoursWorked += year1HoursWorked;
+            const year1Hours = calculateYearlyHoursWorkedFromRow(row);
+            aggregatedYear1HoursWorked += year1Hours;
 
             for (let i = 0; i < numBudgetYears; i++) {
-                const p = calculateYearlyWagesWithFringeRateFromRow(row, i)
-                    .then(yearlyWages => {
-                        aggregatedYearlyWages[i] += yearlyWages;
-                    });
-                allPromises.push(p);
+                promises.push(
+                    calculateYearlyWagesWithFringeRateFromRow(row, i).then(val => {
+                        aggregatedYearlyWages[i] += val;
+                    })
+                );
             }
         }
 
-        await Promise.all(allPromises);
-        
-        if (aggregatedYearlyWages[0] > 0) {
-            let totalWagesForBudgetDuration = aggregatedYearlyWages.reduce((acc, val) => acc + val, 0);
-            let spreadsheetRow = spreadsheetData[getSpreadsheetRowIndexByLabel("Other Personnel") + rowOffset];
+        await Promise.all(promises);
 
-            aggregatedYearlyWages = aggregatedYearlyWages.map(toDollar);
-
-            spreadsheetRow.push(aggregatedYear1HoursWorked, null, ...aggregatedYearlyWages, toDollar(totalWagesForBudgetDuration))
+        if (aggregatedYearlyWages.some(v => v > 0)) {
+            const total = aggregatedYearlyWages.reduce((a, b) => a + b, 0);
+            const row = spreadsheetData[getSpreadsheetRowIndexByLabel("Other Personnel") + rowOffset];
+            spreadsheetRow = row;
+            spreadsheetRow.push(aggregatedYear1HoursWorked, null, ...aggregatedYearlyWages.map(toDollar), toDollar(total));
         }
     }
 
-    // Apply UI professional staff & Post Docs
     await pushOtherPersonnelAggregationData("pro-staff", "post-docs", 1);
-    
-    // Apply GRAs/UGrads
     await pushOtherPersonnelAggregationData("gras", "ugrads", 2);
-    
-    // Apply domestic & international travel costs
-    const travelSpreadsheetRowIndex = getSpreadsheetRowIndexByLabel("Travel");
-    const travelRows = document.querySelector("#travel tbody").children;
-    let aggregatedDomesticCost = 0;
-    let aggregatedInternationalCost = 0;
-    for (const row of travelRows) {
-        const select = row.querySelector("select");
-        if (select.value === "International") {
-            aggregatedInternationalCost += calculateTotalTravelCostFromRow(row);
-        } else if (select.value === "Domestic") {
-            aggregatedDomesticCost += calculateTotalTravelCostFromRow(row);
-        }
-    }
-    pushRepeatYearlyCost(travelSpreadsheetRowIndex + 1, 3, aggregatedDomesticCost);
-    pushRepeatYearlyCost(travelSpreadsheetRowIndex + 2, 3, aggregatedInternationalCost);
 
-    // Apply itemized costs
-    const itemizedRows = document.querySelector("#itemized-costs tbody").children;
-    const itemTypeToRowLabel = {
+    // -------------------------------------------------
+    // 4. Travel
+    // -------------------------------------------------
+    const travelRows = document.querySelector("#travel tbody").children;
+    let domesticTotal = 0;
+    let internationalTotal = 0;
+    for (const row of travelRows) {
+        const type = row.querySelector("select").value;
+        if (type === "Domestic") domesticTotal += calculateTotalTravelCostFromRow(row);
+        else if (type === "International") internationalTotal += calculateTotalTravelCostFromRow(row);
+    }
+    const travelIndex = getSpreadsheetRowIndexByLabel("Travel");
+    pushRepeatYearlyCost(travelIndex + 1, 3, domesticTotal);
+    pushRepeatYearlyCost(travelIndex + 2, 3, internationalTotal);
+
+    // -------------------------------------------------
+    // 5. Itemized costs
+    // -------------------------------------------------
+    const itemRows = document.querySelector("#itemized-costs tbody").children;
+    const itemMap = {
         "Materials & Supplies": "Materials and supplies",
         "Publication Costs": "Publication costs",
         "Computer Services": "Computer services",
@@ -1426,321 +1411,202 @@ downloadButton.addEventListener("click", async () => {
         "Facility Useage Fees": "Facility useage fees",
         "Conference Registration": "Conference registration",
         "Other": "Other"
-    }
-    const rowLabelToAggregatedCost = new Map();
+    };
+    const rowCosts = new Map();
     const bigEquipmentRows = [];
-    for (const row of itemizedRows) {
-        const select = row.querySelector("select");
-        const itemType = select.value;
-        if (itemType === "") continue;
+    for (const row of itemRows) {
+        const type = row.querySelector("select").value;
+        if (!type) continue;
+        const cost = calculateTotalItemCostFromRow(row);
 
-        const rowCost = calculateTotalItemCostFromRow(row);
-
-        if (itemType === "Equipment") {
+        if (type === "Equipment") {
             const unitCost = Number(row.querySelector(".unit-cost").value);
-            if (unitCost >= 5000) {
-                bigEquipmentRows.push(row);
-            } else {
-                const label = "<$5K small equipment";
-                const old = rowLabelToAggregatedCost.get(label) ?? 0;
-                rowLabelToAggregatedCost.set(label, old + rowCost);
+            if (unitCost >= 5000) bigEquipmentRows.push(row);
+            else {
+                const old = rowCosts.get("<$5K small equipment") || 0;
+                rowCosts.set("<$5K small equipment", old + cost);
             }
         } else {
-            const label = itemTypeToRowLabel[itemType];
-            const old = rowLabelToAggregatedCost.get(label) ?? 0;
-            rowLabelToAggregatedCost.set(label, old + rowCost);
+            const label = itemMap[type];
+            const old = rowCosts.get(label) || 0;
+            rowCosts.set(label, old + cost);
         }
     }
-    for (const [k, v] of rowLabelToAggregatedCost) {
-        pushRepeatYearlyCost(getSpreadsheetRowIndexByLabel(k), 3, v);
+    for (const [label, val] of rowCosts) {
+        pushRepeatYearlyCost(getSpreadsheetRowIndexByLabel(label), 3, val);
     }
 
-    const equipmentLabelRowIndex = getSpreadsheetRowIndexByLabel("Equipment > $5000.00");
+    // Big equipment
+    const eqIndex = getSpreadsheetRowIndexByLabel("Equipment > $5000.00");
     for (let i = 0; i < bigEquipmentRows.length; i++) {
         const row = bigEquipmentRows[i];
         const qty = row.querySelector(".quantity")?.value;
         let name = row.querySelector(".name").value;
-        if (qty && qty > 1) {
-            name += " x" + qty;
-        }
-        const rowCost = calculateTotalItemCostFromRow(row);
-        spreadsheetData.splice(equipmentLabelRowIndex + i + 1, 0, [name, null, null, ...Array(numBudgetYears).fill(toDollar(rowCost)), toDollar(rowCost * numBudgetYears)])
+        if (qty && qty > 1) name += " x" + qty;
+        const cost = calculateTotalItemCostFromRow(row);
+        spreadsheetData.splice(eqIndex + i + 1, 0, [name, null, null, ...Array(numBudgetYears).fill(toDollar(cost)), toDollar(cost * numBudgetYears)]);
     }
 
+    // -------------------------------------------------
+    // 6. Subawards
+    // -------------------------------------------------
     if (isPrimeBudget) {
-        // Apply subawards
-        const subawardRows = document.querySelector("#subawards tbody").children
-        i = 1;
+        const subawardRows = document.querySelector("#subawards tbody").children;
+        let i = 1;
         for (const row of subawardRows) {
-            const institutionName = row.querySelector(".name").value;
+            const inst = row.querySelector(".name").value;
             const totalCost = row.querySelector(".total-cost").textContent;
-            if (institutionName == 0 || dollarToNumber(totalCost) == 0) continue;
-
-            spreadsheetData.splice(getSpreadsheetRowIndexByLabel("Consortia/Subawards")+i, 0, [institutionName, null, null, ...Array(numBudgetYears), totalCost])
-
-            i += 1;
+            if (!inst || dollarToNumber(totalCost) === 0) continue;
+            spreadsheetData.splice(getSpreadsheetRowIndexByLabel("Consortia/Subawards") + i, 0, [inst, null, null, ...Array(numBudgetYears), totalCost]);
+            i++;
         }
     }
 
-    // Calculate totals
-    // GENERATED
-    // Calculate and apply totals to the Total Project Cost row
-    const totalProjectCostRowIndex = getSpreadsheetRowIndexByLabel("Total Project Cost");
-    const totalProjectCostRow = spreadsheetData[totalProjectCostRowIndex];
-
-    // Year columns start at index 3 (after the first 3 header columns)
-    const yearStartColumn = 3;
-
-    // Initialize totals array for each year column plus the final total column
+    // -------------------------------------------------
+    // 7. Total Project Cost
+    // -------------------------------------------------
+    const totalRowIndex = getSpreadsheetRowIndexByLabel("Total Project Cost");
+    const yearStartCol = 3;
     const yearTotals = Array(numBudgetYears + 1).fill(0);
 
-    // Sum up all dollar values in each year column
     for (let r = 0; r < spreadsheetData.length; r++) {
-        if (r === totalProjectCostRowIndex) continue; // Skip the total row itself
-        
+        if (r === totalRowIndex) continue;
         const row = spreadsheetData[r];
-        for (let yearIndex = 0; yearIndex <= numBudgetYears; yearIndex++) {
-            const colIndex = yearStartColumn + yearIndex;
-            if (colIndex < row.length) {
-                const cellValue = row[colIndex];
-                if (typeof cellValue === 'string' && cellValue.startsWith('$')) {
-                    const numValue = parseFloat(cellValue.replace(/[$,]/g, ''));
-                    if (!isNaN(numValue)) {
-                        yearTotals[yearIndex] += numValue;
-                    }
-                } else if (typeof cellValue === 'number') {
-                    yearTotals[yearIndex] += cellValue;
+        for (let y = 0; y <= numBudgetYears; y++) {
+            const col = yearStartCol + y;
+            if (col < row.length) {
+                let val = row[col];
+                if (typeof val === "string" && val.startsWith("$")) {
+                    val = parseFloat(val.replace(/[$,]/g, ""));
                 }
+                if (!isNaN(val)) yearTotals[y] += val;
             }
         }
     }
 
-    // Ensure the row has enough columns to reach yearStartColumn
-    const gapSize = yearStartColumn - totalProjectCostRow.length;
-    if (gapSize > 0) {
-        totalProjectCostRow.push(...Array(gapSize).fill(""));
+    const totalRow = spreadsheetData[totalRowIndex];
+    const gapSize = yearStartCol - totalRow.length;
+    if (gapSize > 0) totalRow.push(...Array(gapSize).fill(""));
+    for (let i = 0; i <= numBudgetYears; i++) totalRow.push(toDollar(yearTotals[i]));
+
+    // -------------------------------------------------
+    // 8. F&A / Indirect Costs (use existing row in layout)
+    // -------------------------------------------------
+    const FA_RATE = 0.5; // 50% F&A
+
+    // Find the row for Indirect Costs
+    const indirectIndex = getSpreadsheetRowIndexByLabel("Indirect Costs");
+    if (indirectIndex === -1) {
+        console.warn("No Indirect Costs row found in layout");
+    } else {
+        const indirectRow = spreadsheetData[indirectIndex];
+
+        // Fill F&A values for each year and calculate total
+        let totalFA = 0;
+        const yearStartCol = 3; // adjust if your layout changes
+        for (let y = 0; y < numBudgetYears; y++) {
+            const faAmount = yearTotals[y] * FA_RATE;
+            indirectRow[yearStartCol + y] = toDollar(faAmount);
+            totalFA += faAmount;
+        }
+        indirectRow[yearStartCol + numBudgetYears] = toDollar(totalFA);
+
+        // Include F&A in final Total Project Cost row
+        const totalProjectRowIndex = getSpreadsheetRowIndexByLabel("Total Project Cost");
+        if (totalProjectRowIndex === -1) {
+            console.warn("No Total Project Cost row found in layout");
+        } else {
+            const totalProjectRow = spreadsheetData[totalProjectRowIndex];
+            for (let y = 0; y < numBudgetYears; y++) {
+                const existing = dollarToNumber(totalProjectRow[yearStartCol + y] || 0);
+                totalProjectRow[yearStartCol + y] = toDollar(existing + dollarToNumber(indirectRow[yearStartCol + y]));
+            }
+            const existingTotal = dollarToNumber(totalProjectRow[yearStartCol + numBudgetYears] || 0);
+            totalProjectRow[yearStartCol + numBudgetYears] = toDollar(existingTotal + totalFA);
+        }
     }
 
-    // Add the year totals to the Total Project Cost row
-    for (let i = 0; i <= numBudgetYears; i++) {
-        totalProjectCostRow.push(toDollar(yearTotals[i]));
-    }
-    // GENERATED
 
+    // -------------------------------------------------
+    // 9. Convert to worksheet & style
+    // -------------------------------------------------
     const worksheet = XLSX.utils.aoa_to_sheet(spreadsheetData);
 
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Budget");
 
-    // GENERATED //
-    // ---------------------------------------------------------
-    // 1. ADJUST COLUMN WIDTHS
-    // ---------------------------------------------------------
-    const colWidths = [];
-    
-    for (let r = 0; r < spreadsheetData.length; r++) {
-        const row = spreadsheetData[r];
-        for (let c = 0; c < row.length; c++) {
-            const cell = row[c];
-            if (cell === null || cell === undefined) continue; 
-            const len = cell.toString().length + 3; 
-            colWidths[c] = Math.max(colWidths[c] || 10, len);
-        }
-    }
-    worksheet['!cols'] = colWidths.map(w => ({ wch: w }));
-
-    // ---------------------------------------------------------
-    // 2. DEFINE STYLE LISTS
-    // ---------------------------------------------------------
-    
-    // A. DARK GRAY Row Background (D9D9D9)
+    // Styling parameters
     const grayRowTriggers = [
-        "Personnel Compensation",
-        "Other Personnel",
-        "Fringe",
-        "Equipment > $5000.00",
-        "Travel",
-        "Participant support costs (NSF only)",
-        "Other Direct Costs",
-        "Consortia/Subawards",
-        "Total Project Cost"
+        "Personnel Compensation", "Other Personnel", "Fringe",
+        "Equipment > $5000.00", "Travel", "Other Direct Costs",
+        "Consortia/Subawards", "Total Project Cost", "Indirect Costs",
     ];
+    const lightGrayRowTriggers = ["Back out subawards totals"];
+    const rowUnderlineTriggers = ["Indirect Costs"];
+    const boldUnderlineLabels = ["Personnel Compensation","Other Personnel","Fringe","Equipment > $5000.00","Travel","Year 1 hours","FY26 Fringe Rates"];
+    const boldOnlyLabels = ["Total Project Cost","Hourly rate at start date","Indirect Costs","Total"];
 
-    // B. LIGHT GRAY Row Background (F2F2F2)
-    const lightGrayRowTriggers = [
-        "Back out subawards totals",
-    ];
-
-    // C. ENTIRE ROW UNDERLINE (Bottom Border)
-    const rowUnderlineTriggers = [
-        "Indirect Costs"
-    ];
-
-    // D. TEXT: BOLD + UNDERLINE (Specific cells)
-    const boldUnderlineLabels = [
-        "Personnel Compensation",
-        "Other Personnel",
-        "Fringe",
-        "Equipment > $5000.00",
-        "Travel",
-        "Participant support costs (NSF only)",
-        "Other Direct Costs",
-        "Consortia/Subawards",
-        "Year 1 hours",
-        "FY26 Fringe Rates",
-    ];
-
-    // E. TEXT: BOLD ONLY (Specific cells)
-    const boldOnlyLabels = [
-        "Total Project Cost",
-        "Hourly rate at start date",
-        "Modified Total Direct Costs",
-        "Indirect Costs",
-        "Total",
-        "Year 1", "Year 2", "Year 3", "Year 4", "Year 5"
-    ];
-
-    // ---------------------------------------------------------
-    // 3. MAIN LOOP
-    // ---------------------------------------------------------
+    // Apply styles
     const range = XLSX.utils.decode_range(worksheet['!ref']);
-
-    for (let R = range.s.r; R <= range.e.r; ++R) {
-        
-        // --- CHECK ROW-LEVEL TRIGGERS (Based on Column A value) ---
-        let isGrayRow = false;
-        let isLightGrayRow = false;
-        let isRowUnderline = false;
-
-        const firstColRef = XLSX.utils.encode_cell({c: 0, r: R});
-        
-        if (worksheet[firstColRef]) {
-            const label = worksheet[firstColRef].v;
-            if (grayRowTriggers.includes(label)) isGrayRow = true;
-            else if (lightGrayRowTriggers.includes(label)) isLightGrayRow = true; // Else-if prevents double coloring
-            
-            if (rowUnderlineTriggers.includes(label)) isRowUnderline = true;
+    for (let R = range.s.r; R <= range.e.r; R++) {
+        let isGrayRow = false, isLightGrayRow = false, isRowUnderline = false;
+        const firstCellRef = XLSX.utils.encode_cell({ c: 0, r: R });
+        if (worksheet[firstCellRef]) {
+            const val = worksheet[firstCellRef].v?.toString().trim() || "";
+            isGrayRow = grayRowTriggers.includes(val);
+            isLightGrayRow = lightGrayRowTriggers.includes(val);
+            isRowUnderline = rowUnderlineTriggers.includes(val);
         }
-
-        // --- ITERATE COLUMNS ---
-        for (let C = range.s.c; C <= range.e.c; ++C) {
-            const cell_ref = XLSX.utils.encode_cell({c: C, r: R});
-            
-            // Create stub cell if needed for background/borders to span whole row
-            if (!worksheet[cell_ref]) {
-                if (isGrayRow || isLightGrayRow || isRowUnderline) {
-                    worksheet[cell_ref] = { t: 's', v: '' };
-                } else {
-                    continue;
-                }
+        for (let C = range.s.c; C <= range.e.c; C++) {
+            const cellRef = XLSX.utils.encode_cell({ c: C, r: R });
+            if (!worksheet[cellRef]) {
+                if (isGrayRow || isLightGrayRow || isRowUnderline) worksheet[cellRef] = { t: 's', v: '' };
+                else continue;
             }
-            
-            const cell = worksheet[cell_ref];
-            const val = cell.v ? cell.v.toString().trim() : "";
-
+            const cell = worksheet[cellRef];
+            const val = cell.v?.toString().trim() || "";
             if (!cell.s) cell.s = {};
-
-            // 1. Apply Background Color
-            if (isGrayRow) {
-                cell.s.fill = { fgColor: { rgb: "D9D9D9" } }; 
-            } else if (isLightGrayRow) {
-                cell.s.fill = { fgColor: { rgb: "F2F2F2" } }; 
-            }
-
-            // 2. Apply Row Bottom Border
-            if (isRowUnderline) {
-                if (!cell.s.border) cell.s.border = {};
-                cell.s.border.bottom = { style: "thin", color: { rgb: "000000" } };
-            }
-
-            // 3. Apply Text Styling
-            if (boldUnderlineLabels.includes(val)) {
-                if (!cell.s.font) cell.s.font = {};
-                cell.s.font.bold = true;
-                cell.s.font.underline = true;
-            } 
-            else if (boldOnlyLabels.includes(val)) {
-                if (!cell.s.font) cell.s.font = {};
-                cell.s.font.bold = true;
-            }
-
-            // 4. Apply Number Formatting
-            if (cell.t === 'n') {
-                cell.z = '0.00'; 
-                cell.s.alignment = { horizontal: "center", vertical: "center" };
-            }
-            else if (val.startsWith('$')) {
-                const rawNum = parseFloat(val.replace(/[$,]/g, ''));
-                if (!isNaN(rawNum)) {
-                    cell.v = rawNum.toLocaleString("en-US", { 
-                        style: "currency", 
-                        currency: "USD", 
-                        minimumFractionDigits: 2, 
-                        maximumFractionDigits: 2 
-                    });
-                }
-                cell.s.alignment = { horizontal: "center", vertical: "center" };
-            }
-            else if (val.endsWith('%')) {
-                const rawNum = parseFloat(val.replace(/[%]/g, ''));
-                if (!isNaN(rawNum)) {
-                    cell.v = rawNum.toFixed(2) + "%";
-                }
-                cell.s.alignment = { horizontal: "center", vertical: "center" };
+            if (isGrayRow) cell.s.fill = { fgColor: { rgb: "D9D9D9" } };
+            else if (isLightGrayRow) cell.s.fill = { fgColor: { rgb: "F2F2F2" } };
+            if (isRowUnderline) { if (!cell.s.border) cell.s.border = {}; cell.s.border.bottom = { style:"thin", color:{rgb:"000000"} }; }
+            if (boldUnderlineLabels.includes(val)) { if(!cell.s.font) cell.s.font={}; cell.s.font.bold=true; cell.s.font.underline=true; }
+            else if (boldOnlyLabels.includes(val)) { if(!cell.s.font) cell.s.font={}; cell.s.font.bold=true; }
+            if (typeof cell.v === "string" && cell.v.startsWith("$")) {
+                const numVal = parseFloat(cell.v.replace(/[$,]/g,""));
+                if (!isNaN(numVal)) cell.v = numVal.toLocaleString("en-US",{style:"currency",currency:"USD"});
+                cell.s.alignment = { horizontal:"center", vertical:"center" };
+            } else if (typeof cell.v === "number") {
+                cell.s.alignment = { horizontal:"center", vertical:"center" };
+            } else if (cell.v?.toString().endsWith("%")) {
+                const numVal = parseFloat(cell.v.replace("%",""));
+                if(!isNaN(numVal)) cell.v = numVal.toFixed(2) + "%";
+                cell.s.alignment = { horizontal:"center", vertical:"center" };
             }
         }
     }
-    // GENERATED //
 
-    // GENERATED
-    // ---------------------------------------------------------
-    // 4. INSERT "-" INTO EMPTY YEAR/TOTAL COST CELLS
-    // ---------------------------------------------------------
-    // Find the row index of "Hourly rate at start date"
-    let hourlyRateRowIndex = -1;
-    for (let R = 0; R <= range.e.r; ++R) {
-        const cellC = worksheet[XLSX.utils.encode_cell({c: 2, r: R})];
-        if (cellC?.v?.toString().trim() === "Hourly rate at start date") {
-            hourlyRateRowIndex = R;
-            break;
-        }
-    }
-
-    for (let R = 0; R <= range.e.r; ++R) {
-        // Skip rows at or above "Hourly rate at start date"
-        if (hourlyRateRowIndex !== -1 && R <= hourlyRateRowIndex) {
-            continue;
-        }
-        
-        const firstColRef = XLSX.utils.encode_cell({c: 0, r: R});
-        const firstCellValue = worksheet[firstColRef]?.v?.toString().trim() || "";
-        
-        // Skip label/header rows (gray headers and empty rows)
-        const isGrayHeader = grayRowTriggers.includes(firstCellValue);
-        const isEmptyLabelRow = firstCellValue === "";
-        
-        if (isGrayHeader || isEmptyLabelRow) {
-            continue;
-        }
-        
-        // Loop through year columns and total column
-        for (let C = yearStartColumn; C <= yearStartColumn + numBudgetYears; ++C) {
-            const cell_ref = XLSX.utils.encode_cell({c: C, r: R});
-            const cell = worksheet[cell_ref];
-            
-            if (!cell || cell.v === null || cell.v === undefined || cell.v === "") {
-                worksheet[cell_ref] = { t: 's', v: '-', s: { alignment: { horizontal: "center", vertical: "center" } } };
+    // -------------------------------------------------
+    // 10. Fill empty year/total cells with "-"
+    // -------------------------------------------------
+    for (let R = 0; R <= range.e.r; R++) {
+        const firstCellVal = worksheet[XLSX.utils.encode_cell({ c:0, r:R })]?.v?.toString().trim() || "";
+        if (grayRowTriggers.includes(firstCellVal) || firstCellVal === "") continue;
+        for (let C = yearStartCol; C <= yearStartCol + numBudgetYears; C++) {
+            const cellRef = XLSX.utils.encode_cell({c:C, r:R});
+            if (!worksheet[cellRef] || worksheet[cellRef].v === null || worksheet[cellRef].v === "") {
+                worksheet[cellRef] = { t:'s', v:'-', s:{ alignment:{horizontal:"center", vertical:"center"} } };
             }
         }
     }
-    // GENERATED
 
-    if (isPrimeBudget) {
-        XLSX.writeFile(workbook, budgetTitle.value + (budgetTitle.value !== "" ? "_" : "")  + "EZBudgets.xlsx")
-    } else {
-        XLSX.writeFile(workbook, subbudgetTitle + (subbudgetTitle !== "" ? "_" : "")  + "EZBudgets.xlsx")
-    }
-})
+    // -------------------------------------------------
+    // 11. Write file
+    // -------------------------------------------------
+    const fileName = isPrimeBudget ? budgetTitle.value : subbudgetTitle;
+    XLSX.writeFile(workbook, fileName + (fileName !== "" ? "_" : "") + "EZBudgets.xlsx");
+});
+
+
 
 document.addEventListener("DOMContentLoaded", async () => {
     await loadBudget()
