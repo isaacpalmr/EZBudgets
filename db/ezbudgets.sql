@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 11, 2025 at 08:31 AM
+-- Generation Time: Dec 20, 2025 at 05:17 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -55,7 +55,12 @@ INSERT INTO `budgets` (`budget_id`, `user_id`, `budget_name`, `funding_source`, 
 (32, 0, 'New Budget', '', NULL, NULL, 0, '2025-12-10 22:26:41', '2025-12-10 22:26:51', '2025-12-10', '2025-12-10'),
 (33, 0, 'New Budget', '', NULL, NULL, 0, '2025-12-10 23:04:13', '2025-12-10 23:18:44', '2025-12-10', '2025-12-10'),
 (34, 0, 'New Budget', '', NULL, NULL, 0, '2025-12-10 23:22:27', '2025-12-10 23:23:23', '2025-12-10', '2025-12-10'),
-(35, 1, 'New Budget', NULL, NULL, NULL, 0, '2025-12-10 23:31:01', '2025-12-10 23:31:01', NULL, NULL);
+(35, 1, 'New Budget', NULL, NULL, NULL, 0, '2025-12-10 23:31:01', '2025-12-10 23:31:01', NULL, NULL),
+(36, 8, 'New Budget', 'National Science Foundation', NULL, NULL, 0, '2025-12-11 01:25:16', '2025-12-11 01:25:29', '2025-12-11', '2025-12-11'),
+(37, 8, 'New Budget', '', NULL, NULL, 0, '2025-12-11 01:31:48', '2025-12-11 01:31:56', '2025-12-11', '2025-12-11'),
+(38, 8, 'New Budget', '', NULL, NULL, 0, '2025-12-11 01:44:36', '2025-12-11 01:44:40', '2025-12-11', '2025-12-11'),
+(41, 7, 'Awesome Budget', 'National Science Foundation', NULL, NULL, 0, '2025-12-11 12:59:19', '2025-12-11 13:01:37', '2025-12-17', '2030-12-11'),
+(42, 6, 'New Budget', 'National Science Foundation', NULL, NULL, 0, '2025-12-19 00:07:29', '2025-12-19 00:09:38', '2025-12-19', '2028-12-19');
 
 -- --------------------------------------------------------
 
@@ -78,7 +83,9 @@ CREATE TABLE `budget_items` (
 
 INSERT INTO `budget_items` (`id`, `budget_id`, `item_type`, `name`, `quantity`, `unit_cost`) VALUES
 (278, 32, '', '', 0, 0.00),
-(279, 33, 'Materials & Supplies', '1', 32, 43.00);
+(279, 33, 'Materials & Supplies', '1', 32, 43.00),
+(282, 41, 'Equipment', 'Tractor', 10, 5800.00),
+(283, 42, 'Materials & Supplies', 'Yup', 4, 14.00);
 
 -- --------------------------------------------------------
 
@@ -106,7 +113,22 @@ INSERT INTO `budget_personnel` (`id`, `budget_id`, `personnel_type`, `personnel_
 (146, 33, 'staff', 0, 0, 0, 0, 'pi-table'),
 (147, 33, 'gra', 0, 0, 1, 1, 'gras'),
 (148, 33, 'ugrad', 0, 0, 0, 0, 'ugrads'),
-(150, 34, 'staff', 0, 0, 0, 0, 'pi-table');
+(150, 34, 'staff', 0, 0, 0, 0, 'pi-table'),
+(154, 36, 'staff', 1, 0, 0, 0, 'pi-table'),
+(156, 37, 'staff', 0, 0, 0, 0, 'pi-table'),
+(157, 38, 'staff', 0, 0, 0, 0, 'pi-table'),
+(174, 41, 'staff', 3, 7, 0, 0, 'pi-table'),
+(175, 41, 'staff', 1, 6, 0, 0, 'pi-table'),
+(176, 41, 'staff', 4, 8, 0, 0, 'pi-table'),
+(177, 41, 'staff', 5, 10, 0, 0, 'pro-staff'),
+(178, 41, 'post-doc', 1, 8, 0, 0, 'post-docs'),
+(179, 41, 'gra', 5, 0, 0, 1, 'gras'),
+(180, 41, 'ugrad', 3, 12, 1, 1, 'ugrads'),
+(201, 42, 'staff', 3, 100, 0, 0, 'pi-table'),
+(202, 42, 'staff', 5, 100, 0, 0, 'pro-staff'),
+(203, 42, 'post-doc', 3, 100, 0, 0, 'post-docs'),
+(204, 42, 'gra', 5, 50, 1, 1, 'gras'),
+(205, 42, 'ugrad', 1, 50, 1, 1, 'ugrads');
 
 -- --------------------------------------------------------
 
@@ -128,7 +150,13 @@ INSERT INTO `budget_subawards` (`id`, `budget_id`, `subbudget_id`) VALUES
 (52, 32, 59),
 (54, 33, 64),
 (55, 33, 65),
-(57, 34, 66);
+(57, 34, 66),
+(62, 36, 67),
+(63, 36, 68),
+(65, 37, 69),
+(66, 38, 70),
+(70, 41, 72),
+(71, 42, 73);
 
 -- --------------------------------------------------------
 
@@ -149,7 +177,9 @@ CREATE TABLE `budget_travels` (
 --
 
 INSERT INTO `budget_travels` (`travel_id`, `budget_id`, `travel_type`, `num_nights`, `num_travelers`) VALUES
-(135, 33, 'Domestic', 0, 0);
+(135, 33, 'Domestic', 0, 0),
+(138, 41, 'Domestic', 7, 3),
+(139, 42, 'International', 5, 9);
 
 -- --------------------------------------------------------
 
@@ -161,6 +191,23 @@ CREATE TABLE `fa_rate` (
   `year` year(4) NOT NULL,
   `fa_rate` decimal(5,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `fa_rate`
+--
+
+INSERT INTO `fa_rate` (`year`, `fa_rate`) VALUES
+('2020', 0.50),
+('2021', 0.50),
+('2022', 0.50),
+('2023', 0.50),
+('2024', 0.50),
+('2025', 0.50),
+('2026', 0.50),
+('2027', 0.50),
+('2028', 0.50),
+('2029', 0.50),
+('2030', 0.50);
 
 -- --------------------------------------------------------
 
@@ -259,7 +306,13 @@ INSERT INTO `subbudgets` (`subbudget_id`, `prime_budget_id`, `subaward_instituti
 (63, 33, '', 0.00),
 (64, 33, 'test', 0.00),
 (65, 33, '', 0.00),
-(66, 34, '', 0.00);
+(66, 34, '', 0.00),
+(67, 36, 'WSU', 25966.00),
+(68, 36, 'BSU', 10662.00),
+(69, 37, 'WSU', 2132.00),
+(70, 38, '', 2132.00),
+(72, 41, 'WSU', 106626.00),
+(73, 42, 'WSU', 228693.00);
 
 -- --------------------------------------------------------
 
@@ -281,7 +334,8 @@ CREATE TABLE `subbudget_items` (
 --
 
 INSERT INTO `subbudget_items` (`id`, `subbudget_id`, `item_type`, `name`, `quantity`, `unit_cost`) VALUES
-(0, 59, '', '', 0, 0.00);
+(0, 59, '', '', 0, 0.00),
+(0, 73, 'Facility Useage Fees', 'Nope', 4, 4.00);
 
 -- --------------------------------------------------------
 
@@ -307,7 +361,17 @@ CREATE TABLE `subbudget_personnel` (
 INSERT INTO `subbudget_personnel` (`id`, `subbudget_id`, `personnel_type`, `personnel_id`, `percent_effort`, `stipend_requested`, `tuition_requested`, `html_table_id`) VALUES
 (59, 59, 'staff', 0, 0, 0, 0, 'pi-table'),
 (60, 64, 'staff', 0, 0, 0, 0, 'pi-table'),
-(61, 66, 'staff', 0, 0, 0, 0, 'pi-table');
+(61, 66, 'staff', 0, 0, 0, 0, 'pi-table'),
+(62, 67, 'staff', 1, 8, 0, 0, 'pi-table'),
+(63, 68, 'staff', 3, 5, 0, 0, 'pi-table'),
+(64, 69, 'staff', 3, 1, 0, 0, 'pi-table'),
+(65, 70, 'staff', 3, 1, 0, 0, 'pi-table'),
+(67, 72, 'staff', 3, 10, 0, 0, 'pi-table'),
+(68, 73, 'staff', 3, 11, 0, 0, 'pi-table'),
+(69, 73, 'staff', 4, 11, 0, 0, 'pro-staff'),
+(70, 73, 'post-doc', 1, 13, 0, 0, 'post-docs'),
+(71, 73, 'gra', 5, 9, 1, 0, 'gras'),
+(72, 73, 'ugrad', 5, 0, 0, 1, 'ugrads');
 
 -- --------------------------------------------------------
 
@@ -322,6 +386,13 @@ CREATE TABLE `subbudget_travels` (
   `num_nights` int(11) NOT NULL DEFAULT 0,
   `num_travelers` int(11) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `subbudget_travels`
+--
+
+INSERT INTO `subbudget_travels` (`travel_id`, `subbudget_id`, `travel_type`, `num_nights`, `num_travelers`) VALUES
+(0, 73, 'Domestic', 7, 4);
 
 -- --------------------------------------------------------
 
@@ -458,7 +529,9 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`user_id`, `username`, `first_name`, `last_name`, `email`, `password`, `created_at`, `last_login`) VALUES
 (1, 'username', 'test', 'test', 'test@gmail.com', '$2y$10$h0D0saGePZ.mKePPD3rHEuTdTuPVti5Kv0kSI/fyzfa8GXzD1Qzrq', '2025-12-10 23:25:34', '2025-12-10 23:25:34'),
-(4, 'username1', 'test', 'test', 'test2@gmail.com', '$2y$10$smi6Q3Pq5IBDUtQtWt/TCOPjrwKPa/rGdy.MZUvLUFUJRuhxx4vry', '2025-12-10 23:25:54', '2025-12-10 23:25:54');
+(4, 'username1', 'test', 'test', 'test2@gmail.com', '$2y$10$smi6Q3Pq5IBDUtQtWt/TCOPjrwKPa/rGdy.MZUvLUFUJRuhxx4vry', '2025-12-10 23:25:54', '2025-12-10 23:25:54'),
+(6, 'super', 'super', 'super', 'super', '$2y$10$HGIX8s92xxDERYp7x9.pueoEBw4UQzhnAZ5V4cSRp7yxV0l3h5YBK', '2025-12-11 01:45:16', '2025-12-11 01:45:16'),
+(7, 'lightningluster', 'Tristan', 'Talbott', 'talb5116@vandals.uidaho.edu', '$2y$10$4pfqtInmJ1SJF3gc88BnLe7R1Oz5Q5Zy/oRgN7m1qwxg5HlS4A5RK', '2025-12-11 12:58:52', '2025-12-11 12:58:52');
 
 --
 -- Indexes for dumped tables
@@ -590,31 +663,31 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `budgets`
 --
 ALTER TABLE `budgets`
-  MODIFY `budget_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
+  MODIFY `budget_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
 
 --
 -- AUTO_INCREMENT for table `budget_items`
 --
 ALTER TABLE `budget_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=280;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=284;
 
 --
 -- AUTO_INCREMENT for table `budget_personnel`
 --
 ALTER TABLE `budget_personnel`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=151;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=206;
 
 --
 -- AUTO_INCREMENT for table `budget_subawards`
 --
 ALTER TABLE `budget_subawards`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=58;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=72;
 
 --
 -- AUTO_INCREMENT for table `budget_travels`
 --
 ALTER TABLE `budget_travels`
-  MODIFY `travel_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=136;
+  MODIFY `travel_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=140;
 
 --
 -- AUTO_INCREMENT for table `graduate_research_assistants`
@@ -632,13 +705,13 @@ ALTER TABLE `post_doctoral_researchers`
 -- AUTO_INCREMENT for table `subbudgets`
 --
 ALTER TABLE `subbudgets`
-  MODIFY `subbudget_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=67;
+  MODIFY `subbudget_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=74;
 
 --
 -- AUTO_INCREMENT for table `subbudget_personnel`
 --
 ALTER TABLE `subbudget_personnel`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=62;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=73;
 
 --
 -- AUTO_INCREMENT for table `tuition_schedule`
@@ -662,7 +735,7 @@ ALTER TABLE `university_employee`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- Constraints for dumped tables
